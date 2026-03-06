@@ -286,7 +286,6 @@ animation:tickerRun 25s linear infinite;
   <button class="btn red" id="clearBtn" onclick="clearAll()">✕ CLEAR</button>
   <select id="scanRange" style="background:#1a2f50;color:#ffb800;border:1px solid #ffb800;padding:8px 8px;font-family:monospace;font-size:11px;cursor:pointer;border-radius:2px">
     <option value="1800" style="background:#1a2f50;color:#ffb800">30分</option>
-    <option value="3600" style="background:#1a2f50;color:#ffb800">1時間</option>
   </select>
   <button class="btn" id="catchupBtn" onclick="manualCatchup()" style="border-color:var(--gold);color:var(--gold)">🔍 SCAN</button>
 </div>
@@ -1021,9 +1020,14 @@ function renderCreatedList() {
 // ─────────────────────────────────────────
 // CA RANKING
 // ─────────────────────────────────────────
+const IGNORE_MINTS = new Set([
+  'So11111111111111111111111111111111111111112', // Wrapped SOL
+]);
+
 function trackCoin(mint, type, walletAddr) {
   // CAランキングはbuyのみ
   if (type !== 'buy') return;
+  if (IGNORE_MINTS.has(mint)) return;
   if (!coinBuys[mint]) coinBuys[mint] = { count: 0, lastTime: '', wallets: [] };
   if (!coinBuys[mint].wallets) coinBuys[mint].wallets = [];
   coinBuys[mint].count++;
