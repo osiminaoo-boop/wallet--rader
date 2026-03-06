@@ -582,7 +582,7 @@ async function getBalance(addr) {
 async function isActiveWithin30Min(addr, seconds) {
   seconds = seconds || 1800;
   try {
-    const limit = seconds <= 1800 ? 50 : 100;
+    const limit = 200; // 十分な件数を取得
     const sigs = await safeGetSignatures(addr, limit);
     if (!sigs || sigs.length === 0) return false;
     // 最古のTX（配列末尾）がseconds以内かチェック
@@ -824,11 +824,11 @@ async function scanPast30Min(seconds) {
   // Step1: Binance2の過去30分の出金を取得
   const newWallets = [];
   for (const wallet of getExchangeAddrs()) {
-    const fetchLimit = seconds <= 1800 ? 50 : 100;
+    const fetchLimit = 200; // 30分遡るのに十分な件数
     const sigs = await safeGetSignatures(wallet, fetchLimit);
     for (const s of sigs) {
       if (!s.blockTime || s.blockTime < cutoff) continue;
-      if (sigProcessed(s.signature)) continue;
+      if (watchedWallets[s.signature]) continue; // watchedのみスキップ（過去分は再処理する）
       processedSigs.set(s.signature, Date.now());
 
       const tx = await safeGetTx(s.signature);
