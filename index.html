@@ -493,6 +493,28 @@ async function getBalance(addr) {
   } catch { return 0; }
 }
 
+// 30分スキャン用：最初のTXが30分以内であればOK（TX件数制限なし）
+async function isActiveWithin30Min(addr) {
+  try {
+    const sigs = await getSignatures(addr, 50);
+    if (!sigs || sigs.length === 0) return false;
+    // 最古のTX（配列末尾）が30分以内かチェック
+    const oldest = sigs[sigs.length - 1];
+    const blockTime = oldest.blockTime;
+    if (!blockTime) return false;
+    const ageMins = (Date.now() / 1000 - blockTime) / 60;
+    if (ageMins > 30) return false; // 30分より前に最初のTXがある→除外
+    // 残高0チェック（最初のTX前）
+    const tx = await getTx(oldest.signature);
+    if (!tx) return false;
+    const accounts = tx.transaction?.message?.accountKeys || [];
+    const preBalances = tx.meta?.preBalances || [];
+    const idx = accounts.findIndex(a => (typeof a === 'string' ? a : a?.pubkey) === addr);
+    if (idx === -1) return false;
+    return (preBalances[idx] || 0) === 0;
+  } catch(e) { return false; }
+}
+
 async function isNewWallet(addr) {
   try {
     // TX履歴を最大10件取得
@@ -661,9 +683,10 @@ async function scanPast30Min() {
       for (const t of transfers) {
         const dest = t.address;
         if (!dest || isExchangeAddr(dest)) continue;
+        if (t.amount < 0.1) continue; // 0.1 SOL未満はスキップ
         if (watchedWallets[dest]) continue;
 
-        const fresh = await isNewWallet(dest);
+        const fresh = await isActiveWithin30Min(dest);
         if (!fresh) continue;
 
         const label = `${exchangeWallets[wallet]||"Exchange"}出金 #${stats.detected + 1}`;
@@ -962,6 +985,7 @@ async function checkBinance2() {
       for (const t of transfers) {
         const dest = t.address;
         if (!dest || isExchangeAddr(dest)) continue;
+        if (t.amount < 0.1) continue; // 0.1 SOL未満はスキップ
         if (watchedWallets[dest]) continue;
 
         const fresh = await isNewWallet(dest);
@@ -984,7 +1008,7 @@ async function checkBinance2() {
               ⏰ 発生時刻: <span>${txTime(tx.blockTime)}</span><br>
               💰 送金額: <span>${t.amount.toFixed(2)} SOL</span><br>
               📤 送金元: <a href="${solscanAcc(wallet)}" target="_blank">${short(wallet)}</a><br>
-              📥 新規ウォレット: <a href="${solscanAcc(dest)}" target="_blank">${short(dest)}</a><br>
+              📥 新規ウォレット: <span style="cursor:pointer;color:var(--accent)" onclick="copyText('${dest}')" title="タップでコピー">📋 ${dest}</span><br>
               🔗 <a href="${solscanTx(s.signature)}" target="_blank">TX確認</a>
               &nbsp;•&nbsp; 👁 監視リストに追加
             </div>`
@@ -1175,6 +1199,7 @@ async function runScan() {
   // キャッシュ整理
   if (processedSigs.size > 5000) processedSigs.clear();
 
+  lastScanTime = Date.now();
   document.getElementById('liveDot').className = 'live-dot on';
   updateStats();
 }
@@ -1226,12 +1251,12 @@ if (savedKey) {
 }
 
 // iOSでページが非アクティブ→アクティブになったとき自動再開
+let lastScanTime = 0;
 document.addEventListener('visibilitychange', async () => {
   if (document.visibilityState === 'visible') {
     if (!isRunning && apiKey()) {
       setTimeout(() => toggleMonitor(), 300);
     } else if (isRunning) {
-      // タイマーが死んでいたら再起動
       clearInterval(monitorTimer);
       const interval = parseInt(document.getElementById('intervalSec').value) * 1000 || 20000;
       await runScan();
@@ -1240,7 +1265,6 @@ document.addEventListener('visibilitychange', async () => {
   }
 });
 
-// iOSのバックグラウンド対策：ページがフォーカスを取り戻したときも再開
 window.addEventListener('focus', async () => {
   if (isRunning) {
     clearInterval(monitorTimer);
@@ -1249,6 +1273,19 @@ window.addEventListener('focus', async () => {
     monitorTimer = setInterval(runScan, interval);
   }
 });
+
+// watchdogタイマー：10秒ごとにタイマーが生きているか確認
+setInterval(async () => {
+  if (isRunning && apiKey()) {
+    const now_ms = Date.now();
+    const interval = parseInt(document.getElementById('intervalSec').value) * 1000 || 20000;
+    if (now_ms - lastScanTime > interval * 2) {
+      clearInterval(monitorTimer);
+      await runScan();
+      monitorTimer = setInterval(runScan, interval);
+    }
+  }
+}, 10000);
 </script>
 
 </body>
