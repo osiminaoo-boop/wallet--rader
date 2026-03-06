@@ -431,7 +431,12 @@ function saveState() {
   try {
     localStorage.setItem('wr_created', JSON.stringify(createdCoins));
     localStorage.setItem('wr_coinbuys', JSON.stringify(coinBuys));
-    localStorage.setItem('wr_exchange', JSON.stringify(exchangeWallets));
+    // exchangeWalletsはenabledだけ保存
+    const exchSave = {};
+    for (const [addr, data] of Object.entries(exchangeWallets)) {
+      exchSave[addr] = { enabled: data.enabled };
+    }
+    localStorage.setItem('wr_exchange', JSON.stringify(exchSave));
     localStorage.setItem('wr_wallets', JSON.stringify(watchedWallets));
     localStorage.setItem('wr_sigs', JSON.stringify([...processedSigs].slice(-2000)));
     localStorage.setItem('wr_events', JSON.stringify(events.slice(0, 100)));
@@ -447,17 +452,19 @@ function loadState() {
     if (cr) createdCoins = JSON.parse(cr);
     const cb = localStorage.getItem('wr_coinbuys');
     if (cb) coinBuys = JSON.parse(cb);
-    const ex = localStorage.getItem('wr_exchange');
-    if (ex) {
-      const parsed = JSON.parse(ex);
-      // 旧フォーマット(string)→新フォーマット({name,enabled})に変換
-      for (const [addr, val] of Object.entries(parsed)) {
-        if (typeof val === 'string') {
-          parsed[addr] = { name: val, enabled: true };
+    // exchangeWalletsはenabledだけlocalStorageから復元、名前・アドレスはデフォルトを使う
+    try {
+      const ex = localStorage.getItem('wr_exchange');
+      if (ex) {
+        const parsed = JSON.parse(ex);
+        for (const [addr, val] of Object.entries(parsed)) {
+          if (exchangeWallets[addr]) {
+            const enabled = typeof val === 'object' ? val.enabled : true;
+            exchangeWallets[addr].enabled = enabled !== false;
+          }
         }
       }
-      exchangeWallets = parsed;
-    }
+    } catch(e) {}
     const w = localStorage.getItem('wr_wallets');
     if (w) watchedWallets = JSON.parse(w);
     const s = localStorage.getItem('wr_sigs');
