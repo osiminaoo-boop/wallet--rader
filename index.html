@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -6,82 +7,252 @@
 <title>WALLET RADAR</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Syne:wght@400;600;800&display=swap');
-:root{--bg:#03050a;--panel:#070c18;--border:#0f1f3a;--accent:#00e5ff;--accent2:#ff2d6b;--green:#00ff9d;--gold:#ffb800;--text:#b0c8e8;--dim:#2a3a5a}
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;overflow-x:hidden}
-body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,229,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.025) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
-body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,229,255,.008) 3px,rgba(0,229,255,.008) 4px);pointer-events:none;z-index:9999}
-.wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:16px}
-header{display:flex;align-items:center;justify-content:space-between;padding:16px 0 20px;border-bottom:1px solid var(--border);margin-bottom:20px}
-.logo{font-family:'Orbitron',monospace;font-size:22px;font-weight:900;letter-spacing:5px;color:var(--accent);text-shadow:0 0 24px rgba(0,229,255,.7)}
-.logo em{color:var(--accent2);font-style:normal}
-.logo-sub{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--dim);letter-spacing:3px;margin-top:3px}
-.hdr-right{display:flex;align-items:center;gap:16px}
-.live-dot{width:8px;height:8px;border-radius:50%;background:var(--dim);transition:all .3s}
-.live-dot.on{background:var(--green);box-shadow:0 0 10px var(--green);animation:pulse 2s infinite}
-.live-dot.scanning{background:var(--gold);box-shadow:0 0 10px var(--gold);animation:pulse .6s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.clock{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--dim)}
-.api-bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
-.input-wrap{flex:1;min-width:200px;position:relative}
-.input-label{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--dim);letter-spacing:2px;position:absolute;top:-14px;left:0}
-input[type=text],input[type=number]{width:100%;font-family:'Share Tech Mono',monospace;font-size:12px;background:var(--panel);color:var(--accent);border:1px solid var(--border);padding:9px 12px;outline:none}
-.btn{font-family:'Orbitron',monospace;font-size:10px;font-weight:700;letter-spacing:2px;padding:9px 18px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;transition:all .2s;white-space:nowrap;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%)}
-.btn:hover,.btn.active{background:var(--accent);color:var(--bg)}
-.btn.red{border-color:var(--accent2);color:var(--accent2)}
-.btn.red:hover{background:var(--accent2);color:#fff}
-.btn.green-btn{border-color:var(--green);color:var(--green)}
-.btn.green-btn:hover{background:var(--green);color:var(--bg)}
-.grid{display:grid;grid-template-columns:1fr 320px;gap:16px}
-@media(max-width:780px){.grid{grid-template-columns:1fr}}
-.panel{background:var(--panel);border:1px solid var(--border);position:relative;overflow:hidden}
-.panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.5}
-.ph{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-bottom:1px solid var(--border);font-family:'Orbitron',monospace;font-size:9px;letter-spacing:2px;color:var(--accent)}
-.ph-count{font-size:10px;color:var(--dim)}
-#events-list{max-height:520px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--dim) transparent}
-.event-item{padding:13px 16px;border-bottom:1px solid rgba(15,31,58,.6);animation:slideIn .35s ease-out}
-@keyframes slideIn{from{opacity:0;transform:translateX(-16px)}to{opacity:1;transform:none}}
-.ev-meta{display:flex;align-items:center;gap:8px;margin-bottom:7px}
-.badge{font-family:'Orbitron',monospace;font-size:8px;font-weight:700;padding:3px 7px;letter-spacing:1px}
-.badge-outflow{background:rgba(0,229,255,.1);color:var(--accent);border:1px solid var(--accent)}
-.badge-buy{background:rgba(0,255,157,.12);color:var(--green);border:1px solid var(--green)}
-.badge-pump{background:rgba(255,184,0,.12);color:var(--gold);border:1px solid var(--gold)}
-.badge-transfer{background:rgba(255,45,107,.1);color:var(--accent2);border:1px solid var(--accent2)}
-.ev-time{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--dim);margin-left:auto}
-.ev-title{font-size:14px;font-weight:600;color:#dce8f8;margin-bottom:5px}
-.ev-detail{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--dim);line-height:1.7}
-.ev-detail span{color:var(--text)}
-.ev-detail a{color:var(--accent);text-decoration:none}
-.ev-coin{display:inline-flex;align-items:center;gap:6px;margin-top:7px;padding:6px 10px;background:rgba(0,255,157,.06);border:1px solid rgba(0,255,157,.2);font-family:'Share Tech Mono',monospace;font-size:11px}
-.ev-coin .ticker{color:var(--green);font-weight:bold;font-size:13px}
-.ev-coin a{color:var(--accent);text-decoration:none;font-size:10px;padding:2px 6px;border:1px solid rgba(0,229,255,.3)}
-.sidebar{display:flex;flex-direction:column;gap:14px}
-.wallet-row{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(15,31,58,.6)}
-.wallet-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);margin-top:5px;flex-shrink:0}
-.wallet-info{flex:1;min-width:0}
-.wallet-label{font-size:11px;font-weight:600;color:var(--text)}
-.wallet-addr{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--dim);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.wallet-since{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--dim);margin-top:1px}
-.wallet-remove{background:none;border:none;color:var(--dim);cursor:pointer;font-size:12px;padding:2px 5px}
-.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)}
-.stat-cell{background:var(--panel);padding:14px;text-align:center}
-.stat-val{font-family:'Orbitron',monospace;font-size:22px;font-weight:700;color:var(--accent)}
-.stat-lbl{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--dim);letter-spacing:2px;margin-top:3px}
-.add-bar{display:flex;gap:8px;padding:12px 14px;border-top:1px solid var(--border)}
-.add-bar input{flex:1}
-.empty{padding:48px 20px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--dim);letter-spacing:2px;line-height:2.2}
-.ticker{margin-top:16px;border:1px solid var(--border);overflow:hidden;padding:8px 0;position:relative}
-.ticker::before,.ticker::after{content:'';position:absolute;top:0;bottom:0;width:40px;z-index:2}
-.ticker::before{left:0;background:linear-gradient(90deg,var(--bg),transparent)}
-.ticker::after{right:0;background:linear-gradient(-90deg,var(--bg),transparent)}
-.ticker-inner{display:flex;white-space:nowrap;animation:tickerRun 25s linear infinite}
-@keyframes tickerRun{from{transform:translateX(60vw)}to{transform:translateX(-100%)}}
-.ticker-item{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--dim);padding:0 28px}
-.ticker-item b{color:var(--accent)}
+
+:root {
+–bg: #03050a;
+–panel: #070c18;
+–border: #0f1f3a;
+–accent: #00e5ff;
+–accent2: #ff2d6b;
+–green: #00ff9d;
+–gold: #ffb800;
+–text: #b0c8e8;
+–dim: #2a3a5a;
+}
+
+- { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+background: var(–bg);
+color: var(–text);
+font-family: ‘Syne’, sans-serif;
+min-height: 100vh;
+overflow-x: hidden;
+}
+
+/* bg grid */
+body::after {
+content:’’;
+position:fixed; inset:0;
+background-image:
+linear-gradient(rgba(0,229,255,.025) 1px, transparent 1px),
+linear-gradient(90deg, rgba(0,229,255,.025) 1px, transparent 1px);
+background-size: 48px 48px;
+pointer-events:none; z-index:0;
+}
+
+/* scanlines */
+body::before {
+content:’’;
+position:fixed; inset:0;
+background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,229,255,.008) 3px, rgba(0,229,255,.008) 4px);
+pointer-events:none; z-index:9999;
+}
+
+.wrap { position:relative; z-index:1; max-width:1100px; margin:0 auto; padding:16px; }
+
+/* ── HEADER ── */
+header {
+display:flex; align-items:center; justify-content:space-between;
+padding:16px 0 20px;
+border-bottom:1px solid var(–border);
+margin-bottom:20px;
+}
+
+.logo {
+font-family:‘Orbitron’, monospace;
+font-size:22px; font-weight:900; letter-spacing:5px;
+color:var(–accent);
+text-shadow:0 0 24px rgba(0,229,255,.7);
+}
+.logo em { color:var(–accent2); font-style:normal; text-shadow:0 0 24px rgba(255,45,107,.7); }
+.logo-sub { font-family:‘Share Tech Mono’,monospace; font-size:9px; color:var(–dim); letter-spacing:3px; margin-top:3px; }
+
+.hdr-right { display:flex; align-items:center; gap:16px; }
+
+.live-dot {
+width:8px; height:8px; border-radius:50%;
+background:var(–dim);
+box-shadow:none;
+transition:all .3s;
+}
+.live-dot.on { background:var(–green); box-shadow:0 0 10px var(–green); animation:pulse 2s infinite; }
+.live-dot.scanning { background:var(–gold); box-shadow:0 0 10px var(–gold); animation:pulse .6s infinite; }
+
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+.clock {
+font-family:‘Share Tech Mono’,monospace; font-size:11px; color:var(–dim);
+}
+
+/* ── API KEY INPUT ── */
+.api-bar {
+display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;
+}
+
+.input-wrap {
+flex:1; min-width:200px;
+position:relative;
+}
+.input-label {
+font-family:‘Share Tech Mono’,monospace; font-size:9px;
+color:var(–dim); letter-spacing:2px;
+position:absolute; top:-14px; left:0;
+}
+input[type=text], input[type=number] {
+width:100%;
+font-family:‘Share Tech Mono’,monospace; font-size:12px;
+background:var(–panel); color:var(–accent);
+border:1px solid var(–border); padding:9px 12px;
+outline:none; transition:border .2s;
+}
+input:focus { border-color:var(–accent); }
+
+/* ── BUTTONS ── */
+.btn {
+font-family:‘Orbitron’,monospace; font-size:10px; font-weight:700;
+letter-spacing:2px; padding:9px 18px;
+border:1px solid var(–accent); background:transparent; color:var(–accent);
+cursor:pointer; transition:all .2s; white-space:nowrap;
+clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);
+}
+.btn:hover, .btn.active {
+background:var(–accent); color:var(–bg);
+box-shadow:0 0 20px rgba(0,229,255,.4);
+}
+.btn:disabled { opacity:.3; cursor:not-allowed; }
+.btn.red { border-color:var(–accent2); color:var(–accent2); }
+.btn.red:hover { background:var(–accent2); color:#fff; box-shadow:0 0 20px rgba(255,45,107,.4); }
+.btn.green-btn { border-color:var(–green); color:var(–green); }
+.btn.green-btn:hover { background:var(–green); color:var(–bg); }
+
+/* ── LAYOUT ── */
+.grid { display:grid; grid-template-columns:1fr 320px; gap:16px; }
+@media(max-width:780px){ .grid{ grid-template-columns:1fr; } }
+
+/* ── PANEL ── */
+.panel {
+background:var(–panel);
+border:1px solid var(–border);
+position:relative; overflow:hidden;
+}
+.panel::before {
+content:’’; position:absolute; top:0; left:0; right:0; height:1px;
+background:linear-gradient(90deg,transparent,var(–accent),transparent);
+opacity:.5;
+}
+.ph {
+display:flex; align-items:center; justify-content:space-between;
+padding:11px 16px; border-bottom:1px solid var(–border);
+font-family:‘Orbitron’,monospace; font-size:9px; letter-spacing:2px; color:var(–accent);
+}
+.ph-count { font-size:10px; color:var(–dim); }
+
+/* ── EVENTS LIST ── */
+#events-list { max-height:520px; overflow-y:auto; scrollbar-width:thin; scrollbar-color:var(–dim) transparent; }
+
+.event-item {
+padding:13px 16px; border-bottom:1px solid rgba(15,31,58,.6);
+animation:slideIn .35s ease-out;
+cursor:default;
+}
+@keyframes slideIn { from{opacity:0;transform:translateX(-16px)} to{opacity:1;transform:none} }
+
+.ev-meta { display:flex; align-items:center; gap:8px; margin-bottom:7px; }
+
+.badge {
+font-family:‘Orbitron’,monospace; font-size:8px; font-weight:700;
+padding:3px 7px; letter-spacing:1px;
+}
+.badge-outflow { background:rgba(0,229,255,.1); color:var(–accent); border:1px solid var(–accent); }
+.badge-buy     { background:rgba(0,255,157,.12); color:var(–green); border:1px solid var(–green); }
+.badge-pump    { background:rgba(255,184,0,.12); color:var(–gold); border:1px solid var(–gold); }
+.badge-transfer{ background:rgba(255,45,107,.1); color:var(–accent2); border:1px solid var(–accent2); }
+
+.ev-time { font-family:‘Share Tech Mono’,monospace; font-size:9px; color:var(–dim); margin-left:auto; }
+
+.ev-title { font-size:14px; font-weight:600; color:#dce8f8; margin-bottom:5px; }
+.ev-detail { font-family:‘Share Tech Mono’,monospace; font-size:10px; color:var(–dim); line-height:1.7; }
+.ev-detail span { color:var(–text); }
+.ev-detail a { color:var(–accent); text-decoration:none; }
+.ev-detail a:hover { text-decoration:underline; }
+
+.ev-coin {
+display:inline-flex; align-items:center; gap:6px;
+margin-top:7px; padding:6px 10px;
+background:rgba(0,255,157,.06); border:1px solid rgba(0,255,157,.2);
+font-family:‘Share Tech Mono’,monospace; font-size:11px;
+}
+.ev-coin .ticker { color:var(–green); font-weight:bold; font-size:13px; }
+.ev-coin a { color:var(–accent); text-decoration:none; font-size:10px; padding:2px 6px; border:1px solid rgba(0,229,255,.3); }
+.ev-coin a:hover { background:rgba(0,229,255,.15); }
+
+/* ── SIDEBAR ── */
+.sidebar { display:flex; flex-direction:column; gap:14px; }
+
+/* watched wallets */
+.wallet-row {
+display:flex; align-items:flex-start; gap:10px;
+padding:10px 14px; border-bottom:1px solid rgba(15,31,58,.6);
+transition:background .15s;
+}
+.wallet-row:hover { background:rgba(0,229,255,.03); }
+
+.wallet-dot { width:6px; height:6px; border-radius:50%; background:var(–green); box-shadow:0 0 6px var(–green); margin-top:5px; flex-shrink:0; }
+
+.wallet-info { flex:1; min-width:0; }
+.wallet-label { font-size:11px; font-weight:600; color:var(–text); }
+.wallet-addr  { font-family:‘Share Tech Mono’,monospace; font-size:9px; color:var(–dim); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.wallet-since { font-family:‘Share Tech Mono’,monospace; font-size:9px; color:var(–dim); margin-top:1px; }
+
+.wallet-remove {
+background:none; border:none; color:var(–dim); cursor:pointer;
+font-size:12px; padding:2px 5px; transition:color .15s;
+}
+.wallet-remove:hover { color:var(–accent2); }
+
+/* stats */
+.stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(–border); }
+.stat-cell { background:var(–panel); padding:14px; text-align:center; }
+.stat-val { font-family:‘Orbitron’,monospace; font-size:22px; font-weight:700; color:var(–accent); }
+.stat-lbl { font-family:‘Share Tech Mono’,monospace; font-size:9px; color:var(–dim); letter-spacing:2px; margin-top:3px; }
+
+/* manual add */
+.add-bar { display:flex; gap:8px; padding:12px 14px; border-top:1px solid var(–border); }
+.add-bar input { flex:1; }
+
+/* empty */
+.empty {
+padding:48px 20px; text-align:center;
+font-family:‘Share Tech Mono’,monospace; font-size:11px;
+color:var(–dim); letter-spacing:2px; line-height:2.2;
+}
+
+/* ticker */
+.ticker {
+margin-top:16px; border:1px solid var(–border);
+overflow:hidden; padding:8px 0; position:relative;
+}
+.ticker::before,.ticker::after {
+content:’’; position:absolute; top:0; bottom:0; width:40px; z-index:2;
+}
+.ticker::before { left:0; background:linear-gradient(90deg,var(–bg),transparent); }
+.ticker::after  { right:0; background:linear-gradient(-90deg,var(–bg),transparent); }
+.ticker-inner {
+display:flex; white-space:nowrap;
+animation:tickerRun 25s linear infinite;
+}
+@keyframes tickerRun { from{transform:translateX(60vw)} to{transform:translateX(-100%)} }
+.ticker-item { font-family:‘Share Tech Mono’,monospace; font-size:10px; color:var(–dim); padding:0 28px; }
+.ticker-item b { color:var(–accent); }
 </style>
+
 </head>
 <body>
 <div class="wrap">
+
+<!-- HEADER -->
+
 <header>
   <div>
     <div class="logo">WALLET<em>RADAR</em></div>
@@ -92,84 +263,620 @@ input[type=text],input[type=number]{width:100%;font-family:'Share Tech Mono',mon
     <span class="clock" id="clock">--:--:--</span>
   </div>
 </header>
+
+<!-- API BAR -->
+
 <div class="api-bar" style="margin-top:18px">
   <div class="input-wrap">
     <div class="input-label">HELIUS API KEY</div>
-    <input type="text" id="heliusKey" placeholder="your-helius-api-key"/>
+    <input type="text" id="heliusKey" placeholder="your-helius-api-key" />
   </div>
   <div class="input-wrap" style="max-width:120px">
     <div class="input-label">INTERVAL (sec)</div>
-    <input type="number" id="intervalSec" value="20" min="10" max="300"/>
+    <input type="number" id="intervalSec" value="20" min="10" max="300" />
   </div>
   <button class="btn green-btn" id="startBtn" onclick="toggleMonitor()">▶ START</button>
-  <button class="btn red" onclick="clearAll()">✕ CLEAR</button>
+  <button class="btn red" id="clearBtn" onclick="clearAll()">✕ CLEAR</button>
 </div>
+
+<!-- GRID -->
+
 <div class="grid">
+
+  <!-- LEFT: EVENTS -->
+
   <div class="panel">
-    <div class="ph"><span>⚡ LIVE EVENTS</span><span class="ph-count" id="evCount">0 イベント</span></div>
+    <div class="ph">
+      <span>⚡ LIVE EVENTS</span>
+      <span class="ph-count" id="evCount">0 イベント</span>
+    </div>
     <div id="events-list">
-      <div class="empty" id="emptyEv">&gt; HELIUS API KEY を入力<br>&gt; START を押して監視開始<br>&gt; Binance2出金を自動検知します</div>
+      <div class="empty" id="emptyEv">
+        &gt; HELIUS API KEY を入力<br>
+        &gt; START を押して監視開始<br>
+        &gt; Binance2出金を自動検知します
+      </div>
     </div>
   </div>
+
+  <!-- RIGHT: SIDEBAR -->
+
   <div class="sidebar">
-    <div class="panel">
-      <div class="ph"><span>📊 STATS</span></div>
-      <div class="stats-grid">
-        <div class="stat-cell"><div class="stat-val" id="statWallets">0</div><div class="stat-lbl">WATCHING</div></div>
-        <div class="stat-cell"><div class="stat-val" id="statDetected">0</div><div class="stat-lbl">DETECTED</div></div>
-        <div class="stat-cell"><div class="stat-val" id="statBuys">0</div><div class="stat-lbl">BUY SIGNALS</div></div>
-        <div class="stat-cell"><div class="stat-val" id="statScans">0</div><div class="stat-lbl">SCANS</div></div>
-      </div>
+
+```
+<!-- STATS -->
+<div class="panel">
+  <div class="ph"><span>📊 STATS</span></div>
+  <div class="stats-grid">
+    <div class="stat-cell">
+      <div class="stat-val" id="statWallets">0</div>
+      <div class="stat-lbl">WATCHING</div>
     </div>
-    <div class="panel" style="flex:1">
-      <div class="ph"><span>👁 WATCHED WALLETS</span><span class="ph-count" id="watchCount">0</span></div>
-      <div id="watched-list"><div class="empty" style="padding:28px 16px;font-size:10px">監視ウォレットなし</div></div>
-      <div class="add-bar">
-        <input type="text" id="manualWallet" placeholder="ウォレットアドレスを追加..." style="font-size:10px"/>
-        <button class="btn" onclick="addManualWallet()" style="padding:8px 12px;font-size:9px">ADD</button>
-      </div>
+    <div class="stat-cell">
+      <div class="stat-val" id="statDetected">0</div>
+      <div class="stat-lbl">DETECTED</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-val" id="statBuys">0</div>
+      <div class="stat-lbl">BUY SIGNALS</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-val" id="statScans">0</div>
+      <div class="stat-lbl">SCANS</div>
     </div>
   </div>
 </div>
+
+<!-- WATCHED WALLETS -->
+<div class="panel" style="flex:1">
+  <div class="ph">
+    <span>👁 WATCHED WALLETS</span>
+    <span class="ph-count" id="watchCount">0</span>
+  </div>
+  <div id="watched-list">
+    <div class="empty" style="padding:28px 16px; font-size:10px">
+      監視ウォレットなし
+    </div>
+  </div>
+  <div class="add-bar">
+    <input type="text" id="manualWallet" placeholder="ウォレットアドレスを追加..." style="font-size:10px"/>
+    <button class="btn" onclick="addManualWallet()" style="padding:8px 12px; font-size:9px">ADD</button>
+  </div>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- TICKER -->
+
 <div class="ticker">
-  <div class="ticker-inner">
+  <div class="ticker-inner" id="ticker">
     <span class="ticker-item">MONITORING: <b>BINANCE2 HOT WALLETS</b></span>
     <span class="ticker-item">CHAIN: <b>SOLANA</b></span>
     <span class="ticker-item">DATA: <b>HELIUS RPC</b></span>
+    <span class="ticker-item">TARGET: <b>NEW WALLET OUTFLOWS</b></span>
     <span class="ticker-item">⚡ WALLET RADAR ACTIVE ⚡</span>
   </div>
 </div>
+
 </div>
+
 <script>
-const BINANCE2_WALLETS=["5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9"];
-let watchedWallets={},processedSigs=new Set(),isRunning=false,monitorTimer=null,events=[],stats={wallets:0,detected:0,buys:0,scans:0};
-setInterval(()=>{document.getElementById('clock').textContent=new Date().toLocaleTimeString('ja-JP')},1000);
-function apiKey(){return document.getElementById('heliusKey').value.trim()}
-function rpcUrl(){return`https://mainnet.helius-rpc.com/?api-key=${apiKey()}`}
-async function rpc(m,p){const r=await fetch(rpcUrl(),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:m,params:p})});const d=await r.json();return d.result}
-async function getSignatures(a,l=8){try{return await rpc('getSignaturesForAddress',[a,{limit:l,commitment:'confirmed'}])||[]}catch{return[]}}
-async function getTx(s){try{return await rpc('getTransaction',[s,{encoding:'jsonParsed',maxSupportedTransactionVersion:0}])}catch{return null}}
-async function isNewWallet(addr){try{const sigs=await getSignatures(addr,50);if(!sigs||!sigs.length)return false;const oldest=sigs[sigs.length-1];const bt=oldest.blockTime;if(!bt)return false;if((Date.now()/1000-bt)/3600>24)return false;const tx=await getTx(oldest.signature);if(!tx)return false;const accounts=tx.transaction?.message?.accountKeys||[];const pre=tx.meta?.preBalances||[];const idx=accounts.findIndex(a=>(typeof a==='string'?a:a?.pubkey)===addr);if(idx===-1)return false;return(pre[idx]||0)/1e9===0}catch{return false}}
-function parseSolTransfers(tx){try{const meta=tx.meta||{};if(meta.err)return[];const pre=meta.preBalances||[],post=meta.postBalances||[],acc=tx.transaction?.message?.accountKeys||[],out=[];for(let i=0;i<pre.length;i++){const d=(post[i]-pre[i])/1e9;if(d>0.05){const a=typeof acc[i]==='string'?acc[i]:acc[i]?.pubkey||'';out.push({address:a,amount:d})}}return out}catch{return[]}}
-function parseTokenBuys(tx){try{const meta=tx.meta||{};if(meta.err)return[];const pt=meta.postTokenBalances||[],pr=meta.preTokenBalances||[],pm=Object.fromEntries(pr.map(t=>[t.mint+':'+t.accountIndex,t])),out=[];for(const p of pt){const k=p.mint+':'+p.accountIndex,prev=pm[k],pa=prev?parseFloat(prev.uiTokenAmount?.uiAmount||0):0,po=parseFloat(p.uiTokenAmount?.uiAmount||0);if(po-pa>0)out.push({mint:p.mint,amount:po-pa})}return out}catch{return[]}}
-function now(){return new Date().toLocaleTimeString('ja-JP')}
-function short(a){return a.slice(0,8)+'...'+a.slice(-4)}
-function solscanTx(s){return`https://solscan.io/tx/${s}`}
-function solscanAcc(a){return`https://solscan.io/account/${a}`}
-function pumpUrl(m){return`https://pump.fun/${m}`}
-function dexUrl(m){return`https://dexscreener.com/solana/${m}`}
-function isPump(m){return m.endsWith('pump')}
-function updateStats(){stats.wallets=Object.keys(watchedWallets).length;document.getElementById('statWallets').textContent=stats.wallets;document.getElementById('statDetected').textContent=stats.detected;document.getElementById('statBuys').textContent=stats.buys;document.getElementById('statScans').textContent=stats.scans;document.getElementById('watchCount').textContent=stats.wallets}
-function addEvent(ev){events.unshift(ev);const el=document.getElementById('emptyEv');if(el)el.remove();const list=document.getElementById('events-list'),div=document.createElement('div');div.className='event-item';div.innerHTML=ev.html;list.insertBefore(div,list.firstChild);document.getElementById('evCount').textContent=`${events.length} イベント`;if(list.children.length>100)list.removeChild(list.lastChild)}
-function renderWatchedList(){const list=document.getElementById('watched-list'),entries=Object.entries(watchedWallets);if(!entries.length){list.innerHTML='<div class="empty" style="padding:24px 16px;font-size:10px">監視ウォレットなし</div>';return}list.innerHTML=entries.map(([addr,info])=>`<div class="wallet-row"><div class="wallet-dot"></div><div class="wallet-info"><div class="wallet-label">${info.label}</div><div class="wallet-addr">${addr}</div><div class="wallet-since">追加: ${info.since}</div></div><button class="wallet-remove" onclick="removeWallet('${addr}')">✕</button></div>`).join('')}
-function removeWallet(addr){delete watchedWallets[addr];renderWatchedList();updateStats()}
-function addManualWallet(){const input=document.getElementById('manualWallet'),addr=input.value.trim();if(!addr||addr.length<32)return;if(watchedWallets[addr]){input.value='';return}watchedWallets[addr]={label:'Manual追加',since:now(),lastSig:null,source:'manual'};input.value='';renderWatchedList();updateStats()}
-async function checkBinance2(){for(const wallet of BINANCE2_WALLETS){const sigs=await getSignatures(wallet,6);for(const s of sigs){if(!s.signature||processedSigs.has(s.signature))continue;processedSigs.add(s.signature);const tx=await getTx(s.signature);if(!tx)continue;const transfers=parseSolTransfers(tx);for(const t of transfers){const dest=t.address;if(!dest||BINANCE2_WALLETS.includes(dest))continue;if(watchedWallets[dest])continue;const fresh=await isNewWallet(dest);if(!fresh)continue;const label=`Binance2出金 #${stats.detected+1}`;watchedWallets[dest]={label,since:now(),lastSig:null,source:'binance2'};stats.detected++;addEvent({html:`<div class="ev-meta"><span class="badge badge-outflow">OUTFLOW</span><span class="badge" style="background:rgba(255,184,0,.12);color:var(--gold);border:1px solid var(--gold)">NEW WALLET</span><span class="ev-time">${now()}</span></div><div class="ev-title">🏦 Binance2から出金を検知</div><div class="ev-detail">💰 送金額: <span>${t.amount.toFixed(2)} SOL</span><br>📤 送金元: <a href="${solscanAcc(wallet)}" target="_blank">${short(wallet)}</a><br>📥 新規ウォレット: <a href="${solscanAcc(dest)}" target="_blank">${short(dest)}</a><br>🔗 <a href="${solscanTx(s.signature)}" target="_blank">TX確認</a></div>`});renderWatchedList();updateStats()}}}}
-async function checkWatched(){for(const[addr,info]of Object.entries(watchedWallets)){const sigs=await getSignatures(addr,5);if(!sigs.length)continue;for(const s of sigs){if(!s.signature||processedSigs.has(s.signature))continue;if(s.signature===info.lastSig)continue;processedSigs.add(s.signature);watchedWallets[addr].lastSig=s.signature;const tx=await getTx(s.signature);if(!tx)continue;const transfers=parseSolTransfers(tx);for(const t of transfers){if(t.address===addr)continue;addEvent({html:`<div class="ev-meta"><span class="badge badge-transfer">TRANSFER</span><span class="ev-time">${now()}</span></div><div class="ev-title">💸 監視ウォレットが送金</div><div class="ev-detail">🏷 ${info.label}<br>📤 <a href="${solscanAcc(addr)}" target="_blank">${short(addr)}</a><br>💰 ${t.amount.toFixed(2)} SOL → <a href="${solscanAcc(t.address)}" target="_blank">${short(t.address)}</a><br>🔗 <a href="${solscanTx(s.signature)}" target="_blank">TX確認</a></div>`})}const buys=parseTokenBuys(tx);for(const b of buys){stats.buys++;const pump=isPump(b.mint);addEvent({html:`<div class="ev-meta"><span class="badge ${pump?'badge-pump':'badge-buy'}">${pump?'🚀 PUMP.FUN':'TOKEN BUY'}</span><span class="ev-time">${now()}</span></div><div class="ev-title">🎯 スマートマネーが購入！</div><div class="ev-detail">🏷 追跡元: <span>${info.label}</span><br>👛 <a href="${solscanAcc(addr)}" target="_blank">${short(addr)}</a><br>💰 購入量: <span>${b.amount.toLocaleString(undefined,{maximumFractionDigits:0})}</span> tokens</div><div class="ev-coin"><span class="ticker">${short(b.mint)}</span><a href="${dexUrl(b.mint)}" target="_blank">DEX</a>${pump?`<a href="${pumpUrl(b.mint)}" target="_blank">PUMP</a>`:''}<a href="${solscanTx(s.signature)}" target="_blank">TX</a></div>`});updateStats()}}}}
-async function toggleMonitor(){if(isRunning){isRunning=false;clearInterval(monitorTimer);monitorTimer=null;document.getElementById('startBtn').textContent='▶ START';document.getElementById('startBtn').classList.remove('active');document.getElementById('liveDot').className='live-dot';return}if(!apiKey()){alert('Helius API Keyを入力してください');return}isRunning=true;document.getElementById('startBtn').textContent='■ STOP';document.getElementById('startBtn').classList.add('active');document.getElementById('liveDot').className='live-dot scanning';const interval=parseInt(document.getElementById('intervalSec').value)*1000||20000;await runScan();monitorTimer=setInterval(runScan,interval)}
-async function runScan(){stats.scans++;document.getElementById('liveDot').className='live-dot scanning';updateStats();await checkBinance2();await checkWatched();if(processedSigs.size>5000)processedSigs.clear();document.getElementById('liveDot').className='live-dot on';updateStats()}
-function clearAll(){events=[];watchedWallets={};processedSigs.clear();stats={wallets:0,detected:0,buys:0,scans:0};document.getElementById('events-list').innerHTML='<div class="empty" id="emptyEv">&gt; HELIUS API KEY を入力<br>&gt; START を押して監視開始<br>&gt; Binance2出金を自動検知します</div>';document.getElementById('evCount').textContent='0 イベント';renderWatchedList();updateStats()}
-renderWatchedList();updateStats();
+// ─────────────────────────────────────────
+// BINANCE2 既知出金ウォレット（公開情報）
+// ─────────────────────────────────────────
+const BINANCE2_WALLETS = [
+  "5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9",
+];
+
+// ─────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────
+let watchedWallets  = {};
+let processedSigs   = new Set();
+let isRunning       = false;
+let monitorTimer    = null;
+let events          = [];
+let stats           = { wallets:0, detected:0, buys:0, scans:0 };
+
+// ─────────────────────────────────────────
+// PERSISTENCE
+// ─────────────────────────────────────────
+function saveState() {
+  try {
+    localStorage.setItem('wr_wallets', JSON.stringify(watchedWallets));
+    localStorage.setItem('wr_sigs', JSON.stringify([...processedSigs].slice(-2000)));
+    localStorage.setItem('wr_events', JSON.stringify(events.slice(0, 100)));
+    localStorage.setItem('wr_stats', JSON.stringify(stats));
+    const k = document.getElementById('heliusKey');
+    if (k) localStorage.setItem('wr_apikey', k.value);
+  } catch(e) {}
+}
+
+function loadState() {
+  try {
+    const w = localStorage.getItem('wr_wallets');
+    if (w) watchedWallets = JSON.parse(w);
+    const s = localStorage.getItem('wr_sigs');
+    if (s) processedSigs = new Set(JSON.parse(s));
+    const e = localStorage.getItem('wr_events');
+    if (e) events = JSON.parse(e);
+    const st = localStorage.getItem('wr_stats');
+    if (st) { const p = JSON.parse(st); stats.detected = p.detected||0; stats.buys = p.buys||0; }
+  } catch(e) {}
+}
+
+// 定期自動保存（30秒ごと）
+setInterval(saveState, 30000);
+// ページ離脱前に保存
+window.addEventListener('beforeunload', saveState);
+window.addEventListener('pagehide', saveState);
+
+// ─────────────────────────────────────────
+// CLOCK
+// ─────────────────────────────────────────
+setInterval(() => {
+  document.getElementById('clock').textContent =
+    new Date().toLocaleTimeString('ja-JP');
+}, 1000);
+
+// ─────────────────────────────────────────
+// HELIUS RPC
+// ─────────────────────────────────────────
+function apiKey()  { return document.getElementById('heliusKey').value.trim(); }
+function rpcUrl()  { return `https://mainnet.helius-rpc.com/?api-key=${apiKey()}`; }
+
+async function rpc(method, params) {
+  const res = await fetch(rpcUrl(), {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ jsonrpc:'2.0', id:1, method, params })
+  });
+  const d = await res.json();
+  return d.result;
+}
+
+async function getSignatures(addr, limit=8) {
+  try {
+    return await rpc('getSignaturesForAddress', [addr, {limit, commitment:'confirmed'}]) || [];
+  } catch { return []; }
+}
+
+async function getTx(sig) {
+  try {
+    return await rpc('getTransaction', [sig, {encoding:'jsonParsed', maxSupportedTransactionVersion:0}]);
+  } catch { return null; }
+}
+
+async function getBalance(addr) {
+  try {
+    const r = await rpc('getBalance', [addr]);
+    return r ? r.value / 1e9 : 0;
+  } catch { return 0; }
+}
+
+async function isNewWallet(addr) {
+  try {
+    // TX履歴を最大10件取得
+    const sigs = await getSignatures(addr, 10);
+    if (!sigs || sigs.length === 0) return false;
+
+    // 厳密条件①: TX履歴が1件のみ（今回のBinance出金だけ）
+    if (sigs.length > 1) return false;
+
+    // 厳密条件②: そのTXが24時間以内
+    const blockTime = sigs[0].blockTime;
+    if (!blockTime) return false;
+    const ageHours = (Date.now() / 1000 - blockTime) / 3600;
+    if (ageHours > 24) return false;
+
+    // 厳密条件③: そのTX前の残高が0（完全に新規）
+    const tx = await getTx(sigs[0].signature);
+    if (!tx) return false;
+
+    const accounts    = tx.transaction?.message?.accountKeys || [];
+    const preBalances = tx.meta?.preBalances || [];
+    const idx = accounts.findIndex(a =>
+      (typeof a === 'string' ? a : a?.pubkey) === addr
+    );
+    if (idx === -1) return false;
+
+    return (preBalances[idx] || 0) === 0; // lamports単位で0
+
+  } catch (e) {
+    console.error('isNewWallet error:', e);
+    return false;
+  }
+}
+
+// ─────────────────────────────────────────
+// TX PARSING
+// ─────────────────────────────────────────
+function parseSolTransfers(tx) {
+  try {
+    const meta     = tx.meta || {};
+    if (meta.err) return [];
+    const pre      = meta.preBalances  || [];
+    const post     = meta.postBalances || [];
+    const accounts = tx.transaction?.message?.accountKeys || [];
+    const out = [];
+    for (let i = 0; i < pre.length; i++) {
+      const diff = (post[i] - pre[i]) / 1e9;
+      if (diff > 0.05) {
+        const addr = typeof accounts[i] === 'string' ? accounts[i] : accounts[i]?.pubkey || '';
+        out.push({ address: addr, amount: diff });
+      }
+    }
+    return out;
+  } catch { return []; }
+}
+
+function parseTokenBuys(tx) {
+  try {
+    const meta = tx.meta || {};
+    if (meta.err) return [];
+    const postTok = meta.postTokenBalances || [];
+    const preTok  = meta.preTokenBalances  || [];
+    const preMap  = Object.fromEntries(preTok.map(t => [t.mint + ':' + t.accountIndex, t]));
+    const out = [];
+    for (const p of postTok) {
+      const key  = p.mint + ':' + p.accountIndex;
+      const pre  = preMap[key];
+      const preA = pre  ? parseFloat(pre.uiTokenAmount?.uiAmount  || 0) : 0;
+      const posA = parseFloat(p.uiTokenAmount?.uiAmount || 0);
+      if (posA - preA > 0) {
+        out.push({ mint: p.mint, amount: posA - preA });
+      }
+    }
+    return out;
+  } catch { return []; }
+}
+
+// Pump.funのプログラムID
+const PUMP_PROGRAM = '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P';
+
+function parseCoinCreation(tx) {
+  try {
+    const meta = tx.meta || {};
+    if (meta.err) return null;
+
+    const instructions = tx.transaction?.message?.instructions || [];
+    const inner = meta.innerInstructions || [];
+
+    // Pump.funへのinstructionがあるか確認
+    const accounts = tx.transaction?.message?.accountKeys || [];
+    const hasPump = accounts.some(a =>
+      (typeof a === 'string' ? a : a?.pubkey) === PUMP_PROGRAM
+    );
+    if (!hasPump) return null;
+
+    // postTokenBalancesにあって、preTokenBalancesに全くないmint = 新規発行
+    const postMints = new Set((meta.postTokenBalances || []).map(t => t.mint));
+    const preMints  = new Set((meta.preTokenBalances  || []).map(t => t.mint));
+
+    for (const mint of postMints) {
+      if (!preMints.has(mint) && mint.endsWith('pump')) {
+        return mint; // 新規作成されたコインのCA
+      }
+    }
+    return null;
+  } catch { return null; }
+}
+
+// ─────────────────────────────────────────
+// UI HELPERS
+// ─────────────────────────────────────────
+function now() { return new Date().toLocaleTimeString('ja-JP'); }
+function short(addr) { return addr.slice(0,8) + '...' + addr.slice(-4); }
+function solscanTx(sig)  { return `https://solscan.io/tx/${sig}`; }
+function solscanAcc(a)   { return `https://solscan.io/account/${a}`; }
+function pumpUrl(mint)   { return `https://pump.fun/${mint}`; }
+function dexUrl(mint)    { return `https://dexscreener.com/solana/${mint}`; }
+function isPump(mint)    { return mint.endsWith('pump'); }
+
+function updateStats() {
+  stats.wallets = Object.keys(watchedWallets).length;
+  document.getElementById('statWallets').textContent  = stats.wallets;
+  document.getElementById('statDetected').textContent = stats.detected;
+  document.getElementById('statBuys').textContent     = stats.buys;
+  document.getElementById('statScans').textContent    = stats.scans;
+  document.getElementById('watchCount').textContent   = stats.wallets;
+}
+
+function addEvent(ev) {
+  events.unshift(ev);
+  document.getElementById('emptyEv').remove?.();
+  const el = document.getElementById('emptyEv');
+  if (el) el.remove();
+
+  const list = document.getElementById('events-list');
+  const div  = document.createElement('div');
+  div.className = 'event-item';
+  div.innerHTML = ev.html;
+  list.insertBefore(div, list.firstChild);
+  document.getElementById('evCount').textContent = `${events.length} イベント`;
+
+  // keep max 100
+  if (list.children.length > 100) list.removeChild(list.lastChild);
+}
+
+function renderWatchedList() {
+  const list = document.getElementById('watched-list');
+  const entries = Object.entries(watchedWallets);
+  if (entries.length === 0) {
+    list.innerHTML = '<div class="empty" style="padding:24px 16px;font-size:10px">監視ウォレットなし</div>';
+    return;
+  }
+  list.innerHTML = entries.map(([addr, info]) => `
+    <div class="wallet-row">
+      <div class="wallet-dot"></div>
+      <div class="wallet-info">
+        <div class="wallet-label">${info.label}</div>
+        <div class="wallet-addr">${addr}</div>
+        <div class="wallet-since">追加: ${info.since}</div>
+      </div>
+      <button class="wallet-remove" onclick="removeWallet('${addr}')">✕</button>
+    </div>
+  `).join('');
+}
+
+function removeWallet(addr) {
+  delete watchedWallets[addr];
+  renderWatchedList();
+  updateStats();
+}
+
+function addManualWallet() {
+  const input = document.getElementById('manualWallet');
+  const addr  = input.value.trim();
+  if (!addr || addr.length < 32) return;
+  if (watchedWallets[addr]) { input.value = ''; return; }
+  watchedWallets[addr] = {
+    label: 'Manual追加',
+    since: now(),
+    lastSig: null,
+    source: 'manual'
+  };
+  input.value = '';
+  renderWatchedList();
+  updateStats();
+}
+
+// ─────────────────────────────────────────
+// CORE SCAN
+// ─────────────────────────────────────────
+async function checkBinance2() {
+  for (const wallet of BINANCE2_WALLETS) {
+    const sigs = await getSignatures(wallet, 6);
+    for (const s of sigs) {
+      if (!s.signature || processedSigs.has(s.signature)) continue;
+      processedSigs.add(s.signature);
+
+      const tx = await getTx(s.signature);
+      if (!tx) continue;
+
+      const transfers = parseSolTransfers(tx);
+      for (const t of transfers) {
+        const dest = t.address;
+        if (!dest || BINANCE2_WALLETS.includes(dest)) continue;
+        if (watchedWallets[dest]) continue;
+
+        const fresh = await isNewWallet(dest);
+        if (!fresh) continue; // 完全新規以外はスキップ
+
+        const label = `Binance2出金 #${stats.detected + 1}`;
+
+        watchedWallets[dest] = { label, since: now(), lastSig: null, source: 'binance2' };
+        stats.detected++;
+
+        addEvent({
+          html: `
+            <div class="ev-meta">
+              <span class="badge badge-outflow">OUTFLOW</span>
+              <span class="badge" style="background:rgba(255,184,0,.12);color:var(--gold);border:1px solid var(--gold)">NEW WALLET</span>
+              <span class="ev-time">${now()}</span>
+            </div>
+            <div class="ev-title">🏦 Binance2から出金を検知</div>
+            <div class="ev-detail">
+              💰 送金額: <span>${t.amount.toFixed(2)} SOL</span><br>
+              📤 送金元: <a href="${solscanAcc(wallet)}" target="_blank">${short(wallet)}</a><br>
+              📥 新規ウォレット: <a href="${solscanAcc(dest)}" target="_blank">${short(dest)}</a><br>
+              🔗 <a href="${solscanTx(s.signature)}" target="_blank">TX確認</a>
+              &nbsp;•&nbsp; 👁 監視リストに追加
+            </div>`
+        });
+
+        renderWatchedList();
+        updateStats();
+      }
+    }
+  }
+}
+
+async function checkWatched() {
+  for (const [addr, info] of Object.entries(watchedWallets)) {
+    const sigs = await getSignatures(addr, 5);
+    if (!sigs.length) continue;
+
+    for (const s of sigs) {
+      if (!s.signature || processedSigs.has(s.signature)) continue;
+      if (s.signature === info.lastSig) continue;
+      processedSigs.add(s.signature);
+      watchedWallets[addr].lastSig = s.signature;
+
+      const tx = await getTx(s.signature);
+      if (!tx) continue;
+
+      // SOL送金
+      const transfers = parseSolTransfers(tx);
+      for (const t of transfers) {
+        if (t.address === addr) continue;
+        addEvent({
+          html: `
+            <div class="ev-meta">
+              <span class="badge badge-transfer">TRANSFER</span>
+              <span class="ev-time">${now()}</span>
+            </div>
+            <div class="ev-title">💸 監視ウォレットが送金</div>
+            <div class="ev-detail">
+              🏷 ${info.label}<br>
+              📤 <a href="${solscanAcc(addr)}" target="_blank">${short(addr)}</a><br>
+              💰 ${t.amount.toFixed(2)} SOL → <a href="${solscanAcc(t.address)}" target="_blank">${short(t.address)}</a><br>
+              🔗 <a href="${solscanTx(s.signature)}" target="_blank">TX確認</a>
+            </div>`
+        });
+      }
+
+      // トークン購入
+      const buys = parseTokenBuys(tx);
+      for (const b of buys) {
+        stats.buys++;
+        const pump = isPump(b.mint);
+
+        // コイン作成かどうか確認（購入と同じTXで新規mintが発生）
+        const createdMint = parseCoinCreation(tx);
+        const isCreation = createdMint && createdMint === b.mint;
+
+        addEvent({
+          html: `
+            <div class="ev-meta">
+              <span class="badge ${isCreation ? 'badge-pump' : pump ? 'badge-pump' : 'badge-buy'}">${isCreation ? '🚀 COIN CREATED' : pump ? '🚀 PUMP.FUN' : 'TOKEN BUY'}</span>
+              <span class="ev-time">${now()}</span>
+            </div>
+            <div class="ev-title">${isCreation ? '🎨 新規コイン作成を検知！' : '🎯 スマートマネーが購入！'}</div>
+            <div class="ev-detail">
+              🏷 追跡元: <span>${info.label}</span><br>
+              👛 <a href="${solscanAcc(addr)}" target="_blank">${short(addr)}</a><br>
+              ${isCreation ? `🪙 CA: <span style="color:var(--green);font-size:11px;word-break:break-all">${b.mint}</span>` : `💰 購入量: <span>${b.amount.toLocaleString(undefined,{maximumFractionDigits:0})}</span> tokens`}
+            </div>
+            <div class="ev-coin">
+              <span style="color:var(--green);font-size:10px;cursor:pointer" onclick="navigator.clipboard.writeText('${b.mint}')" title="クリックでコピー">📋 ${short(b.mint)}</span>
+              <a href="${dexUrl(b.mint)}" target="_blank">DEX</a>
+              ${pump ? `<a href="${pumpUrl(b.mint)}" target="_blank">PUMP</a>` : ''}
+              <a href="${solscanTx(s.signature)}" target="_blank">TX</a>
+            </div>`
+        });
+        updateStats();
+      }
+
+      // トークン購入とは別にコイン作成のみのTXも検知
+      const createdMintOnly = parseCoinCreation(tx);
+      if (createdMintOnly && !buys.find(b => b.mint === createdMintOnly)) {
+        stats.buys++;
+        addEvent({
+          html: `
+            <div class="ev-meta">
+              <span class="badge badge-pump">🚀 COIN CREATED</span>
+              <span class="ev-time">${now()}</span>
+            </div>
+            <div class="ev-title">🎨 新規コイン作成を検知！</div>
+            <div class="ev-detail">
+              🏷 追跡元: <span>${info.label}</span><br>
+              👛 <a href="${solscanAcc(addr)}" target="_blank">${short(addr)}</a><br>
+              🪙 CA: <span style="color:var(--green);font-size:11px;word-break:break-all">${createdMintOnly}</span>
+            </div>
+            <div class="ev-coin">
+              <span style="color:var(--green);font-size:10px;cursor:pointer" onclick="navigator.clipboard.writeText('${createdMintOnly}')" title="クリックでコピー">📋 ${short(createdMintOnly)}</span>
+              <a href="${dexUrl(createdMintOnly)}" target="_blank">DEX</a>
+              <a href="${pumpUrl(createdMintOnly)}" target="_blank">PUMP</a>
+              <a href="${solscanTx(s.signature)}" target="_blank">TX</a>
+            </div>`
+        });
+        updateStats();
+      }
+    }
+  }
+}
+
+// ─────────────────────────────────────────
+// MONITOR TOGGLE
+// ─────────────────────────────────────────
+async function toggleMonitor() {
+  if (isRunning) {
+    isRunning = false;
+    clearInterval(monitorTimer);
+    monitorTimer = null;
+    document.getElementById('startBtn').textContent = '▶ START';
+    document.getElementById('startBtn').classList.remove('active');
+    document.getElementById('liveDot').className = 'live-dot';
+    return;
+  }
+
+  if (!apiKey()) {
+    alert('Helius API Keyを入力してください');
+    return;
+  }
+
+  isRunning = true;
+  document.getElementById('startBtn').textContent = '■ STOP';
+  document.getElementById('startBtn').classList.add('active');
+  document.getElementById('liveDot').className = 'live-dot scanning';
+
+  const interval = parseInt(document.getElementById('intervalSec').value) * 1000 || 20000;
+
+  // 初回即実行
+  await runScan();
+
+  monitorTimer = setInterval(runScan, interval);
+}
+
+async function runScan() {
+  stats.scans++;
+  document.getElementById('liveDot').className = 'live-dot scanning';
+  updateStats();
+
+  await checkBinance2();
+  await checkWatched();
+
+  // キャッシュ整理
+  if (processedSigs.size > 5000) processedSigs.clear();
+
+  document.getElementById('liveDot').className = 'live-dot on';
+  updateStats();
+}
+
+function clearAll() {
+  events = [];
+  watchedWallets = {};
+  processedSigs.clear();
+  stats = { wallets:0, detected:0, buys:0, scans:0 };
+  try { localStorage.removeItem('wr_wallets'); localStorage.removeItem('wr_sigs'); localStorage.removeItem('wr_events'); localStorage.removeItem('wr_stats'); } catch(e) {}
+  document.getElementById('events-list').innerHTML =
+    '<div class="empty" id="emptyEv">&gt; HELIUS API KEY を入力<br>&gt; START を押して監視開始<br>&gt; Binance2出金を自動検知します</div>';
+  document.getElementById('evCount').textContent = '0 イベント';
+  renderWatchedList();
+  updateStats();
+}
+
+// ─────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────
+loadState();
+
+// APIキー復元
+const savedKey = localStorage.getItem('wr_apikey');
+if (savedKey) document.getElementById('heliusKey').value = savedKey;
+
+// 保存済みイベントを復元表示
+if (events.length > 0) {
+  const list = document.getElementById('events-list');
+  const empty = document.getElementById('emptyEv');
+  if (empty) empty.remove();
+  events.forEach(ev => {
+    const div = document.createElement('div');
+    div.className = 'event-item';
+    div.innerHTML = ev.html;
+    list.appendChild(div);
+  });
+  document.getElementById('evCount').textContent = `${events.length} イベント`;
+}
+
+renderWatchedList();
+updateStats();
 </script>
+
 </body>
 </html>
+  
+
