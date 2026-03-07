@@ -1419,7 +1419,8 @@ function addManualWallet() {
 // CORE SCAN
 // ─────────────────────────────────────────
 async function checkBinance2() {
-  const cutoff = sessionStart || (Math.floor(Date.now() / 1000) - 86400);
+  if (!sessionStart) return; // START前はスキャンしない
+  const cutoff = sessionStart;
 
   for (const wallet of getExchangeAddrs()) {
     // sessionStartからの経過時間に応じてページ数を動的に決定
