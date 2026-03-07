@@ -301,7 +301,7 @@ animation:tickerRun 25s linear infinite;
   <div class="hdr-right">
     <div class="live-dot" id="liveDot"></div>
     <span class="clock" id="clock">--:--:--</span>
-    <button onclick="document.getElementById('helpModal').style.display='flex'" style="background:none;border:1px solid var(--dim);color:var(--dim);font-size:13px;width:26px;height:26px;border-radius:50%;cursor:pointer;font-family:'Orbitron',monospace;padding:0;line-height:1">?</button>
+    <button onclick="document.getElementById('helpModal').style.display='flex'" style="background:rgba(0,229,255,.1);border:1px solid var(--accent);color:var(--accent);font-size:13px;width:30px;height:30px;border-radius:50%;cursor:pointer;font-family:'Orbitron',monospace;padding:0;line-height:1">?</button>
   </div>
 </header>
 
@@ -1014,7 +1014,8 @@ async function scanPast30Min(seconds) {
       .map(([a, info]) => ({ addr: a, label: info.nickname || info.label }))
   ];
   for (const { addr, label } of step2Targets) {
-    const sigs = await getSignaturesUntil(addr, cutoff, 3); // 最大3ページ(300件)
+    let sigs = [];
+    try { sigs = await getSignaturesUntil(addr, cutoff, 3); } catch(e) { continue; }
     const newLastSig = sigs[0]?.signature;
     for (const s of sigs) {
       if (!s.blockTime || s.blockTime < cutoff) continue;
@@ -1560,6 +1561,10 @@ async function checkWatched() {
 // MONITOR TOGGLE
 // ─────────────────────────────────────────
 async function toggleMonitor() {
+  const startBtn = document.getElementById('startBtn');
+  if (startBtn.disabled) return; // 二重実行防止
+  startBtn.disabled = true;
+  setTimeout(() => { startBtn.disabled = false; }, 500); // 500ms後に解除
   if (isRunning) {
     isRunning = false;
     clearInterval(monitorTimer);
@@ -1582,8 +1587,11 @@ async function toggleMonitor() {
 
   const interval = parseInt(document.getElementById('intervalSec').value) * 1000 || 20000;
 
-  // 初回即実行
+  // 初回: 過去10分スキャンしてからループ開始
+  try { await scanPast30Min(600); } catch(e) {}
+  if (!isRunning) return; // スキャン中にSTOPされた場合
   await runScan();
+  if (!isRunning) return;
 
   monitorTimer = setInterval(runScan, interval);
 }
@@ -1593,9 +1601,12 @@ async function manualCatchup() {
   const btn = document.getElementById('catchupBtn');
   const seconds = parseInt(document.getElementById('scanRange').value) || 1800;
   btn.disabled = true; btn.textContent = '⏳ スキャン中...';
-  await checkWatched();
-  await scanPast30Min(seconds);
-  btn.disabled = false; btn.textContent = '🔍 SCAN';
+  try {
+    await checkWatched();
+    await scanPast30Min(seconds);
+  } finally {
+    btn.disabled = false; btn.textContent = '🔍 SCAN';
+  }
 }
 
 async function runScan() {
@@ -1631,6 +1642,15 @@ function clearAll() {
   // 全取引所をOFF
   Object.keys(exchangeWallets).forEach(a => exchangeWallets[a].enabled = false);
   localStorage.removeItem('wr_exchange');
+  // 監視停止
+  if (isRunning) {
+    isRunning = false;
+    clearInterval(monitorTimer);
+    monitorTimer = null;
+    document.getElementById('startBtn').textContent = '▶ START';
+    document.getElementById('startBtn').classList.remove('active');
+    document.getElementById('liveDot').className = 'live-dot';
+  }
   try {
     localStorage.removeItem('wr_wallets');
     localStorage.removeItem('wr_sigs');
@@ -1648,6 +1668,7 @@ function clearAll() {
   renderCreatedList();
   renderRanking();
   updateStats();
+  saveState(); // CLEAR後に空データで確実に上書き保存
 }
 
 // ─────────────────────────────────────────
