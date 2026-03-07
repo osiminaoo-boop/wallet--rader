@@ -508,6 +508,7 @@ function isExchangeAddr(a)  { return !!exchangeWallets[a]; }
 let watchedWallets  = {};
 let processedSigs   = new Map(); // sig -> timestamp(ms)
 let isRunning       = false;
+let sessionStart    = 0;
 let monitorTimer    = null;
 let events          = [];
 let stats           = { wallets:0, detected:0, buys:0, scans:0, created:0 };
@@ -753,7 +754,7 @@ function sigProcessed(sig) {
   return true;
 }
 
-async function isNewWallet(addr) {
+async function isNewWallet(addr, cutoff = null) {
   try {
     const sigs = await safeGetSignatures(addr, 10);
     if (!sigs || sigs.length === 0) return false;
@@ -761,11 +762,17 @@ async function isNewWallet(addr) {
     // 条件①: TX履歴が5件以下
     if (sigs.length > 5) return false;
 
-    // 条件②: 最初のTXが24時間以内
-    const blockTime = sigs[sigs.length - 1].blockTime; // 最古のTXを見る
-    if (!blockTime) return false;
-    const ageHours = (Date.now() / 1000 - blockTime) / 3600;
-    if (ageHours > 24) return false;
+    // 条件②: ウォレットの最古TX（作成タイミング）がcutoff以降
+    const oldestBlockTime = sigs[sigs.length - 1].blockTime;
+    if (!oldestBlockTime) return false;
+    if (cutoff) {
+      // スキャン範囲内に作られたウォレットのみ
+      if (oldestBlockTime < cutoff) return false;
+    } else {
+      // 通常監視: 24時間以内
+      const ageHours = (Date.now() / 1000 - oldestBlockTime) / 3600;
+      if (ageHours > 24) return false;
+    }
 
     return true;
 
@@ -976,10 +983,10 @@ async function scanPast30Min(seconds) {
       for (const t of transfers) {
         const dest = t.address;
         if (!dest || isExchangeAddr(dest)) continue;
-        if (t.amount < 0.1) { skipCount++; continue; } // 0.1 SOL未満はスキップ
+        if (t.amount < 0.01) { skipCount++; continue; } // 0.01 SOL未満はスキップ
         if (watchedWallets[dest]) { skipCount++; continue; }
 
-        const fresh = await isActiveWithin30Min(dest, seconds);
+        const fresh = await isNewWallet(dest, cutoff);
         if (!fresh) { skipCount++; continue; }
 
         const label = `${(exchangeWallets[wallet]?.name||"Exchange")}出金 #${stats.detected + 1}`;
@@ -1226,7 +1233,7 @@ function renderRanking() {
       <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--accent);word-break:break-all;cursor:pointer" onclick="copyText('${mint}')" title="タップでコピー">📋 ${mint}</div>
       <div style="display:flex;gap:6px;margin-top:5px">
         ${data.count ? `<span style="font-size:9px;color:var(--green)">🎯購入${data.count}回</span>` : ''}
-        ${(data.wallets&&data.wallets.length) ? `<span style="font-size:9px;color:var(--accent)">👛${data.wallets.length}アドレス</span>` : ''}
+        ${(data.wallets&&data.wallets?.length) ? `<span style="font-size:9px;color:var(--accent)">👛${data.wallets?.length}アドレス</span>` : ''}
         <a href="https://dexscreener.com/solana/${mint}" target="_blank" style="font-size:9px;color:var(--accent);margin-left:auto">DEX</a>
         <a href="https://pump.fun/${mint}" target="_blank" style="font-size:9px;color:var(--accent)">PUMP</a>
       </div>
@@ -1377,6 +1384,7 @@ function addManualWallet() {
 // CORE SCAN
 // ─────────────────────────────────────────
 async function checkBinance2() {
+  const cutoff = sessionStart || Math.floor(Date.now() / 1000) - 86400;
   for (const wallet of getExchangeAddrs()) {
     const sigs = await safeGetSignatures(wallet, 20);
     for (const s of sigs) {
@@ -1393,7 +1401,7 @@ async function checkBinance2() {
         if (t.amount < 0.01) continue; // 0.01 SOL未満はスキップ
         if (watchedWallets[dest]) continue;
 
-        const fresh = await isNewWallet(dest);
+        const fresh = await isNewWallet(dest, cutoff);
         if (!fresh) continue;
 
         const label = `${(exchangeWallets[wallet]?.name||"Exchange")}出金 #${stats.detected + 1}`;
@@ -1581,6 +1589,7 @@ async function toggleMonitor() {
   }
 
   isRunning = true;
+  sessionStart = Math.floor(Date.now() / 1000); // セッション開始時刻
   document.getElementById('startBtn').textContent = '■ STOP';
   document.getElementById('startBtn').classList.add('active');
   document.getElementById('liveDot').className = 'live-dot scanning';
@@ -1636,6 +1645,7 @@ function clearAll() {
   events = [];
   watchedWallets = {};
   processedSigs.clear();
+  sessionStart = 0;
   stats = { wallets:0, detected:0, buys:0, scans:0, created:0 }; coinBuys = {}; createdCoins = [];
   // 全取引所をOFF
   Object.keys(exchangeWallets).forEach(a => exchangeWallets[a].enabled = false);
