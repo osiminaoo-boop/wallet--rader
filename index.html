@@ -904,11 +904,11 @@ function parseCoinCreation(tx) {
       } catch {}
     }
 
-    // ② fallback: postTokenBalancesに新mintがあってpumpで終わる
+    // ② fallback: postTokenBalancesに新mintがあってpump/BAGSで終わる
     const postMints = new Set((meta.postTokenBalances || []).map(t => t.mint));
     const preMints  = new Set((meta.preTokenBalances  || []).map(t => t.mint));
     for (const mint of postMints) {
-      if (!preMints.has(mint) && mint.endsWith('pump')) {
+      if (!preMints.has(mint) && (mint.endsWith('pump') || mint.endsWith('BAGS'))) {
         return mint;
       }
     }
@@ -1013,6 +1013,7 @@ async function scanPast30Min(seconds) {
         if (t.preBalance !== 0) { skipCount++; continue; }
 
         const label = `${(exchangeWallets[wallet]?.name||"Exchange")}出金 #${stats.detected + 1}`;
+        if (Object.keys(watchedWallets).length >= 150) { skipCount++; continue; }
         watchedWallets[dest] = { label, since: now(), lastSig: null, source: exchangeWallets[wallet]?.name || 'exchange' };
         stats.detected++;
         newWallets.push({ addr: dest, label, solAmount: t.amount });
@@ -1050,7 +1051,7 @@ async function scanPast30Min(seconds) {
   ];
   for (const { addr, label } of step2Targets) {
     let sigs = [];
-    try { sigs = await getSignaturesUntil(addr, cutoff, 3); } catch(e) { continue; }
+    try { sigs = await getSignaturesUntil(addr, cutoff, 10); } catch(e) { continue; }
     const newLastSig = sigs[0]?.signature;
     for (const s of sigs) {
       if (!s.blockTime || s.blockTime < cutoff) continue;
@@ -1464,6 +1465,7 @@ async function checkBinance2() {
         if (t.preBalance !== 0) continue;
 
         const label = `${(exchangeWallets[wallet]?.name||"Exchange")}出金 #${stats.detected + 1}`;
+        if (Object.keys(watchedWallets).length >= 150) continue;
         watchedWallets[dest] = { label, since: now(), lastSig: null, source: exchangeWallets[wallet]?.name || 'exchange' };
         stats.detected++;
 
@@ -1569,12 +1571,21 @@ async function manualCatchup() {
 }
 
 async function checkWatched() {
-  for (const [addr, info] of Object.entries(watchedWallets)) {
+  const entries = Object.entries(watchedWallets);
+  // 5件ずつ並列処理
+  for (let i = 0; i < entries.length; i += 5) {
+    await Promise.all(entries.slice(i, i + 5).map(([addr, info]) => checkOneWallet(addr, info)));
+  }
+  saveState();
+}
+
+async function checkOneWallet(addr, info) {
+  if (!watchedWallets[addr]) return;
     // キャッシュをバイパスして直接取得（リアルタイム検知のため）
     let sigs = [];
     try {
       await GLOBAL_SEM.acquire();
-      const res = await withBackoff(() => rpc('getSignaturesForAddress', [addr, { limit: 20, commitment: 'confirmed' }])).catch(() => []);
+      const res = await withBackoff(() => rpc('getSignaturesForAddress', [addr, { limit: 50, commitment: 'confirmed' }])).catch(() => []);
       sigs = res || [];
     } finally { GLOBAL_SEM.release(); }
     if (!sigs.length) continue;
@@ -1645,10 +1656,6 @@ async function checkWatched() {
     }
 
     if (newLastSig && watchedWallets[addr]) watchedWallets[addr].lastSig = newLastSig;
-  }
-
-
-  saveState();
 }
 
 function clearWatched() {
