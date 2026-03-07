@@ -1139,20 +1139,18 @@ function renderScanTargets() {
   if (!container) return;
   const entries = Object.entries(exchangeWallets);
   container.innerHTML = entries.map(([addr, data]) => `
-    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:6px 10px;border:1px solid ${data.enabled ? 'rgba(0,229,255,.4)' : 'rgba(42,58,90,.4)'};background:${data.enabled ? 'rgba(0,229,255,.08)' : 'transparent'};border-radius:2px">
-      <input type="radio" name="exchange" ${data.enabled ? 'checked' : ''} onclick="toggleExchange('${addr}')"
-        style="width:16px;height:16px;cursor:pointer;accent-color:var(--accent)">
+    <div onclick="toggleExchange('${addr}')" style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:6px 10px;border:1px solid ${data.enabled ? 'rgba(0,229,255,.4)' : 'rgba(42,58,90,.4)'};background:${data.enabled ? 'rgba(0,229,255,.08)' : 'transparent'};border-radius:2px;user-select:none">
+      <div style="width:16px;height:16px;border-radius:50%;border:2px solid ${data.enabled ? 'var(--accent)' : 'var(--dim)'};background:${data.enabled ? 'var(--accent)' : 'transparent'};flex-shrink:0"></div>
       <div>
         <div style="font-family:'Orbitron',monospace;font-size:10px;color:${data.enabled ? 'var(--accent)' : 'var(--dim)'};">${data.name}</div>
         <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--dim)">${addr.slice(0,8)}...${addr.slice(-6)}</div>
       </div>
-    </label>
+    </div>
   `).join('');
 }
 
 function toggleExchange(addr) {
   if (!exchangeWallets[addr]) return;
-  // 全部OFFにしてから選択したものだけON（1つだけ選択）
   Object.keys(exchangeWallets).forEach(a => exchangeWallets[a].enabled = false);
   exchangeWallets[addr].enabled = true;
   renderScanTargets();
@@ -1588,7 +1586,7 @@ async function checkOneWallet(addr, info) {
       const res = await withBackoff(() => rpc('getSignaturesForAddress', [addr, { limit: 50, commitment: 'confirmed' }])).catch(() => []);
       sigs = res || [];
     } finally { GLOBAL_SEM.release(); }
-    if (!sigs.length) continue;
+    if (!sigs.length) return;
 
     const newLastSig = sigs[0]?.signature || info.lastSig;
     for (const s of sigs) {
