@@ -343,7 +343,7 @@ animation:tickerRun 25s linear infinite;
       <div class="empty" id="emptyEv">
         &gt; HELIUS API KEY を入力<br>
         &gt; START を押して監視開始<br>
-        &gt; Binance2出金を自動検知します
+        &gt; 取引所出金を自動検知します
       </div>
     </div>
   </div>
@@ -907,7 +907,7 @@ async function scanPast30Min(seconds) {
   const rangeLabel = seconds <= 600 ? '10分' : seconds <= 1800 ? '30分' : '1時間';
 
   const scanStartTime = now();
-  addEvent({ html: `<div class="ev-meta"><span class="badge" style="background:rgba(0,229,255,.1);color:var(--accent);border:1px solid var(--accent)">CATCHUP</span><span class="ev-time">${scanStartTime}</span></div><div class="ev-title">🔍 過去${rangeLabel}スキャン開始</div><div class="ev-detail" style="color:var(--dim)">⏰ スキャン実行時刻: <span>${scanStartTime}</span><br>Binance2出金 → 新規ウォレット → コイン作成 の流れを追跡します</div>` });
+  addEvent({ html: `<div class="ev-meta"><span class="badge" style="background:rgba(0,229,255,.1);color:var(--accent);border:1px solid var(--accent)">CATCHUP</span><span class="ev-time">${scanStartTime}</span></div><div class="ev-title">🔍 過去${rangeLabel}スキャン開始</div><div class="ev-detail" style="color:var(--dim)">⏰ スキャン実行時刻: <span>${scanStartTime}</span><br>取引所出金 → 新規ウォレット → コイン作成 の流れを追跡します</div>` });
 
   // Step1: Binance2の過去30分の出金を取得
   const newWallets = [];
@@ -934,7 +934,7 @@ async function scanPast30Min(seconds) {
         if (!fresh) { skipCount++; continue; }
 
         const label = `${(exchangeWallets[wallet]?.name||"Exchange")}出金 #${stats.detected + 1}`;
-        watchedWallets[dest] = { label, since: now(), lastSig: null, source: 'binance2' };
+        watchedWallets[dest] = { label, since: now(), lastSig: null, source: exchangeWallets[wallet]?.name || 'exchange' };
         stats.detected++;
         newWallets.push({ addr: dest, label, solAmount: t.amount });
 
@@ -945,7 +945,7 @@ async function scanPast30Min(seconds) {
             <span class="badge" style="background:rgba(0,229,255,.05);color:var(--dim);border:1px solid var(--dim)">CATCHUP</span>
             <span class="ev-time">${now()}</span>
           </div>
-          <div class="ev-title">🏦 Binance2出金を検知（過去${rangeLabel}）</div>
+          <div class="ev-title">🏦 ${exchangeWallets[wallet]?.name||"Exchange"}出金を検知（過去${rangeLabel}）</div>
           <div class="ev-detail">
             ⏰ 発生時刻: <span>${txTime(s.blockTime)}</span><br>
             💰 送金額: <span>${t.amount.toFixed(2)} SOL</span><br>
@@ -1352,7 +1352,7 @@ async function checkBinance2() {
 
         const label = `${(exchangeWallets[wallet]?.name||"Exchange")}出金 #${stats.detected + 1}`;
 
-        watchedWallets[dest] = { label, since: now(), lastSig: null, source: 'binance2' };
+        watchedWallets[dest] = { label, since: now(), lastSig: null, source: exchangeWallets[wallet]?.name || 'exchange' };
         stats.detected++;
 
         addEvent({
