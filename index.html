@@ -765,7 +765,13 @@ function sigProcessed(sig) {
 
 async function isNewWallet(addr, cutoff = null) {
   try {
-    const sigs = await safeGetSignatures(addr, 100);
+    // キャッシュをバイパスして直接取得（新規判定は常に最新情報が必要）
+    let sigs = [];
+    try {
+      await GLOBAL_SEM.acquire();
+      const res = await withBackoff(() => rpc('getSignaturesForAddress', [addr, { limit: 100, commitment: 'confirmed' }])).catch(() => []);
+      sigs = res || [];
+    } finally { GLOBAL_SEM.release(); }
     if (!sigs || sigs.length === 0) return false;
 
     // 条件: 最古TXがcutoff以降（ウォレット作成がスキャン範囲内）
@@ -829,6 +835,7 @@ function parseTokenBuys(tx) {
 
 // Pump.funのプログラムID
 const PUMP_PROGRAM = '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P';
+const BAGS_PROGRAM = 'dbcij3LWUppWqq96dh6gJWwBifmcGfLSB5D4DuSMaqN';
 
 // SPL Token Program ID
 const TOKEN_PROGRAM = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA';
@@ -843,9 +850,10 @@ function parseCoinCreation(tx) {
     const accounts = tx.transaction?.message?.accountKeys || [];
     const getAddr = a => typeof a === 'string' ? a : a?.pubkey;
 
-    // Pump.funが絡んでいるか確認
+    // Pump.funまたはBagsが絡んでいるか確認
     const hasPump = accounts.some(a => getAddr(a) === PUMP_PROGRAM);
-    if (!hasPump) return null;
+    const hasBags = accounts.some(a => getAddr(a) === BAGS_PROGRAM);
+    if (!hasPump && !hasBags) return null;
 
     // ① SPL Token Program の initializeMint instruction を検出
     //    outer + inner 両方チェック
@@ -932,6 +940,8 @@ function solscanAcc(a)   { return `https://solscan.io/account/${a}`; }
 function pumpUrl(mint)   { return `https://pump.fun/${mint}`; }
 function dexUrl(mint)    { return `https://dexscreener.com/solana/${mint}`; }
 function isPump(mint)    { return mint.endsWith('pump'); }
+function isBags(tx) { const accounts = tx?.transaction?.message?.accountKeys || []; return accounts.some(a => (typeof a === 'string' ? a : a?.pubkey) === BAGS_PROGRAM); }
+function isBagsMint(mint) { return mint.endsWith('BAGS'); }
 
 // コピー関数
 function copyText(text) {
@@ -1074,6 +1084,8 @@ async function scanPast30Min(seconds) {
       if (buys.length > 0) {
       for (const b of buys) {
         if (createdMint && b.mint === createdMint) continue; // 作成は上で処理済み
+        // pump.funまたはBagsのトークンのみ
+        if (!isPump(b.mint) && !isBagsMint(b.mint) && !isBags(tx)) continue;
         stats.buys++;
         trackCoin(b.mint, 'buy', addr);
         addEvent({ html: `
@@ -1600,7 +1612,8 @@ async function checkWatched() {
       if (buys.length > 0) {
         for (const b of buys) {
           if (createdMint && b.mint === createdMint) continue;
-          if (!isPump(b.mint)) continue; // pump.fun以外はスキップ
+          // pump.funまたはBagsのトークンのみ（TXにBAGS_PROGRAMが含まれるか確認）
+          if (!isPump(b.mint) && !isBagsMint(b.mint) && !isBags(tx)) continue;
           stats.buys++;
           trackCoin(b.mint, 'buy', addr);
           addEvent({ html: `
