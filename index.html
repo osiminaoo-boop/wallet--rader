@@ -804,7 +804,7 @@ function parseSolTransfers(tx) {
       const diff = (post[i] - pre[i]) / 1e9;
       if (diff > 0.01) {
         const addr = typeof accounts[i] === 'string' ? accounts[i] : accounts[i]?.pubkey || '';
-        out.push({ address: addr, amount: diff });
+        out.push({ address: addr, amount: diff, idx: i, preBalance: pre[i] });
       }
     }
     return out;
@@ -997,12 +997,8 @@ async function scanPast30Min(seconds) {
         const dest = t.address;
         if (!dest || isExchangeAddr(dest)) continue;
         if (t.amount < 0.01) { skipCount++; continue; } // 0.01 SOL未満はスキップ
-        // 新規ウォレット判定: preBalance=0なら初めての入金（追加APIコールなし）
-        const accounts2 = tx.transaction?.message?.accountKeys || [];
-        const destIdx = accounts2.findIndex(a => (typeof a === 'string' ? a : a?.pubkey) === dest);
-        if (destIdx === -1) { skipCount++; continue; }
-        const preBalance = tx.meta?.preBalances?.[destIdx] || 0;
-        if (preBalance !== 0) { skipCount++; continue; }
+        // preBalance=0なら初めての入金（parseSolTransfersのidxを使用）
+        if (t.preBalance !== 0) { skipCount++; continue; }
 
         const label = `${(exchangeWallets[wallet]?.name||"Exchange")}出金 #${stats.detected + 1}`;
         watchedWallets[dest] = { label, since: now(), lastSig: null, source: exchangeWallets[wallet]?.name || 'exchange' };
@@ -1451,11 +1447,8 @@ async function checkBinance2() {
         if (t.amount < 0.01) continue;
         if (watchedWallets[dest]) continue;
 
-        // preBalanceが0なら初めての入金=新規ウォレット（追加APIコールなし）
-        const accounts = tx.transaction?.message?.accountKeys || [];
-        const destIdx = accounts.findIndex(a => (typeof a === 'string' ? a : a?.pubkey) === dest);
-        if (destIdx === -1) continue;
-        if ((tx.meta?.preBalances?.[destIdx] || 0) !== 0) continue;
+        // preBalance=0なら初めての入金（parseSolTransfersのidxを使用）
+        if (t.preBalance !== 0) continue;
 
         const label = `${(exchangeWallets[wallet]?.name||"Exchange")}出金 #${stats.detected + 1}`;
         watchedWallets[dest] = { label, since: now(), lastSig: null, source: exchangeWallets[wallet]?.name || 'exchange' };
