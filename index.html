@@ -451,6 +451,7 @@ animation:tickerRun 25s linear infinite;
   <div id="ranking-list"><div class="empty" style="padding:20px 16px;font-size:10px">データなし</div></div>
 </div>
 
+
 <!-- WATCHED WALLETS -->
 <div class="panel" style="flex:1">
   <div class="ph">
@@ -668,7 +669,17 @@ async function getSignaturesUntil(addr, cutoff, maxPages = 10) {
   const allSigs = [];
   let before = null;
   for (let page = 0; page < maxPages; page++) {
-    const sigs = await safeGetSignatures(addr, 100, before);
+    // キャッシュをバイパスして直接RPCを叩く（ページングの正確性のため）
+    let sigs = [];
+    try {
+      await GLOBAL_SEM.acquire();
+      const opts = { limit: 100, commitment: 'confirmed' };
+      if (before) opts.before = before;
+      const res = await withBackoff(() => rpc('getSignaturesForAddress', [addr, opts])).catch(() => []);
+      sigs = res || [];
+    } finally {
+      GLOBAL_SEM.release();
+    }
     if (!sigs.length) break;
     let done = false;
     for (const s of sigs) {
@@ -744,31 +755,19 @@ function sigProcessed(sig) {
 
 async function isNewWallet(addr) {
   try {
-    // TX履歴を最大10件取得
     const sigs = await safeGetSignatures(addr, 10);
     if (!sigs || sigs.length === 0) return false;
 
-    // 条件①: TX履歴が5件以下（新規ウォレット判定を緩和）
+    // 条件①: TX履歴が5件以下
     if (sigs.length > 5) return false;
 
-    // 厳密条件②: そのTXが24時間以内
-    const blockTime = sigs[0].blockTime;
+    // 条件②: 最初のTXが24時間以内
+    const blockTime = sigs[sigs.length - 1].blockTime; // 最古のTXを見る
     if (!blockTime) return false;
     const ageHours = (Date.now() / 1000 - blockTime) / 3600;
     if (ageHours > 24) return false;
 
-    // 厳密条件③: そのTX前の残高が0（完全に新規）
-    const tx = await safeGetTx(sigs[0].signature);
-    if (!tx) return false;
-
-    const accounts    = tx.transaction?.message?.accountKeys || [];
-    const preBalances = tx.meta?.preBalances || [];
-    const idx = accounts.findIndex(a =>
-      (typeof a === 'string' ? a : a?.pubkey) === addr
-    );
-    if (idx === -1) return false;
-
-    return (preBalances[idx] || 0) === 0; // lamports単位で0
+    return true;
 
   } catch (e) {
     console.error('isNewWallet error:', e);
@@ -789,7 +788,7 @@ function parseSolTransfers(tx) {
     const out = [];
     for (let i = 0; i < pre.length; i++) {
       const diff = (post[i] - pre[i]) / 1e9;
-      if (diff > 0.05) {
+      if (diff > 0.01) {
         const addr = typeof accounts[i] === 'string' ? accounts[i] : accounts[i]?.pubkey || '';
         out.push({ address: addr, amount: diff });
       }
@@ -958,14 +957,19 @@ async function scanPast30Min(seconds) {
   const newWallets = [];
   let skipCount = 0;
   for (const wallet of getExchangeAddrs()) {
-    const maxPages = seconds <= 600 ? 5 : 15; // 10分=5ページ(500件)、30分=15ページ(1500件)
+    const maxPages = seconds <= 600 ? 5 : 10; // 10分=5ページ、30分=10ページ
     const sigs = await getSignaturesUntil(wallet, cutoff, maxPages);
-    for (const s of sigs) {
+    // TXを並列取得（最大5件同時）
+    const chunks = [];
+    for (let i = 0; i < sigs.length; i += 5) chunks.push(sigs.slice(i, i + 5));
+    for (const chunk of chunks) {
+      const txs = await Promise.all(chunk.map(s => safeGetTx(s.signature)));
+      for (let ci = 0; ci < chunk.length; ci++) {
+        const s = chunk[ci];
+        const tx = txs[ci];
       if (!s.blockTime || s.blockTime < cutoff) continue;
-      // 過去スキャンはprocessedSigsを参照しない（遡るのが目的）
       processedSigs.set(s.signature, Date.now());
 
-      const tx = await safeGetTx(s.signature);
       if (!tx) continue;
 
       const transfers = parseSolTransfers(tx);
@@ -1003,7 +1007,8 @@ async function scanPast30Min(seconds) {
         renderWatchedList();
         updateStats();
       }
-    }
+      } // end chunk loop
+    } // end chunks loop
   }
 
   // Step2: 新規ウォレット＋既存監視ウォレット全員の過去TXからコイン作成を探す
@@ -1052,9 +1057,9 @@ async function scanPast30Min(seconds) {
         updateStats();
       }
 
-      // トークン購入チェック（Step2では新規ウォレットのみ）
-      if (newWallets.find(w => w.addr === addr)) {
+      // トークン購入チェック（全監視ウォレット対象）
       const buys = parseTokenBuys(tx);
+      if (buys.length > 0) {
       for (const b of buys) {
         if (createdMint && b.mint === createdMint) continue; // 作成は上で処理済み
         stats.buys++;
@@ -1080,7 +1085,7 @@ async function scanPast30Min(seconds) {
           </div>` });
         updateStats();
       }
-      } // end if newWallets
+      } // end if buys
     }
     // lastSigを最新に更新
     if (newLastSig && watchedWallets[addr]) watchedWallets[addr].lastSig = newLastSig;
@@ -1117,12 +1122,7 @@ function toggleExchange(addr) {
   exchangeWallets[addr].enabled = !exchangeWallets[addr].enabled;
   renderScanTargets();
   saveState();
-  // チェック変更時に即スキャン
-  if (isRunning) {
-    clearInterval(monitorTimer);
-    const interval = parseInt(document.getElementById('intervalSec').value) * 1000 || 20000;
-    runScan().then(() => { monitorTimer = setInterval(runScan, interval); });
-  }
+
 }
 
 
@@ -1390,7 +1390,7 @@ async function checkBinance2() {
       for (const t of transfers) {
         const dest = t.address;
         if (!dest || isExchangeAddr(dest)) continue;
-        if (t.amount < 0.1) continue; // 0.1 SOL未満はスキップ
+        if (t.amount < 0.01) continue; // 0.01 SOL未満はスキップ
         if (watchedWallets[dest]) continue;
 
         const fresh = await isNewWallet(dest);
@@ -1587,11 +1587,9 @@ async function toggleMonitor() {
 
   const interval = parseInt(document.getElementById('intervalSec').value) * 1000 || 20000;
 
-  // 初回: 過去10分スキャンしてからループ開始
-  try { await scanPast30Min(600); } catch(e) {}
-  if (!isRunning) return; // スキャン中にSTOPされた場合
+  // 初回即実行
   await runScan();
-  if (!isRunning) return;
+  if (!isRunning) return; // runScan中にSTOPされた場合
 
   monitorTimer = setInterval(runScan, interval);
 }
@@ -1922,6 +1920,8 @@ function fmtMC(n) {
   if (n >= 1e3) return (n/1e3).toFixed(2)+'K';
   return n.toFixed(0);
 }
+
+
 </script>
 
 </body>
