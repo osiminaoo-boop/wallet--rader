@@ -314,7 +314,7 @@ animation:tickerRun 25s linear infinite;
       <button onclick="document.getElementById('helpModal').style.display='none'" style="background:none;border:none;color:#ccd6f6;font-size:18px;cursor:pointer">✕</button>
     </div>
     <div style="color:var(--gold);margin-bottom:6px">▶ セットアップ（初回）</div>
-    <div style="color:#b0c8e8;margin-bottom:14px">
+    <div style="color:#e8f0ff;margin-bottom:14px">
       <span style="color:var(--accent)">1.</span> <a href="https://helius.dev" target="_blank" style="color:var(--accent)">helius.dev</a> で無料登録してAPIキーを取得<br>
       <span style="color:var(--accent)">2.</span> 画面上部の「HELIUS API KEY」欄にキーを貼り付け<br>
       <span style="color:var(--accent)">3.</span> SCAN TARGETSで監視したい取引所を1つ選択<br>
@@ -323,7 +323,7 @@ animation:tickerRun 25s linear infinite;
 
 ```
 <div style="color:var(--gold);margin-bottom:6px">▶ ボタン説明</div>
-<div style="color:#b0c8e8;margin-bottom:14px">
+<div style="color:#e8f0ff;margin-bottom:14px">
   <span style="color:var(--accent)">▶ START</span> — 監視開始。押した瞬間以降に取引所から初めてSOLを受け取った新規ウォレットのみ検知する<br><br>
   <span style="color:var(--accent)">■ STOP</span> — 監視停止。再度STARTすると新しいセッションで再開<br><br>
   <span style="color:var(--accent)">🔍 SCAN（10分/30分）</span> — 過去10分または30分を遡って手動スキャン。STARTしていなくても使用可能<br><br>
@@ -332,14 +332,14 @@ animation:tickerRun 25s linear infinite;
 </div>
 
 <div style="color:var(--gold);margin-bottom:6px">▶ 検知条件</div>
-<div style="color:#b0c8e8;margin-bottom:14px">
+<div style="color:#e8f0ff;margin-bottom:14px">
   • 選択した取引所からの <span style="color:var(--accent)">0.01 SOL以上</span> の出金TX<br>
   • 出金先のウォレットが <span style="color:var(--accent)">初めてSOLを受け取る</span>（preBalance = 0）<br>
   • 出金先がpump.fun / Bags銘柄を <span style="color:var(--green)">購入 or 作成</span> したらイベント表示
 </div>
 
 <div style="color:var(--gold);margin-bottom:6px">▶ イベントの種類</div>
-<div style="color:#b0c8e8;margin-bottom:14px">
+<div style="color:#e8f0ff;margin-bottom:14px">
   🏦 <span style="color:var(--accent2)">OUTFLOW + NEW WALLET</span><br>
   　取引所から新規ウォレットへの出金を検知。監視リストに自動追加<br><br>
   🎨 <span style="color:var(--green)">COIN CREATED</span><br>
@@ -349,7 +349,7 @@ animation:tickerRun 25s linear infinite;
 </div>
 
 <div style="color:var(--gold);margin-bottom:6px">▶ 各パネル</div>
-<div style="color:#b0c8e8;margin-bottom:14px">
+<div style="color:#e8f0ff;margin-bottom:14px">
   <span style="color:var(--accent)">LIVE EVENTS</span> — リアルタイム検知ログ<br>
   <span style="color:var(--accent)">WATCHED WALLETS</span> — 監視中ウォレット一覧。タップで名前編集・手動追加も可<br>
   <span style="color:var(--accent)">CREATED COINS</span> — 監視ウォレットが作成したコイン一覧<br>
@@ -358,7 +358,7 @@ animation:tickerRun 25s linear infinite;
 </div>
 
 <div style="color:var(--gold);margin-bottom:6px">▶ 注意点</div>
-<div style="color:#b0c8e8">
+<div style="color:#e8f0ff">
   • 取引所は <span style="color:var(--accent)">1つだけ</span> 選択（複数選択不可）<br>
   • iPhoneはバックグラウンドで止まる → 画面オンのまま使用<br>
   • MEXCはSOL出金が少ない場合あり（USDC出金は非対応）<br>
