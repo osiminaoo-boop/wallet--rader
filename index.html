@@ -966,9 +966,11 @@ async function scanPast30Min(seconds) {
   // Step1: Binance2の過去30分の出金を取得
   const newWallets = [];
   let skipCount = 0;
+  console.log(`[SCAN] スキャン開始 range=${rangeLabel} cutoff=${new Date(cutoff*1000).toLocaleTimeString()} 取引所=${getExchangeAddrs().map(a=>exchangeWallets[a]?.name).join(',')}`);
   for (const wallet of getExchangeAddrs()) {
     const maxPages = seconds <= 600 ? 5 : 10; // 10分=5ページ、30分=10ページ
     const sigs = await getSignaturesUntil(wallet, cutoff, maxPages);
+    console.log(`[SCAN] ${exchangeWallets[wallet]?.name} sigs取得: ${sigs.length}件 cutoff=${new Date(cutoff*1000).toLocaleTimeString()}`);
     // TXを並列取得（最大5件同時）
     const chunks = [];
     for (let i = 0; i < sigs.length; i += 5) chunks.push(sigs.slice(i, i + 5));
@@ -987,10 +989,13 @@ async function scanPast30Min(seconds) {
         const dest = t.address;
         if (!dest || isExchangeAddr(dest)) continue;
         if (t.amount < 0.01) { skipCount++; continue; } // 0.01 SOL未満はスキップ
-        if (watchedWallets[dest]) { skipCount++; continue; }
-
-        const fresh = await isNewWallet(dest, cutoff); // スキャン範囲のcutoffを使用
-        if (!fresh) { skipCount++; continue; }
+        // preBalancesでdestの残高を確認（API追加コールなし）
+        const accounts = tx.transaction?.message?.accountKeys || [];
+        const destIdx = accounts.findIndex(a => (typeof a === 'string' ? a : a?.pubkey) === dest);
+        if (destIdx === -1) { skipCount++; continue; }
+        const preBalance = tx.meta?.preBalances?.[destIdx] || 0;
+        // 0.01 SOL(10000000 lamports)未満なら新規ウォレットとみなす
+        if (preBalance > 10000000) { skipCount++; continue; }
 
         const label = `${(exchangeWallets[wallet]?.name||"Exchange")}出金 #${stats.detected + 1}`;
         watchedWallets[dest] = { label, since: now(), lastSig: null, source: exchangeWallets[wallet]?.name || 'exchange' };
