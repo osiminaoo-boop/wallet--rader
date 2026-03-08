@@ -1,40 +1,54 @@
 <!DOCTYPE html>
 
-<html><head><meta charset="UTF-8"><title>DexScreener OHLCV Test</title>
+<html><head><meta charset="UTF-8"><title>Birdeye OHLCV Test</title>
 <style>body{background:#111;color:#0f0;font-family:monospace;padding:20px;font-size:11px;}
 button{background:#ff6a00;color:#000;border:none;padding:8px 16px;cursor:pointer;font-weight:700;margin:4px;}
 pre{white-space:pre-wrap;word-break:break-all;background:#0a0a0a;padding:12px;margin-top:8px;}
 h3{color:#ff6a00;margin:12px 0 4px;}</style>
 </head><body>
-<h3>DexScreener OHLCV API Test</h3>
-<button onclick="test1()">チャートデータ取得（OSUNEN）</button>
-<button onclick="test2()">ペア情報確認</button>
+<h3>Birdeye OHLCV Test — 3/8 00:09から最高MC取得</h3>
+<button onclick="test1()">Birdeye OHLCV（OSUNEN）</button>
+<button onclick="test2()">Birdeye price history</button>
+<button onclick="test3()">GeckoTerminal OHLCV</button>
 <div id="out"></div>
 <script>
 const ADDR = '5C7nFDCgWTLnHgszBd4ksmCak3nouFoMZ9sbAxkApump';
+const FROM = 1741359000; // 2025/3/8 00:09 JST → UTC
+const TO   = Math.floor(Date.now() / 1000);
 
 async function test1() {
-// まずペアアドレスを取得
-const r = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${ADDR}`);
+// Birdeye OHLCV (no key required for public)
+const url = `https://public-api.birdeye.so/defi/ohlcv?address=${ADDR}&type=1H&time_from=${FROM}&time_to=${TO}`;
+try {
+const r = await fetch(url, { headers: { ‘X-Chain’: ‘solana’ } });
 const d = await r.json();
-const pair = d?.pairs?.[0];
-const pairAddr = pair?.pairAddress;
-const chain = pair?.chainId;
-document.getElementById(‘out’).innerHTML = `<h3>pairAddress: ${pairAddr}</h3><h3>chain: ${chain}</h3>`;
-
-if (!pairAddr) return;
-
-// OHLCVデータ取得
-const r2 = await fetch(`https://api.dexscreener.com/latest/dex/ohlcv/${chain}/${pairAddr}?from=1741359000&to=${Math.floor(Date.now()/1000)}&resolution=60`);
-const d2 = await r2.json();
-document.getElementById(‘out’).innerHTML += `<h3>OHLCV status: ${r2.status}</h3><pre>${JSON.stringify(d2).slice(0,2000)}</pre>`;
+document.getElementById(‘out’).innerHTML = `<h3>status: ${r.status}</h3><pre>${JSON.stringify(d).slice(0,3000)}</pre>`;
+} catch(e) {
+document.getElementById(‘out’).innerHTML = `<h3 style="color:red">FAILED: ${e.message}</h3>`;
+}
 }
 
 async function test2() {
-const r = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${ADDR}`);
+const url = `https://public-api.birdeye.so/defi/history_price?address=${ADDR}&address_type=token&type=1H&time_from=${FROM}&time_to=${TO}`;
+try {
+const r = await fetch(url, { headers: { ‘X-Chain’: ‘solana’ } });
 const d = await r.json();
-const pair = d?.pairs?.[0];
-document.getElementById(‘out’).innerHTML = `<pre>${JSON.stringify(pair, null, 2)}</pre>`;
+document.getElementById(‘out’).innerHTML = `<h3>status: ${r.status}</h3><pre>${JSON.stringify(d).slice(0,3000)}</pre>`;
+} catch(e) {
+document.getElementById(‘out’).innerHTML = `<h3 style="color:red">FAILED: ${e.message}</h3>`;
+}
+}
+
+async function test3() {
+// GeckoTerminal OHLCV
+const url = `https://api.geckoterminal.com/api/v2/networks/solana/tokens/${ADDR}/ohlcv/hour?aggregate=1&before_timestamp=${TO}&limit=1000&currency=usd`;
+try {
+const r = await fetch(url, { headers: { Accept: ‘application/json;version=20230302’ } });
+const d = await r.json();
+document.getElementById(‘out’).innerHTML = `<h3>status: ${r.status}</h3><pre>${JSON.stringify(d).slice(0,3000)}</pre>`;
+} catch(e) {
+document.getElementById(‘out’).innerHTML = `<h3 style="color:red">FAILED: ${e.message}</h3>`;
+}
 }
 </script>
 
