@@ -8,42 +8,28 @@
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=M+PLUS+1p:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
-body {
-  background: #07090f;
-  color: #fff;
-  font-family: 'M PLUS 1p', sans-serif;
-  min-height: 100vh;
-}
+body { background:#07090f; color:#fff; font-family:'M PLUS 1p',sans-serif; min-height:100vh; }
 body::before {
-  content:'';
-  position:fixed; inset:0;
-  background:
-    radial-gradient(ellipse 70% 50% at 50% 0%, rgba(255,80,0,0.07) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 40% at 90% 90%, rgba(255,200,0,0.05) 0%, transparent 60%);
+  content:''; position:fixed; inset:0;
+  background: radial-gradient(ellipse 70% 50% at 50% 0%,rgba(255,80,0,.07) 0%,transparent 60%),
+              radial-gradient(ellipse 50% 40% at 90% 90%,rgba(255,200,0,.05) 0%,transparent 60%);
   pointer-events:none;
 }
-header {
-  text-align:center; padding:28px 20px 20px;
-  border-bottom:2px solid #1a1a1a;
-}
+header { text-align:center; padding:28px 20px 20px; border-bottom:2px solid #1a1a1a; }
 .title-fire {
-  font-family:'Oswald',sans-serif;
-  font-size:clamp(16px,4vw,30px); font-weight:700;
-  color:#ff6a00; letter-spacing:2px;
-  text-shadow:0 0 24px rgba(255,106,0,0.6); margin-bottom:4px;
+  font-family:'Oswald',sans-serif; font-size:clamp(16px,4vw,30px); font-weight:700;
+  color:#ff6a00; letter-spacing:2px; text-shadow:0 0 24px rgba(255,106,0,.6); margin-bottom:4px;
 }
 .title-sub { font-size:12px; color:#666; font-weight:400; margin-bottom:14px; }
 .base-tag {
-  display:inline-block; background:#111;
-  border:1px solid #222; border-left:3px solid #ff6a00;
+  display:inline-block; background:#111; border:1px solid #222; border-left:3px solid #ff6a00;
   padding:6px 16px; font-size:11px; color:#888; font-weight:400;
 }
 .base-tag strong { color:#ff6a00; }
 .live-row { margin-top:10px; font-size:11px; color:#444; font-weight:400; }
 .live-dot {
   display:inline-block; width:6px; height:6px; border-radius:50%;
-  background:#00ff88; box-shadow:0 0 6px #00ff88; margin-right:5px;
-  animation:blink 1.4s infinite;
+  background:#00ff88; box-shadow:0 0 6px #00ff88; margin-right:5px; animation:blink 1.4s infinite;
 }
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
 
@@ -63,44 +49,39 @@ display:grid; grid-template-columns:repeat(3,1fr); gap:10px;
 .ranking-wrap { max-width:960px; margin:20px auto 40px; padding:0 16px; }
 .rank-header {
 display:grid; grid-template-columns:56px 1fr 160px 160px;
-gap:8px; padding:8px 14px;
-font-size:10px; color:#333; font-weight:400;
+gap:8px; padding:8px 14px; font-size:10px; color:#333; font-weight:400;
 border-bottom:1px solid #161616; letter-spacing:1px; text-transform:uppercase;
 }
 .rank-row {
 display:grid; grid-template-columns:56px 1fr 160px 160px;
-gap:8px; padding:18px 14px 10px;
-border-bottom:1px solid #0f0f0f; align-items:center;
-transition:background .2s; animation:rowIn .4s ease both;
+gap:8px; padding:18px 14px 10px; border-bottom:1px solid #0f0f0f;
+align-items:center; transition:background .2s; animation:rowIn .4s ease both; cursor:pointer;
 }
 @keyframes rowIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
-.rank-row:hover { background:rgba(255,255,255,0.02); }
-.rank-row.rank-1 { background:rgba(255,200,0,0.05); border-left:3px solid #ffcc00; }
+.rank-row:hover { background:rgba(255,255,255,0.03); }
+.rank-row.rank-1 { background:rgba(255,200,0,.05); border-left:3px solid #ffcc00; }
 .rank-row.rank-2 { border-left:3px solid #999; }
 .rank-row.rank-3 { border-left:3px solid #cd7f32; }
 
-.rank-num {
-font-family:‘Oswald’,sans-serif; font-size:22px; font-weight:700;
-text-align:center; color:#282828; line-height:1;
-}
+.rank-num { font-family:‘Oswald’,sans-serif; font-size:22px; font-weight:700; text-align:center; color:#282828; line-height:1; }
 .rank-1 .rank-num { color:#ffcc00; font-size:28px; }
 .rank-2 .rank-num { color:#999; }
 .rank-3 .rank-num { color:#cd7f32; }
 
 .coin-sym  { font-family:‘Oswald’,sans-serif; font-size:19px; font-weight:600; color:#fff; line-height:1; }
 .coin-name { font-size:11px; color:#555; margin-top:3px; font-weight:400; }
-.coin-addr { font-size:9px; color:#222; margin-top:3px; font-weight:400; font-family:monospace; }
+.coin-addr {
+font-size:9px; color:#444; margin-top:4px; font-weight:400; font-family:monospace;
+display:inline-flex; align-items:center; gap:4px;
+}
+.copy-hint { font-size:8px; color:#333; }
 
-/* MC列 */
 .mc-cell { text-align:right; }
 .mc-now  { font-family:‘Oswald’,sans-serif; font-size:18px; font-weight:600; color:#ccc; line-height:1; }
 .mc-base { font-size:10px; color:#333; margin-top:4px; font-weight:400; }
 
-/* 上昇率列 */
 .rate-cell { text-align:right; }
-.max-rate {
-font-family:‘Oswald’,sans-serif; font-size:34px; font-weight:700; line-height:1;
-}
+.max-rate { font-family:‘Oswald’,sans-serif; font-size:34px; font-weight:700; line-height:1; }
 .max-rate.up   { color:#00ff88; text-shadow:0 0 16px rgba(0,255,136,.4); }
 .max-rate.down { color:#ff3d71; }
 .max-rate.flat { color:#333; }
@@ -110,22 +91,22 @@ font-family:‘Oswald’,sans-serif; font-size:34px; font-weight:700; line-heigh
 .now-rate.down { color:#cc2255; }
 .now-rate.flat { color:#333; }
 
-/* バー */
-.bar-full {
-grid-column:1/-1; padding:2px 14px 6px 70px;
-display:flex; gap:6px; align-items:center;
-}
+.bar-full { grid-column:1/-1; padding:2px 14px 6px 70px; display:flex; gap:6px; align-items:center; }
 .bar-bg { flex:1; height:3px; background:#111; position:relative; overflow:hidden; }
-.bar-max-fill,.bar-now-fill {
-position:absolute; left:0; top:0; height:100%; transition:width 1s ease;
-}
+.bar-max-fill,.bar-now-fill { position:absolute; left:0; top:0; height:100%; transition:width 1s ease; }
 .bar-max-fill { opacity:.35; }
 .bar-legend { font-size:8px; color:#222; font-weight:400; white-space:nowrap; }
 
-.status-msg {
-text-align:center; padding:50px 20px;
-font-size:13px; font-weight:400; color:#555; line-height:2.5;
+/* コピートースト */
+.toast {
+position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(20px);
+background:#00ff88; color:#000; padding:10px 24px; font-weight:700; font-size:13px;
+border-radius:2px; opacity:0; transition:all .3s; pointer-events:none; z-index:999;
+font-family:‘M PLUS 1p’,sans-serif;
 }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+.status-msg { text-align:center; padding:50px 20px; font-size:13px; font-weight:400; color:#555; line-height:2.5; }
 
 @media(max-width:600px){
 .rank-header,.mc-cell,.bar-full { display:none; }
@@ -147,7 +128,7 @@ font-size:13px; font-weight:400; color:#555; line-height:2.5;
   </div>
 </header>
 
-<div class="summary-wrap" id="summary">
+<div class="summary-wrap">
   <div class="sum-box">
     <div class="s-label">🏆 最大上昇率 TOP</div>
     <div class="s-val gold" id="sBest">—</div>
@@ -166,17 +147,16 @@ font-size:13px; font-weight:400; color:#555; line-height:2.5;
 <div class="ranking-wrap">
   <div class="rank-header">
     <div>順位</div>
-    <div>コイン</div>
+    <div>コイン（タップでCAコピー）</div>
     <div style="text-align:right">現在MC / 起点MC</div>
     <div style="text-align:right">最大上昇率 / 現在</div>
   </div>
-  <div id="rankList">
-    <div class="status-msg">価格データ取得中...</div>
-  </div>
+  <div id="rankList"><div class="status-msg">価格データ取得中...</div></div>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
-// 起点MC = 2025/3/8 00:09 時点の時価総額（USD）
 const COINS = [
   { sym:"$OSUNEN",     name:"押燃",             addr:"5C7nFDCgWTLnHgszBd4ksmCak3nouFoMZ9sbAxkApump", baseMC:6700    },
   { sym:"$MAMBO",      name:"曼波",             addr:"AG5iXv6pFuQtszqcVzZatTiH3EM5LvUhm6WnP42Gpump", baseMC:49600   },
@@ -191,14 +171,12 @@ const COINS = [
   { sym:"$YOP",        name:"Year Of Ponyta",   addr:"FG6jkQyxasn45vQGwpUCD3Kgv4mA5MLvUmYKauUmpump", baseMC:88930   },
   { sym:"$SHIRO",      name:"SHIRO",            addr:"FuJkw2vgov82x8DXbhPfmH6S6ZSJxvtjj1DQ7TsMpump", baseMC:8110    },
   { sym:"$SOLMYOJIN",  name:"SOL大明神",         addr:"EcNyJST9Q7nLWBjN6BB53hwBecmYgKy2UwHHC5TQpump", baseMC:9870    },
-  { sym:"$TSUKY",      name:"Tsukuyomi",        addr:"KbRRK8YcPJfnB6SXo84F2BJwr8nVvzgG4BCWGwYpump",  baseMC:381.9  },
+  { sym:"$TSUKY",      name:"Tsukuyomi",        addr:"KbRRK8YcPJfnB6SXo84F2BJwr8nVvzgG4BCWGwYpump",  baseMC:381.9   },
   { sym:"$ZOSS",       name:"ALL CHANCE",       addr:"DDpoM1KF4QYJww1qj7bTQFfFDF1KKQFbGozejjzcpump", baseMC:2900    },
   { sym:"$ANIMAL",     name:"SEXY ANIMAL COIN", addr:"8d4D4FGUrbtTDucywowRD4AnizRKCr1YZaYQ74bRpump", baseMC:300510  },
 ];
 
-// nowMC: 現在のMC, maxMC: セッション中の最高MC
-let nowMC = {};
-let maxMC = {};
+let nowMC = {}, maxMC = {};
 
 function applyMC(addr, mc) {
   if (!mc || isNaN(mc) || mc <= 0) return false;
@@ -207,7 +185,8 @@ function applyMC(addr, mc) {
   return true;
 }
 
-// Jupiter: price × 1,000,000,000 = MC
+// Jupiter: price × circulating supply
+// pump.funトークンは1B固定だがバーンがある場合はGeckoのmarket_cap_usdを使う
 async function fetchJupiter() {
   const ids = COINS.map(c => c.addr).join(',');
   const r = await fetch(`https://api.jup.ag/price/v2?ids=${ids}`);
@@ -216,15 +195,23 @@ async function fetchJupiter() {
   if (!d.data) throw new Error('no data');
   let count = 0;
   COINS.forEach(c => {
-    const p = parseFloat(d.data[c.addr]?.price);
-    if (p > 0 && applyMC(c.addr, p * 1_000_000_000)) count++;
+    const info = d.data[c.addr];
+    if (!info) return;
+    const price = parseFloat(info.price);
+    if (price <= 0) return;
+    // Jupiter does not give MC directly — use baseMC ratio to get current MC
+    // price / basePriceUSD * baseMC = currentMC
+    // basePriceUSD = baseMC / 1_000_000_000 (pump.fun default supply)
+    const basePriceUSD = c.baseMC / 1_000_000_000;
+    const mc = (price / basePriceUSD) * c.baseMC;
+    if (applyMC(c.addr, mc)) count++;
   });
   if (!count) throw new Error('0 prices');
   document.getElementById('apiLabel').textContent = `Jupiter API (${count}/${COINS.length}件)`;
   return count;
 }
 
-// GeckoTerminal: fdv_usd か price_usd×1B
+// GeckoTerminal: market_cap_usd 優先、なければ fdv_usd
 async function fetchGecko() {
   const addrs = COINS.map(c => c.addr).join(',');
   const r = await fetch(
@@ -239,9 +226,8 @@ async function fetchGecko() {
   items.forEach(item => {
     const attr = item?.attributes;
     const addr = attr?.address;
-    const fdv   = parseFloat(attr?.fdv_usd);
-    const price = parseFloat(attr?.price_usd);
-    const mc = fdv > 0 ? fdv : price > 0 ? price * 1_000_000_000 : 0;
+    // market_cap_usd はバーン後の実際のMC、fdv_usd は総供給量ベース
+    const mc = parseFloat(attr?.market_cap_usd) || parseFloat(attr?.fdv_usd) || 0;
     if (addr && mc > 0) {
       const coin = COINS.find(c => c.addr.toLowerCase() === addr.toLowerCase());
       if (coin && applyMC(coin.addr, mc)) count++;
@@ -252,7 +238,7 @@ async function fetchGecko() {
   return count;
 }
 
-// DexScreener: fdv か priceUsd×1B
+// DexScreener: marketCap 優先、なければ fdv
 async function fetchDex() {
   const addrs = COINS.map(c => c.addr).join(',');
   const r = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${addrs}`);
@@ -267,9 +253,7 @@ async function fetchDex() {
     );
     if (!myPairs.length) return;
     const best = myPairs.sort((a,b) => (b.liquidity?.usd||0)-(a.liquidity?.usd||0))[0];
-    const fdv   = parseFloat(best.fdv);
-    const price = parseFloat(best.priceUsd);
-    const mc = fdv > 0 ? fdv : price > 0 ? price * 1_000_000_000 : 0;
+    const mc = parseFloat(best.marketCap) || parseFloat(best.fdv) || 0;
     if (mc > 0 && applyMC(c.addr, mc)) count++;
   });
   if (!count) throw new Error('0 prices');
@@ -286,8 +270,7 @@ async function fetchAll() {
     try {
       await fn();
       render();
-      document.getElementById('updTime').textContent =
-        new Date().toLocaleTimeString('ja-JP') + ' 更新';
+      document.getElementById('updTime').textContent = new Date().toLocaleTimeString('ja-JP') + ' 更新';
       return;
     } catch(e) {
       console.warn(name + ' failed:', e.message);
@@ -310,7 +293,18 @@ function fmtMC(v) {
   if (v >= 1e9) return '$' + (v/1e9).toFixed(2) + 'B';
   if (v >= 1e6) return '$' + (v/1e6).toFixed(2) + 'M';
   if (v >= 1e3) return '$' + (v/1e3).toFixed(1) + 'K';
-  return '$' + v.toFixed(0);
+  return '$' + v.toFixed(1);
+}
+
+let toastTimer;
+function copyCA(addr, sym) {
+  navigator.clipboard.writeText(addr).then(() => {
+    const t = document.getElementById('toast');
+    t.textContent = `${sym} CA コピーしました！`;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+  });
 }
 
 function render() {
@@ -319,7 +313,6 @@ function render() {
     maxRate: calcRate(c.baseMC, maxMC[c.addr]),
     nowRate: calcRate(c.baseMC, nowMC[c.addr]),
     nowMCval: nowMC[c.addr] || null,
-    maxMCval: maxMC[c.addr] || null,
   })).sort((a,b) => {
     if (a.maxRate == null && b.maxRate == null) return 0;
     if (a.maxRate == null) return 1;
@@ -359,12 +352,12 @@ function render() {
     const short = c.addr.slice(0,6)+'...'+c.addr.slice(-4);
 
     return `
-    <div class="rank-row ${rankCls}" style="animation-delay:${i*.03}s">
+    <div class="rank-row ${rankCls}" style="animation-delay:${i*.03}s" onclick="copyCA('${c.addr}','${c.sym}')">
       <div class="rank-num">${rankIcon}</div>
       <div>
         <div class="coin-sym">${c.sym}</div>
         <div class="coin-name">${c.name}</div>
-        <div class="coin-addr">${short}</div>
+        <div class="coin-addr">${short} <span class="copy-hint">📋</span></div>
       </div>
       <div class="mc-cell">
         <div class="mc-now">${fmtMC(c.nowMCval)}</div>
