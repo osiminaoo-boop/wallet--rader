@@ -43,7 +43,6 @@ display:grid; grid-template-columns:repeat(3,1fr); gap:10px;
 .s-val.gold  { color:#ffcc00; text-shadow:0 0 12px rgba(255,200,0,.5); }
 .s-val.green { color:#00ff88; }
 .s-val.red   { color:#ff3d71; }
-.s-val.gray  { color:#444; }
 .s-sub { font-size:11px; color:#555; margin-top:3px; font-weight:400; }
 
 .ranking-wrap { max-width:960px; margin:20px auto 40px; padding:0 16px; }
@@ -70,11 +69,7 @@ align-items:center; transition:background .2s; animation:rowIn .4s ease both; cu
 
 .coin-sym  { font-family:‘Oswald’,sans-serif; font-size:19px; font-weight:600; color:#fff; line-height:1; }
 .coin-name { font-size:11px; color:#555; margin-top:3px; font-weight:400; }
-.coin-addr {
-font-size:9px; color:#444; margin-top:4px; font-weight:400; font-family:monospace;
-display:inline-flex; align-items:center; gap:4px;
-}
-.copy-hint { font-size:8px; color:#333; }
+.coin-addr { font-size:9px; color:#444; margin-top:4px; font-weight:400; font-family:monospace; }
 
 .mc-cell { text-align:right; }
 .mc-now  { font-family:‘Oswald’,sans-serif; font-size:18px; font-weight:600; color:#ccc; line-height:1; }
@@ -97,11 +92,10 @@ display:inline-flex; align-items:center; gap:4px;
 .bar-max-fill { opacity:.35; }
 .bar-legend { font-size:8px; color:#222; font-weight:400; white-space:nowrap; }
 
-/* コピートースト */
 .toast {
 position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(20px);
 background:#00ff88; color:#000; padding:10px 24px; font-weight:700; font-size:13px;
-border-radius:2px; opacity:0; transition:all .3s; pointer-events:none; z-index:999;
+opacity:0; transition:all .3s; pointer-events:none; z-index:999;
 font-family:‘M PLUS 1p’,sans-serif;
 }
 .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
@@ -124,7 +118,7 @@ font-family:‘M PLUS 1p’,sans-serif;
   <div class="base-tag">起点MC: <strong>2025/3/8 00:09</strong> 確定値</div>
   <div class="live-row">
     <span class="live-dot"></span>
-    <span id="apiLabel">接続中...</span> · 60秒自動更新 · <span id="updTime">取得中...</span>
+    DexScreener · 60秒自動更新 · <span id="updTime">取得中...</span>
   </div>
 </header>
 
@@ -185,99 +179,43 @@ function applyMC(addr, mc) {
   return true;
 }
 
-// Jupiter: price × circulating supply
-// pump.funトークンは1B固定だがバーンがある場合はGeckoのmarket_cap_usdを使う
-async function fetchJupiter() {
-  const ids = COINS.map(c => c.addr).join(',');
-  const r = await fetch(`https://api.jup.ag/price/v2?ids=${ids}`);
-  if (!r.ok) throw new Error('jupiter ' + r.status);
-  const d = await r.json();
-  if (!d.data) throw new Error('no data');
-  let count = 0;
-  COINS.forEach(c => {
-    const info = d.data[c.addr];
-    if (!info) return;
-    const price = parseFloat(info.price);
-    if (price <= 0) return;
-    // Jupiter does not give MC directly — use baseMC ratio to get current MC
-    // price / basePriceUSD * baseMC = currentMC
-    // basePriceUSD = baseMC / 1_000_000_000 (pump.fun default supply)
-    const basePriceUSD = c.baseMC / 1_000_000_000;
-    const mc = (price / basePriceUSD) * c.baseMC;
-    if (applyMC(c.addr, mc)) count++;
-  });
-  if (!count) throw new Error('0 prices');
-  document.getElementById('apiLabel').textContent = `Jupiter API (${count}/${COINS.length}件)`;
-  return count;
-}
-
-// GeckoTerminal: market_cap_usd 優先、なければ fdv_usd
-async function fetchGecko() {
-  const addrs = COINS.map(c => c.addr).join(',');
-  const r = await fetch(
-    `https://api.geckoterminal.com/api/v2/networks/solana/tokens/multi/${addrs}`,
-    { headers:{ 'Accept':'application/json;version=20230302' } }
-  );
-  if (!r.ok) throw new Error('gecko ' + r.status);
-  const d = await r.json();
-  const items = d?.data;
-  if (!Array.isArray(items) || !items.length) throw new Error('empty');
-  let count = 0;
-  items.forEach(item => {
-    const attr = item?.attributes;
-    const addr = attr?.address;
-    // market_cap_usd はバーン後の実際のMC、fdv_usd は総供給量ベース
-    const mc = parseFloat(attr?.market_cap_usd) || parseFloat(attr?.fdv_usd) || 0;
-    if (addr && mc > 0) {
-      const coin = COINS.find(c => c.addr.toLowerCase() === addr.toLowerCase());
-      if (coin && applyMC(coin.addr, mc)) count++;
-    }
-  });
-  if (!count) throw new Error('0 prices');
-  document.getElementById('apiLabel').textContent = `GeckoTerminal (${count}/${COINS.length}件)`;
-  return count;
-}
-
-// DexScreener: marketCap 優先、なければ fdv
+// DexScreener: 1アドレスずつ取得してmarketCapを使用
 async function fetchDex() {
+  let count = 0;
+  // 16件を一括リクエスト
   const addrs = COINS.map(c => c.addr).join(',');
   const r = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${addrs}`);
   if (!r.ok) throw new Error('dex ' + r.status);
   const d = await r.json();
   const pairs = d?.pairs || [];
   if (!pairs.length) throw new Error('no pairs');
-  let count = 0;
+
   COINS.forEach(c => {
     const myPairs = pairs.filter(p =>
       p.baseToken?.address === c.addr || p.quoteToken?.address === c.addr
     );
     if (!myPairs.length) return;
-    const best = myPairs.sort((a,b) => (b.liquidity?.usd||0)-(a.liquidity?.usd||0))[0];
-    const mc = parseFloat(best.marketCap) || parseFloat(best.fdv) || 0;
+    // 流動性が高いペアを選択
+    const best = myPairs.sort((a,b) => (b.liquidity?.usd||0) - (a.liquidity?.usd||0))[0];
+    // marketCap = バーン後の実際のMC（DexScreener表示と同じ値）
+    const mc = parseFloat(best.marketCap);
     if (mc > 0 && applyMC(c.addr, mc)) count++;
   });
-  if (!count) throw new Error('0 prices');
-  document.getElementById('apiLabel').textContent = `DexScreener (${count}/${COINS.length}件)`;
+
+  if (!count) throw new Error('0 MC');
+  document.getElementById('updTime').textContent = new Date().toLocaleTimeString('ja-JP') + ' 更新 (DexScreener ' + count + '/' + COINS.length + '件)';
   return count;
 }
 
 async function fetchAll() {
-  for (const [name, fn] of [
-    ['Jupiter', fetchJupiter],
-    ['GeckoTerminal', fetchGecko],
-    ['DexScreener', fetchDex],
-  ]) {
-    try {
-      await fn();
-      render();
-      document.getElementById('updTime').textContent = new Date().toLocaleTimeString('ja-JP') + ' 更新';
-      return;
-    } catch(e) {
-      console.warn(name + ' failed:', e.message);
-    }
+  try {
+    await fetchDex();
+    render();
+  } catch(e) {
+    console.warn('DexScreener failed:', e.message);
+    document.getElementById('rankList').innerHTML =
+      `<div class="status-msg">⚠️ データ取得失敗<br><small>${e.message}</small><br>ページを再読み込みしてください</div>`;
   }
-  document.getElementById('rankList').innerHTML =
-    `<div class="status-msg">⚠️ 価格データの取得に失敗しました<br>ページを再読み込みしてください</div>`;
 }
 
 function calcRate(baseMC, mc) {
@@ -300,7 +238,7 @@ let toastTimer;
 function copyCA(addr, sym) {
   navigator.clipboard.writeText(addr).then(() => {
     const t = document.getElementById('toast');
-    t.textContent = `${sym} CA コピーしました！`;
+    t.textContent = sym + ' CA コピーしました！';
     t.classList.add('show');
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
@@ -357,7 +295,7 @@ function render() {
       <div>
         <div class="coin-sym">${c.sym}</div>
         <div class="coin-name">${c.name}</div>
-        <div class="coin-addr">${short} <span class="copy-hint">📋</span></div>
+        <div class="coin-addr">${short} 📋</div>
       </div>
       <div class="mc-cell">
         <div class="mc-now">${fmtMC(c.nowMCval)}</div>
