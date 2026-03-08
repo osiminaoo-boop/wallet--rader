@@ -1,54 +1,47 @@
 <!DOCTYPE html>
 
-<html><head><meta charset="UTF-8"><title>Birdeye OHLCV Test</title>
+<html><head><meta charset="UTF-8"><title>DexScreener Chart Test</title>
 <style>body{background:#111;color:#0f0;font-family:monospace;padding:20px;font-size:11px;}
 button{background:#ff6a00;color:#000;border:none;padding:8px 16px;cursor:pointer;font-weight:700;margin:4px;}
 pre{white-space:pre-wrap;word-break:break-all;background:#0a0a0a;padding:12px;margin-top:8px;}
 h3{color:#ff6a00;margin:12px 0 4px;}</style>
 </head><body>
-<h3>Birdeye OHLCV Test — 3/8 00:09から最高MC取得</h3>
-<button onclick="test1()">Birdeye OHLCV（OSUNEN）</button>
-<button onclick="test2()">Birdeye price history</button>
-<button onclick="test3()">GeckoTerminal OHLCV</button>
+<h3>DexScreener チャートデータ取得テスト</h3>
+<button onclick="test1()">candles API v1</button>
+<button onclick="test2()">candles API v2</button>
+<button onclick="test3()">io.dexscreener</button>
 <div id="out"></div>
 <script>
+const PAIR = ''; // 後で埋める
 const ADDR = '5C7nFDCgWTLnHgszBd4ksmCak3nouFoMZ9sbAxkApump';
-const FROM = 1741359000; // 2025/3/8 00:09 JST → UTC
-const TO   = Math.floor(Date.now() / 1000);
+const FROM = 1741359000;
+
+async function getPair() {
+const r = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${ADDR}`);
+const d = await r.json();
+return d?.pairs?.[0];
+}
 
 async function test1() {
-// Birdeye OHLCV (no key required for public)
-const url = `https://public-api.birdeye.so/defi/ohlcv?address=${ADDR}&type=1H&time_from=${FROM}&time_to=${TO}`;
-try {
-const r = await fetch(url, { headers: { ‘X-Chain’: ‘solana’ } });
-const d = await r.json();
-document.getElementById(‘out’).innerHTML = `<h3>status: ${r.status}</h3><pre>${JSON.stringify(d).slice(0,3000)}</pre>`;
-} catch(e) {
-document.getElementById(‘out’).innerHTML = `<h3 style="color:red">FAILED: ${e.message}</h3>`;
-}
+const pair = await getPair();
+document.getElementById(‘out’).innerHTML = `<h3>pair: ${pair?.pairAddress} chain: ${pair?.chainId}</h3>`;
+const url = `https://api.dexscreener.com/latest/dex/candles/${pair?.chainId}/${pair?.pairAddress}?from=${FROM}&to=${Math.floor(Date.now()/1000)}&res=60`;
+const r = await fetch(url);
+document.getElementById(‘out’).innerHTML += `<h3>status: ${r.status}</h3><pre>${(await r.text()).slice(0,2000)}</pre>`;
 }
 
 async function test2() {
-const url = `https://public-api.birdeye.so/defi/history_price?address=${ADDR}&address_type=token&type=1H&time_from=${FROM}&time_to=${TO}`;
-try {
-const r = await fetch(url, { headers: { ‘X-Chain’: ‘solana’ } });
-const d = await r.json();
-document.getElementById(‘out’).innerHTML = `<h3>status: ${r.status}</h3><pre>${JSON.stringify(d).slice(0,3000)}</pre>`;
-} catch(e) {
-document.getElementById(‘out’).innerHTML = `<h3 style="color:red">FAILED: ${e.message}</h3>`;
-}
+const pair = await getPair();
+const url = `https://io.dexscreener.com/dex/chart/amm/v3/solana/${pair?.pairAddress}?from=${FROM}&to=${Math.floor(Date.now()/1000)}&res=60&cb=0`;
+const r = await fetch(url);
+document.getElementById(‘out’).innerHTML = `<h3>status: ${r.status}</h3><pre>${(await r.text()).slice(0,2000)}</pre>`;
 }
 
 async function test3() {
-// GeckoTerminal OHLCV
-const url = `https://api.geckoterminal.com/api/v2/networks/solana/tokens/${ADDR}/ohlcv/hour?aggregate=1&before_timestamp=${TO}&limit=1000&currency=usd`;
-try {
-const r = await fetch(url, { headers: { Accept: ‘application/json;version=20230302’ } });
-const d = await r.json();
-document.getElementById(‘out’).innerHTML = `<h3>status: ${r.status}</h3><pre>${JSON.stringify(d).slice(0,3000)}</pre>`;
-} catch(e) {
-document.getElementById(‘out’).innerHTML = `<h3 style="color:red">FAILED: ${e.message}</h3>`;
-}
+const pair = await getPair();
+const url = `https://io.dexscreener.com/dex/chart/amm/v2/solana/${pair?.pairAddress}?from=${FROM}&res=60`;
+const r = await fetch(url);
+document.getElementById(‘out’).innerHTML = `<h3>status: ${r.status}</h3><pre>${(await r.text()).slice(0,2000)}</pre>`;
 }
 </script>
 
