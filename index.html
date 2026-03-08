@@ -623,6 +623,12 @@ async function rpc(method, params) {
     body: JSON.stringify({ jsonrpc:'2.0', id:1, method, params })
   });
   const d = await res.json();
+  if (d.error) {
+    // APIキー無効・レート制限などのRPCエラーをUIに表示
+    const msg = d.error.message || JSON.stringify(d.error);
+    addEvent({ html: `<div class="ev-meta"><span class="badge" style="background:rgba(255,50,50,.15);color:#ff5050;border:1px solid #ff5050">RPC ERROR</span><span class="ev-time">${now()}</span></div><div class="ev-title">❌ Helius APIエラー</div><div class="ev-detail" style="color:var(--dim)">${msg}<br>APIキーを確認してください</div>` });
+    throw new Error(msg);
+  }
   return d.result;
 }
 
