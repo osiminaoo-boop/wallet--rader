@@ -751,27 +751,6 @@ async function getBalance(addr) {
 }
 
 // 過去N秒スキャン用：最初のTXがseconds以内であればOK（TX件数制限なし）
-async function isActiveWithin30Min(addr, seconds) {
-  seconds = seconds || 1800;
-  try {
-    const limit = 300;
-    const sigs = await safeGetSignatures(addr, limit);
-    if (!sigs || sigs.length === 0) return false;
-    const oldest = sigs[sigs.length - 1];
-    const blockTime = oldest.blockTime;
-    if (!blockTime) return false;
-    const ageSecs = Date.now() / 1000 - blockTime;
-    if (sigs.length >= limit) return false;
-    if (ageSecs > seconds) return false;
-    const tx = await safeGetTx(oldest.signature);
-    if (!tx) return false;
-    const accounts = tx.transaction?.message?.accountKeys || [];
-    const preBalances = tx.meta?.preBalances || [];
-    const idx = accounts.findIndex(a => (typeof a === 'string' ? a : a?.pubkey) === addr);
-    if (idx === -1) return false;
-    return (preBalances[idx] || 0) === 0;
-  } catch(e) { return false; }
-}
 
 // ─────────────────────────────────────────
 // SCORING: 新規ウォレット判定スコアリング
@@ -879,7 +858,11 @@ function parseCoinCreation(tx) {
     const meta = tx.meta || {};
     if (meta.err) return null;
 
-    const accounts = tx.transaction?.message?.accountKeys || [];
+    // v0トランザクション対応: loadedAddressesを含む全アカウントリストを構築
+    const staticAccounts = tx.transaction?.message?.accountKeys || [];
+    const loadedWritable = meta.loadedAddresses?.writable || [];
+    const loadedReadonly = meta.loadedAddresses?.readonly || [];
+    const accounts = [...staticAccounts, ...loadedWritable, ...loadedReadonly];
     const getAddr = a => typeof a === 'string' ? a : a?.pubkey;
 
     // Pump.funまたはBagsが絡んでいるか確認
