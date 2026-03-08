@@ -733,7 +733,7 @@ async function safeGetTx(sig) {
   if (cached) return cached;
   await GLOBAL_SEM.acquire();
   try {
-    const res = await withBackoff(() => rpc('getTransaction', [sig, { encoding: 'jsonParsed', maxSupportedTransactionVersion: 0 }])).catch(() => null);
+    const res = await withBackoff(() => rpc('getTransaction', [sig, { encoding: 'jsonParsed', maxSupportedTransactionVersion: 0, commitment: 'confirmed' }])).catch(() => null);
     if (res) setCache(key, res, 120000);
     return res;
   } finally { GLOBAL_SEM.release(); }
