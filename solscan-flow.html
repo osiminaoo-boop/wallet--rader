@@ -6,207 +6,105 @@
 <title>SOLSCAN FUND FLOW</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
-
-:root {
-  --bg: #03050a;
-  --panel: #070c18;
-  --border: #0f1f3a;
-  --accent: #00e5ff;
-  --accent2: #ff2d6b;
-  --green: #00ff9d;
-  --gold: #ffb800;
-  --text: #b0c8e8;
-  --dim: #2a3a5a;
-}
-
-* { margin:0; padding:0; box-sizing:border-box; }
-
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Share Tech Mono', monospace;
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-
-body::after {
-  content:'';
-  position:fixed; inset:0;
-  background-image:
-    linear-gradient(rgba(0,229,255,.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,229,255,.02) 1px, transparent 1px);
-  background-size: 48px 48px;
-  pointer-events:none; z-index:0;
-}
-
-.wrap { position:relative; z-index:1; max-width:1400px; margin:0 auto; padding:16px; }
-
-header {
-  display:flex; align-items:center; justify-content:space-between;
-  padding:16px 0 20px;
-  border-bottom:1px solid var(--border);
-  margin-bottom:20px;
-}
-
-.logo {
-  font-family:'Orbitron', monospace;
-  font-size:20px; font-weight:900; letter-spacing:5px;
-  color:var(--accent);
-  text-shadow:0 0 24px rgba(0,229,255,.7);
-}
-.logo em { color:var(--accent2); font-style:normal; }
-.logo-sub { font-size:9px; color:var(--dim); letter-spacing:3px; margin-top:3px; }
-
-/* Controls */
-.controls {
-  display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; align-items:flex-end;
-}
-.ctrl-group { display:flex; flex-direction:column; gap:3px; }
-.ctrl-label { font-size:9px; color:var(--dim); letter-spacing:2px; }
-
-input[type=text], input[type=number], select {
-  font-family:'Share Tech Mono',monospace; font-size:12px;
-  background:var(--panel); color:var(--accent);
-  border:1px solid var(--border); padding:9px 12px;
-  outline:none; transition:border .2s;
-}
-input[type=text] { min-width:340px; }
-input[type=number] { width:90px; }
-select { width:130px; cursor:pointer; }
-input:focus, select:focus { border-color:var(--accent); }
-
-.btn {
-  font-family:'Orbitron',monospace; font-size:10px; font-weight:700;
-  letter-spacing:2px; padding:9px 18px;
-  border:1px solid var(--accent); background:transparent; color:var(--accent);
-  cursor:pointer; transition:all .2s; white-space:nowrap;
-  clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);
-}
-.btn:hover, .btn.active { background:var(--accent); color:var(--bg); box-shadow:0 0 20px rgba(0,229,255,.4); }
-.btn:disabled { opacity:.3; cursor:not-allowed; }
-.btn.red { border-color:var(--accent2); color:var(--accent2); }
-.btn.red:hover { background:var(--accent2); color:#fff; }
-
-/* Layout */
-.main-grid { display:grid; grid-template-columns:1fr 320px; gap:16px; }
-@media(max-width:900px){ .main-grid{ grid-template-columns:1fr; } }
-
-/* Graph panel */
-.graph-panel {
-  background:var(--panel);
-  border:1px solid var(--border);
-  position:relative; overflow:hidden;
-  min-height:600px;
-}
-.graph-panel::before {
-  content:''; position:absolute; top:0; left:0; right:0; height:1px;
-  background:linear-gradient(90deg,transparent,var(--accent),transparent);
-  opacity:.5;
-}
-.panel-header {
-  display:flex; align-items:center; justify-content:space-between;
-  padding:11px 16px; border-bottom:1px solid var(--border);
-  font-family:'Orbitron',monospace; font-size:9px; letter-spacing:2px; color:var(--accent);
-}
-
-#graph-canvas {
-  width:100%; height:560px; display:block;
-  cursor:grab;
-}
-#graph-canvas:active { cursor:grabbing; }
-
-.graph-empty {
-  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-  text-align:center; color:var(--dim); font-size:11px; letter-spacing:2px; line-height:2.4;
-  pointer-events:none;
-}
-
-/* Legend */
-.legend {
-  display:flex; gap:16px; padding:8px 16px; border-top:1px solid var(--border);
-  font-size:10px; flex-wrap:wrap;
-}
-.leg-item { display:flex; align-items:center; gap:6px; }
-.leg-dot { width:10px; height:10px; border-radius:50%; }
-
-/* Sidebar */
-.sidebar { display:flex; flex-direction:column; gap:14px; }
-
-.panel {
-  background:var(--panel);
-  border:1px solid var(--border);
-  position:relative; overflow:hidden;
-}
-.panel::before {
-  content:''; position:absolute; top:0; left:0; right:0; height:1px;
-  background:linear-gradient(90deg,transparent,var(--accent),transparent);
-  opacity:.5;
-}
-.ph {
-  padding:11px 16px; border-bottom:1px solid var(--border);
-  font-family:'Orbitron',monospace; font-size:9px; letter-spacing:2px; color:var(--accent);
-  display:flex; align-items:center; justify-content:space-between;
-}
-
-/* Stats */
-.stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--border); }
-.stat-cell { background:var(--panel); padding:14px; text-align:center; }
-.stat-val { font-family:'Orbitron',monospace; font-size:18px; font-weight:700; color:var(--accent); }
-.stat-sub { font-size:9px; color:var(--dim); margin-top:1px; }
-.stat-lbl { font-size:9px; color:var(--dim); letter-spacing:1px; margin-top:3px; }
-
-/* Transaction list */
-#tx-list { max-height:380px; overflow-y:auto; scrollbar-width:thin; scrollbar-color:var(--dim) transparent; }
-
-.tx-item {
-  padding:10px 16px; border-bottom:1px solid #0b1628;
-  transition:background .15s; cursor:pointer;
-}
-.tx-item:hover { background:rgba(0,229,255,.04); }
-.tx-top { display:flex; align-items:center; gap:6px; margin-bottom:4px; }
-.tx-sig { font-size:9px; color:var(--dim); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; }
-.tx-time { font-size:9px; color:#3a5a7a; }
-.tx-detail { font-size:10px; color:var(--text); }
-.tx-detail .addr { color:var(--accent); }
-.tx-detail .amount { font-weight:bold; }
-.amount-in  { color:var(--green); }
-.amount-out { color:var(--accent2); }
-
-/* Node tooltip */
-#tooltip {
-  position:fixed; background:rgba(7,12,24,.96); border:1px solid var(--accent);
-  padding:10px 14px; font-size:10px; pointer-events:none; z-index:9999;
-  max-width:300px; line-height:1.8; display:none;
-}
-#tooltip .tt-addr { color:var(--accent); font-size:9px; word-break:break-all; }
-#tooltip .tt-val  { color:var(--gold); font-weight:bold; }
-
-/* Progress */
-#progress-bar {
-  height:2px; background:var(--border); overflow:hidden;
-  position:absolute; bottom:0; left:0; right:0;
-}
-#progress-fill {
-  height:100%; width:0; background:var(--accent);
-  transition:width .3s; box-shadow:0 0 8px var(--accent);
-}
-
-.spinner {
-  display:inline-block; width:10px; height:10px;
-  border:2px solid var(--dim); border-top-color:var(--accent);
-  border-radius:50%; animation:spin .7s linear infinite;
-}
-@keyframes spin { to{transform:rotate(360deg)} }
-
-.status-bar {
-  font-size:9px; color:var(--dim); padding:6px 16px;
-  border-top:1px solid var(--border); letter-spacing:1px;
-}
-.status-bar.ok  { color:var(--green); }
-.status-bar.err { color:var(--accent2); }
-
-/* Depth indicator */
-.depth-info { font-size:9px; color:var(--dim); }
+:root{--bg:#03050a;--panel:#070c18;--border:#0f1f3a;--accent:#00e5ff;--accent2:#ff2d6b;--green:#00ff9d;--gold:#ffb800;--text:#b0c8e8;--dim:#2a3a5a;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono',monospace;min-height:100vh;overflow-x:hidden;}
+body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,229,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.02) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0;}
+.wrap{position:relative;z-index:1;max-width:1500px;margin:0 auto;padding:14px;}
+header{display:flex;align-items:center;justify-content:space-between;padding:12px 0 16px;border-bottom:1px solid var(--border);margin-bottom:14px;}
+.logo{font-family:'Orbitron',monospace;font-size:20px;font-weight:900;letter-spacing:5px;color:var(--accent);text-shadow:0 0 20px rgba(0,229,255,.6);}
+.logo em{color:var(--accent2);font-style:normal;}
+.logo-sub{font-size:9px;color:var(--dim);letter-spacing:3px;margin-top:2px;}
+/* controls */
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:flex-end;}
+.ctrl-group{display:flex;flex-direction:column;gap:3px;}
+.ctrl-label{font-size:9px;color:var(--dim);letter-spacing:2px;}
+input[type=text],input[type=number],select{font-family:'Share Tech Mono',monospace;font-size:12px;background:var(--panel);color:var(--accent);border:1px solid var(--border);padding:8px 11px;outline:none;transition:border .2s;}
+input[type=text]{min-width:320px;}
+input[type=number]{width:80px;}
+select{min-width:120px;cursor:pointer;}
+input:focus,select:focus{border-color:var(--accent);}
+.btn{font-family:'Orbitron',monospace;font-size:10px;font-weight:700;letter-spacing:2px;padding:8px 16px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;transition:all .2s;white-space:nowrap;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);}
+.btn:hover,.btn.active{background:var(--accent);color:var(--bg);box-shadow:0 0 18px rgba(0,229,255,.4);}
+.btn:disabled{opacity:.3;cursor:not-allowed;}
+.btn.red{border-color:var(--accent2);color:var(--accent2);}
+.btn.red:hover{background:var(--accent2);color:#fff;}
+.btn.gold{border-color:var(--gold);color:var(--gold);}
+.btn.gold:hover{background:var(--gold);color:var(--bg);}
+/* tabs */
+.tabs{display:flex;gap:0;margin-bottom:0;border-bottom:1px solid var(--border);}
+.tab{font-family:'Orbitron',monospace;font-size:9px;letter-spacing:2px;padding:8px 18px;cursor:pointer;color:var(--dim);border:1px solid transparent;border-bottom:none;transition:all .2s;background:transparent;}
+.tab:hover{color:var(--text);}
+.tab.active{color:var(--accent);border-color:var(--border);border-bottom:1px solid var(--panel);background:var(--panel);margin-bottom:-1px;}
+/* main grid */
+.main-grid{display:grid;grid-template-columns:1fr 300px;gap:14px;}
+@media(max-width:900px){.main-grid{grid-template-columns:1fr;}}
+/* panels */
+.panel{background:var(--panel);border:1px solid var(--border);position:relative;overflow:hidden;}
+.panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.4;}
+.ph{padding:10px 14px;border-bottom:1px solid var(--border);font-family:'Orbitron',monospace;font-size:9px;letter-spacing:2px;color:var(--accent);display:flex;align-items:center;justify-content:space-between;}
+/* canvas */
+.canvas-wrap{position:relative;}
+#graph-canvas{width:100%;height:560px;display:block;cursor:grab;}
+#graph-canvas:active{cursor:grabbing;}
+#sankey-canvas{width:100%;height:560px;display:block;}
+#timeline-canvas{width:100%;height:560px;display:block;}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+.graph-empty{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;color:var(--dim);font-size:11px;letter-spacing:2px;line-height:2.6;pointer-events:none;}
+/* legend */
+.legend{display:flex;gap:14px;padding:7px 14px;border-top:1px solid var(--border);font-size:9px;flex-wrap:wrap;align-items:center;}
+.leg-item{display:flex;align-items:center;gap:5px;}
+.leg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+/* status */
+.status-bar{font-size:9px;color:var(--dim);padding:5px 14px;border-top:1px solid var(--border);letter-spacing:1px;}
+.status-bar.ok{color:var(--green);}
+.status-bar.err{color:var(--accent2);}
+#progress-bar{height:2px;background:var(--border);overflow:hidden;}
+#progress-fill{height:100%;width:0;background:var(--accent);transition:width .3s;box-shadow:0 0 6px var(--accent);}
+/* sidebar */
+.sidebar{display:flex;flex-direction:column;gap:12px;}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);}
+.stat-cell{background:var(--panel);padding:12px;text-align:center;}
+.stat-val{font-family:'Orbitron',monospace;font-size:16px;font-weight:700;color:var(--accent);}
+.stat-lbl{font-size:9px;color:var(--dim);letter-spacing:1px;margin-top:2px;}
+.amount-in{color:var(--green);}
+.amount-out{color:var(--accent2);}
+/* tx list */
+#tx-list{max-height:260px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--dim) transparent;}
+.tx-item{padding:8px 14px;border-bottom:1px solid #0a1524;cursor:pointer;transition:background .15s;}
+.tx-item:hover{background:rgba(0,229,255,.04);}
+.tx-top{display:flex;align-items:center;gap:6px;margin-bottom:3px;}
+.tx-sig{font-size:9px;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;}
+.tx-time{font-size:9px;color:#2a4a6a;white-space:nowrap;}
+.tx-detail{font-size:10px;color:var(--text);}
+.tx-detail .addr{color:var(--accent);}
+/* analysis */
+#analysis-panel{padding:12px 14px;max-height:540px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--dim) transparent;}
+.risk-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #0a1524;font-size:10px;}
+.risk-badge{font-family:'Orbitron',monospace;font-size:8px;padding:2px 6px;border:1px solid;letter-spacing:1px;white-space:nowrap;}
+.risk-high{border-color:var(--accent2);color:var(--accent2);background:rgba(255,45,107,.08);}
+.risk-mid{border-color:var(--gold);color:var(--gold);background:rgba(255,184,0,.08);}
+.risk-low{border-color:var(--green);color:var(--green);background:rgba(0,255,157,.08);}
+.wallet-table{width:100%;border-collapse:collapse;font-size:10px;}
+.wallet-table th{text-align:left;padding:6px 8px;color:var(--dim);font-size:9px;border-bottom:1px solid var(--border);font-family:'Orbitron',monospace;font-weight:400;letter-spacing:1px;}
+.wallet-table td{padding:5px 8px;border-bottom:1px solid #0a1524;vertical-align:middle;}
+.wallet-table tr:hover td{background:rgba(0,229,255,.03);}
+.hub-indicator{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px;}
+/* tooltip */
+#tooltip{position:fixed;background:rgba(5,10,22,.97);border:1px solid var(--accent);padding:10px 13px;font-size:10px;pointer-events:none;z-index:9999;max-width:280px;line-height:1.9;display:none;}
+#tooltip .tt-addr{color:var(--accent);font-size:9px;word-break:break-all;margin-bottom:4px;}
+#tooltip .tt-in{color:var(--green);}
+#tooltip .tt-out{color:var(--accent2);}
+/* timeline controls */
+.tl-controls{display:flex;align-items:center;gap:10px;padding:8px 14px;border-top:1px solid var(--border);flex-wrap:wrap;}
+.tl-controls input[type=range]{flex:1;min-width:100px;accent-color:var(--accent);}
+.tl-time{font-size:10px;color:var(--accent);min-width:80px;}
+/* pattern flags */
+.pattern-card{background:rgba(0,0,0,.3);border:1px solid var(--border);padding:10px 12px;margin-bottom:8px;}
+.pattern-title{font-family:'Orbitron',monospace;font-size:9px;letter-spacing:2px;color:var(--gold);margin-bottom:6px;}
+.pattern-desc{font-size:10px;color:var(--text);line-height:1.7;}
+.pattern-wallets{font-size:9px;color:var(--dim);margin-top:4px;}
 </style>
 </head>
 <body>
@@ -215,691 +113,966 @@ input:focus, select:focus { border-color:var(--accent); }
 <header>
   <div>
     <div class="logo">SOLSCAN<em>FLOW</em></div>
-    <div class="logo-sub">FUND MOVEMENT VISUALIZER — SOLANA</div>
+    <div class="logo-sub">DEEP FUND MOVEMENT ANALYZER — SOLANA</div>
   </div>
-  <div style="font-size:9px;color:var(--dim);text-align:right;line-height:2;">
-    <div>POWERED BY SOLSCAN API</div>
-    <div id="hdr-clock" style="color:var(--accent)">--:--:--</div>
+  <div style="text-align:right;font-size:9px;color:var(--dim);line-height:2.2;">
+    <div>SOLSCAN PUBLIC API</div>
+    <div id="hdr-clock" style="color:var(--accent);font-family:'Orbitron',monospace;font-size:11px;">--:--:--</div>
   </div>
 </header>
 
 <div class="controls">
-  <div class="ctrl-group" style="flex:1;min-width:280px;">
-    <div class="ctrl-label">WALLET ADDRESS / TX SIGNATURE</div>
-    <input type="text" id="addr-input" placeholder="Solanaウォレットアドレス or トランザクションハッシュ を入力…" />
+  <div class="ctrl-group" style="flex:1;min-width:260px;">
+    <div class="ctrl-label">WALLET / TX SIGNATURE</div>
+    <input type="text" id="addr-input" placeholder="Solanaアドレス or TXシグネチャ…" />
   </div>
   <div class="ctrl-group">
-    <div class="ctrl-label">深度 (DEPTH)</div>
-    <input type="number" id="depth-input" value="2" min="1" max="3" />
+    <div class="ctrl-label">深度</div>
+    <input type="number" id="depth-input" value="2" min="1" max="4" />
   </div>
   <div class="ctrl-group">
-    <div class="ctrl-label">取得件数</div>
-    <input type="number" id="limit-input" value="20" min="5" max="50" />
+    <div class="ctrl-label">件数/ウォレット</div>
+    <input type="number" id="limit-input" value="25" min="5" max="50" />
   </div>
   <div class="ctrl-group">
-    <div class="ctrl-label">フィルター</div>
+    <div class="ctrl-label">MIN SOL</div>
+    <input type="number" id="min-sol" value="0" min="0" step="0.1" style="width:80px;" />
+  </div>
+  <div class="ctrl-group">
+    <div class="ctrl-label">タイプ</div>
     <select id="type-filter">
-      <option value="all">ALL TYPES</option>
-      <option value="sol">SOL ONLY</option>
-      <option value="token">TOKEN ONLY</option>
+      <option value="all">ALL</option>
+      <option value="sol">SOL</option>
+      <option value="token">TOKEN</option>
     </select>
   </div>
-  <button class="btn" id="scan-btn" onclick="startScan()">SCAN</button>
-  <button class="btn red" onclick="clearGraph()">CLEAR</button>
+  <button class="btn" id="scan-btn" onclick="startScan()">▶ SCAN</button>
+  <button class="btn gold" onclick="exportPNG()">↓ PNG</button>
+  <button class="btn red" onclick="clearAll()">✕ CLEAR</button>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('graph')">GRAPH</div>
+  <div class="tab" onclick="switchTab('sankey')">SANKEY</div>
+  <div class="tab" onclick="switchTab('timeline')">TIMELINE</div>
+  <div class="tab" onclick="switchTab('analysis')">ANALYSIS</div>
 </div>
 
 <div class="main-grid">
 
-  <!-- Graph -->
-  <div class="graph-panel">
-    <div class="panel-header">
-      <span>FUND FLOW GRAPH</span>
-      <span class="depth-info" id="graph-info">NODES: 0 &nbsp; EDGES: 0</span>
-    </div>
-    <div id="graph-empty" class="graph-empty">
-      ▸ ウォレットアドレスを入力してSCANを実行<br>
-      ▸ ノードをドラッグして配置を調整可能<br>
-      ▸ ノードをクリックで詳細表示<br>
-      ▸ スクロールでズーム
-    </div>
-    <canvas id="graph-canvas"></canvas>
-    <div class="legend">
-      <div class="leg-item"><div class="leg-dot" style="background:#00e5ff"></div> 起点ウォレット</div>
-      <div class="leg-item"><div class="leg-dot" style="background:#00ff9d"></div> 受信ウォレット</div>
-      <div class="leg-item"><div class="leg-dot" style="background:#ff2d6b"></div> 送信ウォレット</div>
-      <div class="leg-item"><div class="leg-dot" style="background:#ffb800"></div> 中継ウォレット</div>
-      <div class="leg-item" style="gap:8px;">
-        <svg width="30" height="10"><line x1="0" y1="5" x2="25" y2="5" stroke="#00ff9d" stroke-width="2"/><polygon points="25,2 30,5 25,8" fill="#00ff9d"/></svg> 資金流入
+  <!-- LEFT: view area -->
+  <div>
+
+    <!-- GRAPH -->
+    <div class="tab-content active panel" id="tab-graph">
+      <div class="ph">
+        <span>FUND FLOW GRAPH</span>
+        <span id="graph-info" style="font-size:9px;color:var(--dim);">NODES:0 EDGES:0</span>
       </div>
-      <div class="leg-item" style="gap:8px;">
-        <svg width="30" height="10"><line x1="0" y1="5" x2="25" y2="5" stroke="#ff2d6b" stroke-width="2"/><polygon points="25,2 30,5 25,8" fill="#ff2d6b"/></svg> 資金流出
+      <div class="canvas-wrap">
+        <div id="graph-empty" class="graph-empty">
+          ▸ アドレスを入力して SCAN<br>
+          ▸ ノードをドラッグして移動<br>
+          ▸ スクロールでズーム<br>
+          ▸ ノードをクリックで展開
+        </div>
+        <canvas id="graph-canvas"></canvas>
+      </div>
+      <div class="legend">
+        <div class="leg-item"><div class="leg-dot" style="background:#00e5ff;box-shadow:0 0 6px #00e5ff;"></div>起点</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#00ff9d;"></div>受信</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#ff2d6b;"></div>送信</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#ffb800;"></div>中継</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#8855ff;"></div>ハブ</div>
+        <div class="leg-item" style="margin-left:auto;color:var(--dim);">矢印の太さ = 送金量</div>
+      </div>
+      <div class="status-bar" id="status-bar">READY</div>
+      <div id="progress-bar"><div id="progress-fill"></div></div>
+    </div>
+
+    <!-- SANKEY -->
+    <div class="tab-content panel" id="tab-sankey">
+      <div class="ph"><span>SANKEY — 資金フロー比率</span><span id="sankey-info" style="font-size:9px;color:var(--dim);">上位20フローを表示</span></div>
+      <canvas id="sankey-canvas"></canvas>
+      <div class="status-bar">左=送金元 / 右=受取先 / バンド幅=送金量比率</div>
+    </div>
+
+    <!-- TIMELINE -->
+    <div class="tab-content panel" id="tab-timeline">
+      <div class="ph"><span>TIMELINE — 時系列再生</span><span id="tl-info" style="font-size:9px;color:var(--dim);">—</span></div>
+      <canvas id="timeline-canvas"></canvas>
+      <div class="tl-controls">
+        <button class="btn" id="tl-play-btn" onclick="tlToggle()" style="padding:6px 14px;">▶ PLAY</button>
+        <input type="range" id="tl-slider" min="0" max="100" value="0" oninput="tlSeek(this.value)">
+        <span class="tl-time" id="tl-time">—</span>
+        <select id="tl-speed" style="width:80px;">
+          <option value="1">×1</option>
+          <option value="3">×3</option>
+          <option value="10">×10</option>
+        </select>
       </div>
     </div>
-    <div class="status-bar" id="status-bar">READY</div>
-    <div id="progress-bar"><div id="progress-fill"></div></div>
+
+    <!-- ANALYSIS -->
+    <div class="tab-content panel" id="tab-analysis">
+      <div class="ph"><span>PATTERN ANALYSIS</span><span id="analysis-badge" style="font-size:9px;color:var(--dim);">—</span></div>
+      <div id="analysis-panel">
+        <div style="color:var(--dim);font-size:10px;padding:40px;text-align:center;letter-spacing:2px;">SCAN実行後に分析結果が表示されます</div>
+      </div>
+    </div>
+
   </div>
 
-  <!-- Sidebar -->
+  <!-- RIGHT: sidebar -->
   <div class="sidebar">
 
-    <!-- Stats -->
     <div class="panel">
       <div class="ph">FLOW SUMMARY</div>
       <div class="stats-grid">
-        <div class="stat-cell">
-          <div class="stat-val" id="stat-nodes">—</div>
-          <div class="stat-lbl">WALLETS</div>
-        </div>
-        <div class="stat-cell">
-          <div class="stat-val" id="stat-edges">—</div>
-          <div class="stat-lbl">TRANSFERS</div>
-        </div>
-        <div class="stat-cell">
-          <div class="stat-val amount-in" id="stat-inflow">—</div>
-          <div class="stat-lbl">TOTAL IN (SOL)</div>
-        </div>
-        <div class="stat-cell">
-          <div class="stat-val amount-out" id="stat-outflow">—</div>
-          <div class="stat-lbl">TOTAL OUT (SOL)</div>
-        </div>
+        <div class="stat-cell"><div class="stat-val" id="stat-nodes">—</div><div class="stat-lbl">WALLETS</div></div>
+        <div class="stat-cell"><div class="stat-val" id="stat-edges">—</div><div class="stat-lbl">TRANSFERS</div></div>
+        <div class="stat-cell"><div class="stat-val amount-in" id="stat-inflow">—</div><div class="stat-lbl">IN (SOL)</div></div>
+        <div class="stat-cell"><div class="stat-val amount-out" id="stat-outflow">—</div><div class="stat-lbl">OUT (SOL)</div></div>
+        <div class="stat-cell"><div class="stat-val" id="stat-hubs" style="color:var(--gold);">—</div><div class="stat-lbl">HUBS</div></div>
+        <div class="stat-cell"><div class="stat-val" id="stat-depth" style="color:var(--dim);">—</div><div class="stat-lbl">MAX DEPTH</div></div>
+      </div>
+    </div>
+
+    <!-- Risk alerts -->
+    <div class="panel" id="risk-panel">
+      <div class="ph">RISK FLAGS</div>
+      <div id="risk-list" style="padding:8px 14px;font-size:10px;color:var(--dim);">なし</div>
+    </div>
+
+    <!-- Top wallets -->
+    <div class="panel" style="flex:1;">
+      <div class="ph"><span>TOP WALLETS</span><span id="tw-sort" style="font-size:9px;color:var(--dim);cursor:pointer;" onclick="toggleTWSort()">VOL ↓</span></div>
+      <div style="overflow-x:auto;">
+        <table class="wallet-table" id="wallet-table">
+          <thead><tr><th>ADDR</th><th>IN</th><th>OUT</th><th>DEGREE</th></tr></thead>
+          <tbody id="wallet-tbody"></tbody>
+        </table>
       </div>
     </div>
 
     <!-- TX list -->
-    <div class="panel" style="flex:1;">
-      <div class="ph">
-        <span>TRANSACTIONS</span>
-        <span id="tx-count" style="font-size:9px;color:var(--dim)">0</span>
-      </div>
-      <div id="tx-list">
-        <div class="graph-empty" style="padding:40px 20px;font-size:10px;">
-          トランザクション履歴がここに表示されます
-        </div>
-      </div>
+    <div class="panel">
+      <div class="ph"><span>TRANSACTIONS</span><span id="tx-count" style="font-size:9px;color:var(--dim);">0</span></div>
+      <div id="tx-list"><div style="padding:30px 14px;text-align:center;color:var(--dim);font-size:10px;">—</div></div>
     </div>
 
   </div>
 </div>
-
-</div><!-- /wrap -->
+</div>
 
 <div id="tooltip"></div>
 
 <script>
-/* ─────────────────────────────────────────────
-   SOLSCAN API WRAPPER
-   Public API: https://public-api.solscan.io
-   Pro API  : https://pro-api.solscan.io/v2.0
-───────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════ */
+let nodes=[], edges=[], allTxs=[];
+let rootAddr='', scanning=false;
+let twSortVol=true;
 
-const API_BASE  = 'https://pro-api.solscan.io/v2.0';
-const PUB_BASE  = 'https://public-api.solscan.io';
+/* ═══════════════════════════════════════════════
+   API
+═══════════════════════════════════════════════ */
+const PUB='https://public-api.solscan.io';
 
-let apiToken = '';  // Pro API token (optional — public endpoints used when blank)
-
-// ── fetch helper (auto-retry once on 429) ──
-async function apiFetch(url, useToken = false) {
-  const headers = {};
-  if (useToken && apiToken) headers['token'] = apiToken;
-  let r = await fetch(url, { headers });
-  if (r.status === 429) {
-    await new Promise(res => setTimeout(res, 1200));
-    r = await fetch(url, { headers });
-  }
-  if (!r.ok) throw new Error(`HTTP ${r.status} — ${url}`);
+async function apiFetch(url){
+  let r=await fetch(url,{headers:{'User-Agent':'SolscanFlow/2.0'}});
+  if(r.status===429){await sleep(1400);r=await fetch(url);}
+  if(!r.ok) throw new Error(`HTTP ${r.status}`);
   return r.json();
 }
 
-// ── SOL transfers for a wallet (public API) ──
-async function getAccountTransfers(address, limit = 20) {
-  // Public API endpoint
-  const url = `${PUB_BASE}/account/transfer?account=${address}&limit=${limit}&offset=0`;
-  try {
-    const d = await apiFetch(url);
-    return d?.data ?? [];
-  } catch {
-    // fallback: transactions list
-    const url2 = `${PUB_BASE}/account/transactions?account=${address}&limit=${limit}`;
-    const d = await apiFetch(url2);
-    return d ?? [];
-  }
+async function getTransfers(addr,limit){
+  // try /account/transfer first
+  try{
+    const d=await apiFetch(`${PUB}/account/transfer?account=${addr}&limit=${limit}&offset=0`);
+    if(d?.data?.length) return d.data;
+  }catch{}
+  // fallback: transaction list
+  const d=await apiFetch(`${PUB}/account/transactions?account=${addr}&limit=${limit}`);
+  return Array.isArray(d)?d:[];
 }
 
-// ── Resolve single TX (public API) ──
-async function getTxDetail(sig) {
-  const url = `${PUB_BASE}/transaction/${sig}`;
-  const d = await apiFetch(url);
-  return d;
+async function getTxDetail(sig){
+  return apiFetch(`${PUB}/transaction/${sig}`);
 }
 
-// ─────────────────────────────────────────────
-//  GRAPH STATE
-// ─────────────────────────────────────────────
-let nodes = [];   // { id, label, type, sol, txCount, x, y, vx, vy }
-let edges = [];   // { from, to, amount, type, sig, time }
-let rootAddr = '';
-
-function nodeById(id) { return nodes.find(n => n.id === id); }
-function addNode(id, type = 'wallet') {
-  if (!nodeById(id)) {
-    nodes.push({
-      id, label: shortAddr(id), type,
-      sol: 0, txCount: 0,
-      x: canvasW() / 2 + (Math.random() - .5) * 200,
-      y: canvasH() / 2 + (Math.random() - .5) * 200,
-      vx: 0, vy: 0, pinned: false
-    });
-  }
-}
-function addEdge(from, to, amount, type = 'sol', sig = '', time = 0) {
-  // accumulate parallel edges
-  const ex = edges.find(e => e.from === from && e.to === to && e.type === type);
-  if (ex) { ex.amount += amount; ex.count = (ex.count || 1) + 1; }
-  else edges.push({ from, to, amount, type, sig, time, count: 1 });
+async function getAccountInfo(addr){
+  try{return await apiFetch(`${PUB}/account/${addr}`);}catch{return null;}
 }
 
-// ─────────────────────────────────────────────
-//  SCAN LOGIC
-// ─────────────────────────────────────────────
-let scanning = false;
+/* ═══════════════════════════════════════════════
+   GRAPH DATA
+═══════════════════════════════════════════════ */
+function nodeById(id){return nodes.find(n=>n.id===id);}
 
-async function startScan() {
-  const raw = document.getElementById('addr-input').value.trim();
-  if (!raw) return setStatus('アドレスを入力してください', 'err');
-  if (scanning) return;
-
-  const depth  = parseInt(document.getElementById('depth-input').value) || 2;
-  const limit  = parseInt(document.getElementById('limit-input').value) || 20;
-  const filter = document.getElementById('type-filter').value;
-
-  clearGraph(false);
-  rootAddr = raw;
-  scanning = true;
-  document.getElementById('scan-btn').disabled = true;
-  setProgress(5);
-  setStatus('スキャン中…');
-  document.getElementById('graph-empty').style.display = 'none';
-
-  try {
-    // Detect if input is a TX signature (88 chars base58) or wallet address
-    if (raw.length >= 86 && raw.length <= 90) {
-      await scanTx(raw);
-    } else {
-      await scanWallet(raw, depth, limit, filter);
-    }
-  } catch(e) {
-    setStatus('エラー: ' + e.message, 'err');
-    console.error(e);
-  }
-
-  scanning = false;
-  document.getElementById('scan-btn').disabled = false;
-  setProgress(100);
-  updateStats();
-  renderGraph();
-  setTimeout(() => setProgress(0), 800);
-}
-
-async function scanTx(sig) {
-  setStatus(`TX解析中: ${sig.slice(0,16)}…`);
-  const tx = await getTxDetail(sig);
-  if (!tx) throw new Error('トランザクション取得失敗');
-
-  const from = tx.signer?.[0] ?? tx.feePayer ?? 'unknown';
-  addNode(from, 'root');
-
-  const changes = tx.accountData ?? tx.solBalanceChange ?? [];
-  for (const ch of changes) {
-    const addr = ch.account ?? ch.address;
-    const amt  = Math.abs((ch.preBalance - ch.postBalance) / 1e9);
-    const diff = (ch.postBalance - ch.preBalance) / 1e9;
-    if (!addr || addr === from) continue;
-    addNode(addr, diff > 0 ? 'receiver' : 'sender');
-    if (diff > 0) addEdge(from, addr, diff, 'sol', sig, tx.blockTime);
-    else          addEdge(addr, from, Math.abs(diff), 'sol', sig, tx.blockTime);
-  }
-  renderTxList([tx]);
-  setStatus(`TX解析完了 — ${nodes.length} wallets`, 'ok');
-}
-
-async function scanWallet(address, depth, limit, filter) {
-  const visited = new Set();
-  const queue = [{ addr: address, d: 0 }];
-  const allTxs = [];
-  addNode(address, 'root');
-
-  while (queue.length) {
-    const { addr, d } = queue.shift();
-    if (visited.has(addr) || d > depth) continue;
-    visited.add(addr);
-
-    setStatus(`スキャン中 [深度${d}]: ${shortAddr(addr)}…`);
-    setProgress(10 + (visited.size / (visited.size + queue.length + 1)) * 80);
-
-    let transfers = [];
-    try {
-      transfers = await getAccountTransfers(addr, limit);
-    } catch(e) {
-      console.warn('transfer fetch fail:', e.message);
-      continue;
-    }
-
-    for (const tx of transfers) {
-      // Normalize across API response shapes
-      const sig  = tx.signature ?? tx.txHash ?? tx.transactionHash ?? '';
-      const time = tx.blockTime ?? tx.time ?? 0;
-      const src  = tx.src ?? tx.from_address ?? tx.sourceAddress ?? addr;
-      const dst  = tx.dst ?? tx.to_address   ?? tx.destAddress   ?? '';
-      const lamports = tx.lamport ?? tx.amount ?? 0;
-      const amtSol   = lamports > 1e9 ? lamports / 1e9 : lamports; // normalize
-      const type = tx.tokenAddress ? 'token' : 'sol';
-      const symbol = tx.tokenSymbol ?? tx.symbol ?? 'SOL';
-
-      if (filter === 'sol'   && type !== 'sol')   continue;
-      if (filter === 'token' && type !== 'token') continue;
-      if (!src || !dst) continue;
-
-      addNode(src, src === address ? (d === 0 ? 'root' : 'relay') : 'sender');
-      addNode(dst, dst === address ? (d === 0 ? 'root' : 'relay') : 'receiver');
-      addEdge(src, dst, amtSol, type, sig, time);
-
-      const peer = src === addr ? dst : src;
-      if (d + 1 <= depth && !visited.has(peer)) {
-        queue.push({ addr: peer, d: d + 1 });
-      }
-
-      allTxs.push({ sig, time, src, dst, amtSol, symbol, type });
-    }
-
-    await new Promise(r => setTimeout(r, 300)); // rate limit
-  }
-
-  allTxs.sort((a,b) => b.time - a.time);
-  renderTxList(allTxs);
-  setStatus(`スキャン完了 — ${nodes.length} wallets, ${edges.length} transfers`, 'ok');
-}
-
-// ─────────────────────────────────────────────
-//  FORCE-DIRECTED GRAPH (canvas)
-// ─────────────────────────────────────────────
-const C = document.getElementById('graph-canvas');
-const ctx = C.getContext('2d');
-
-let camX = 0, camY = 0, camZ = 1;
-let dragging = null, dragOffX = 0, dragOffY = 0;
-let panStart = null;
-let animId = null;
-
-function canvasW() { return C.width;  }
-function canvasH() { return C.height; }
-
-function resizeCanvas() {
-  const rect = C.parentElement.getBoundingClientRect();
-  C.width  = rect.width;
-  C.height = Math.max(rect.height - 80, 480);
-}
-
-// node colors by type
-function nodeColor(type) {
-  return { root:'#00e5ff', receiver:'#00ff9d', sender:'#ff2d6b', relay:'#ffb800', wallet:'#4a6a9a' }[type] ?? '#4a6a9a';
-}
-
-function drawArrow(x1, y1, x2, y2, color, width, label) {
-  const dx = x2 - x1, dy = y2 - y1;
-  const len = Math.sqrt(dx*dx+dy*dy);
-  if (len < 1) return;
-  const ux = dx/len, uy = dy/len;
-  const r  = 18; // node radius
-  const sx = x1 + ux*r, sy = y1 + uy*r;
-  const ex = x2 - ux*r, ey = y2 - uy*r;
-
-  ctx.beginPath();
-  ctx.moveTo(sx, sy);
-  ctx.lineTo(ex, ey);
-  ctx.strokeStyle = color;
-  ctx.lineWidth   = width;
-  ctx.globalAlpha = .7;
-  ctx.stroke();
-  ctx.globalAlpha = 1;
-
-  // arrowhead
-  const hlen = 10, hwidth = 5;
-  const hx = ex - ux*hlen, hy = ey - uy*hlen;
-  const px = -uy, py = ux;
-  ctx.beginPath();
-  ctx.moveTo(ex, ey);
-  ctx.lineTo(hx + px*hwidth, hy + py*hwidth);
-  ctx.lineTo(hx - px*hwidth, hy - py*hwidth);
-  ctx.closePath();
-  ctx.fillStyle = color;
-  ctx.globalAlpha = .9;
-  ctx.fill();
-  ctx.globalAlpha = 1;
-
-  // label
-  if (label) {
-    const mx = (sx+ex)/2 - py*12, my = (sy+ey)/2 - px*12;
-    ctx.font = '9px Share Tech Mono';
-    ctx.fillStyle = color;
-    ctx.globalAlpha = .8;
-    ctx.fillText(label, mx, my);
-    ctx.globalAlpha = 1;
-  }
-}
-
-function drawGraph() {
-  ctx.clearRect(0, 0, canvasW(), canvasH());
-
-  ctx.save();
-  ctx.translate(camX, camY);
-  ctx.scale(camZ, camZ);
-
-  // edges
-  for (const e of edges) {
-    const a = nodeById(e.from), b = nodeById(e.to);
-    if (!a || !b) continue;
-    const color  = e.type === 'sol' ? '#00ff9d' : '#ffb800';
-    const width  = Math.max(1, Math.min(5, Math.log2(e.amount + 1) * .8 + 1));
-    const label  = e.amount > 0 ? `${fmtSol(e.amount)} ${e.type === 'sol' ? 'SOL' : 'TKN'}` : '';
-    drawArrow(a.x, a.y, b.x, b.y, color, width, label);
-  }
-
-  // nodes
-  const r = 18;
-  for (const n of nodes) {
-    const col = nodeColor(n.type);
-    // glow
-    ctx.beginPath();
-    ctx.arc(n.x, n.y, r + 4, 0, Math.PI*2);
-    ctx.fillStyle = col + '22';
-    ctx.fill();
-    // circle
-    ctx.beginPath();
-    ctx.arc(n.x, n.y, r, 0, Math.PI*2);
-    ctx.fillStyle = n.type === 'root' ? col + '33' : '#070c18';
-    ctx.strokeStyle = col;
-    ctx.lineWidth = n.type === 'root' ? 2.5 : 1.5;
-    ctx.fill();
-    ctx.stroke();
-    // label
-    ctx.font = '9px Share Tech Mono';
-    ctx.fillStyle = col;
-    ctx.textAlign = 'center';
-    ctx.fillText(n.label, n.x, n.y + r + 14);
-    // sol amount
-    if (n.sol > 0) {
-      ctx.font = '8px Share Tech Mono';
-      ctx.fillStyle = '#4a8a6a';
-      ctx.fillText(fmtSol(n.sol) + ' SOL', n.x, n.y + r + 24);
-    }
-    ctx.textAlign = 'left';
-  }
-
-  ctx.restore();
-}
-
-// Force simulation (simple)
-function tickForce() {
-  const k   = 80;   // spring rest length
-  const rep = 4000; // repulsion
-  const damp = .85;
-
-  for (const n of nodes) {
-    if (n.pinned) continue;
-
-    // repulsion between all nodes
-    let fx = 0, fy = 0;
-    for (const m of nodes) {
-      if (m === n) continue;
-      const dx = n.x - m.x, dy = n.y - m.y;
-      const d2 = dx*dx + dy*dy + 0.01;
-      const f  = rep / d2;
-      fx += dx * f; fy += dy * f;
-    }
-
-    // spring attraction along edges
-    for (const e of edges) {
-      let other = null;
-      if (e.from === n.id) other = nodeById(e.to);
-      if (e.to   === n.id) other = nodeById(e.from);
-      if (!other) continue;
-      const dx = other.x - n.x, dy = other.y - n.y;
-      const d  = Math.sqrt(dx*dx + dy*dy) + 0.01;
-      const f  = (d - k) * .03;
-      fx += dx/d * f; fy += dy/d * f;
-    }
-
-    // center gravity (weak)
-    fx += (canvasW()/2 - n.x) * .002;
-    fy += (canvasH()/2 - n.y) * .002;
-
-    n.vx = (n.vx + fx) * damp;
-    n.vy = (n.vy + fy) * damp;
-
-    // clamp velocity
-    const spd = Math.sqrt(n.vx*n.vx + n.vy*n.vy);
-    if (spd > 8) { n.vx = n.vx/spd*8; n.vy = n.vy/spd*8; }
-
-    n.x += n.vx;
-    n.y += n.vy;
-  }
-}
-
-let frameCount = 0;
-function loop() {
-  frameCount++;
-  if (frameCount % 2 === 0) tickForce(); // simulate every 2nd frame
-  drawGraph();
-  animId = requestAnimationFrame(loop);
-}
-
-function renderGraph() {
-  document.getElementById('graph-info').textContent =
-    `NODES: ${nodes.length}  EDGES: ${edges.length}`;
-  if (!animId) loop();
-}
-
-function clearGraph(full = true) {
-  nodes = []; edges = [];
-  if (full) {
-    rootAddr = '';
-    document.getElementById('tx-list').innerHTML = '<div class="graph-empty" style="padding:40px 20px;font-size:10px;">トランザクション履歴がここに表示されます</div>';
-    document.getElementById('graph-empty').style.display = '';
-    ['stat-nodes','stat-edges','stat-inflow','stat-outflow'].forEach(id => {
-      document.getElementById(id).textContent = '—';
-    });
-    document.getElementById('tx-count').textContent = '0';
-    setStatus('READY');
-  }
-  document.getElementById('graph-info').textContent = 'NODES: 0  EDGES: 0';
-}
-
-// ─────────────────────────────────────────────
-//  UI HELPERS
-// ─────────────────────────────────────────────
-function setStatus(msg, cls = '') {
-  const el = document.getElementById('status-bar');
-  el.textContent = msg;
-  el.className = 'status-bar' + (cls ? ' '+cls : '');
-}
-function setProgress(pct) {
-  document.getElementById('progress-fill').style.width = pct + '%';
-}
-
-function updateStats() {
-  document.getElementById('stat-nodes').textContent  = nodes.length;
-  document.getElementById('stat-edges').textContent  = edges.length;
-
-  let inflow = 0, outflow = 0;
-  for (const e of edges) {
-    if (e.type === 'sol') {
-      if (e.to   === rootAddr) inflow  += e.amount;
-      if (e.from === rootAddr) outflow += e.amount;
-    }
-  }
-  document.getElementById('stat-inflow').textContent  = fmtSol(inflow)  + ' ◆';
-  document.getElementById('stat-outflow').textContent = fmtSol(outflow) + ' ◆';
-}
-
-function renderTxList(txs) {
-  document.getElementById('tx-count').textContent = txs.length;
-  if (!txs.length) return;
-
-  const html = txs.slice(0, 100).map(tx => {
-    const sig  = tx.signature ?? tx.txHash ?? tx.sig ?? '';
-    const time = tx.blockTime ?? tx.time ?? 0;
-    const src  = tx.src ?? tx.from_address ?? tx.signer?.[0] ?? '';
-    const dst  = tx.dst ?? tx.to_address   ?? '';
-    const amt  = tx.amtSol ?? (tx.lamport ? tx.lamport/1e9 : 0);
-    const sym  = tx.symbol ?? 'SOL';
-    const isIn = dst === rootAddr;
-    return `<div class="tx-item" onclick="highlightEdge('${sig}')">
-      <div class="tx-top">
-        <span class="tx-sig">${sig.slice(0,32)}…</span>
-        <span class="tx-time">${fmtTime(time)}</span>
-      </div>
-      <div class="tx-detail">
-        <span class="addr">${shortAddr(src)}</span>
-        ${isIn ? '→ <b class="amount-in">+' : '← <b class="amount-out">-'}${fmtSol(amt)}</b> ${sym}
-        → <span class="addr">${shortAddr(dst)}</span>
-      </div>
-    </div>`;
-  }).join('');
-  document.getElementById('tx-list').innerHTML = html;
-}
-
-function highlightEdge(sig) {
-  // briefly flash edges matching this sig
-  edges.filter(e => e.sig === sig).forEach(e => {
-    e._flash = 10;
+function addNode(id,type='wallet',depth=0){
+  if(nodeById(id)) return;
+  nodes.push({
+    id, label:shortAddr(id), type, depth,
+    sol:0, txCount:0, inflow:0, outflow:0,
+    degree:0, inDeg:0, outDeg:0,
+    x:cW()/2+(Math.random()-.5)*300,
+    y:cH()/2+(Math.random()-.5)*300,
+    vx:0,vy:0,pinned:false,
+    info:null
   });
 }
 
-function shortAddr(addr) {
-  if (!addr) return '—';
-  if (addr.length <= 12) return addr;
-  return addr.slice(0,4) + '…' + addr.slice(-4);
+function addEdge(from,to,amount,type='sol',sig='',time=0,symbol='SOL'){
+  const ex=edges.find(e=>e.from===from&&e.to===to&&e.type===type);
+  if(ex){ex.amount+=amount;ex.count=(ex.count||1)+1;}
+  else edges.push({from,to,amount,type,sig,time,symbol,count:1});
+  // update node degrees
+  const fn=nodeById(from),tn=nodeById(to);
+  if(fn){fn.outflow+=amount;fn.outDeg++;fn.degree++;}
+  if(tn){tn.inflow+=amount;tn.inDeg++;tn.degree++;}
 }
-function fmtSol(v) {
-  if (!v || v === 0) return '0';
-  if (v >= 1000) return (v/1000).toFixed(1) + 'K';
-  if (v >= 1)    return v.toFixed(3);
+
+/* ═══════════════════════════════════════════════
+   SCAN
+═══════════════════════════════════════════════ */
+async function startScan(){
+  const raw=document.getElementById('addr-input').value.trim();
+  if(!raw||scanning) return;
+  const depth=parseInt(document.getElementById('depth-input').value)||2;
+  const limit=parseInt(document.getElementById('limit-input').value)||25;
+  const minSol=parseFloat(document.getElementById('min-sol').value)||0;
+  const filter=document.getElementById('type-filter').value;
+
+  clearAll(false);
+  rootAddr=raw;
+  scanning=true;
+  document.getElementById('scan-btn').disabled=true;
+  document.getElementById('graph-empty').style.display='none';
+  setStatus('スキャン開始…');
+  setProgress(5);
+
+  try{
+    if(raw.length>=86&&raw.length<=90) await scanTx(raw);
+    else await scanWallet(raw,depth,limit,minSol,filter);
+  }catch(e){
+    setStatus('エラー: '+e.message,'err');
+    console.error(e);
+  }
+
+  scanning=false;
+  document.getElementById('scan-btn').disabled=false;
+  setProgress(100);
+  postProcess();
+  renderAll();
+  setTimeout(()=>setProgress(0),600);
+}
+
+async function scanTx(sig){
+  setStatus('TX解析: '+sig.slice(0,16)+'…');
+  const tx=await getTxDetail(sig);
+  if(!tx) throw new Error('TX取得失敗');
+  const from=tx.signer?.[0]??tx.feePayer??'unknown';
+  addNode(from,'root',0);
+  const changes=tx.accountData??tx.balanceChange??[];
+  for(const ch of changes){
+    const addr=ch.account??ch.address;
+    const diff=(ch.postBalance-ch.preBalance)/1e9;
+    if(!addr||addr===from) continue;
+    addNode(addr,diff>0?'receiver':'sender',1);
+    if(diff>0) addEdge(from,addr,diff,'sol',sig,tx.blockTime);
+    else addEdge(addr,from,Math.abs(diff),'sol',sig,tx.blockTime);
+  }
+  allTxs.push({sig,time:tx.blockTime??0,src:from,dst:'(multiple)',amtSol:0,symbol:'SOL'});
+  setStatus('TX解析完了','ok');
+}
+
+async function scanWallet(address,maxDepth,limit,minSol,filter){
+  const visited=new Set();
+  const queue=[{addr:address,d:0}];
+  addNode(address,'root',0);
+
+  while(queue.length){
+    const {addr,d}=queue.shift();
+    if(visited.has(addr)||d>maxDepth) continue;
+    visited.add(addr);
+
+    setStatus(`[深度${d}] ${shortAddr(addr)} をスキャン中…`);
+    setProgress(10+Math.min(80,(visited.size/(visited.size+queue.length+1))*80));
+
+    let transfers=[];
+    try{ transfers=await getTransfers(addr,limit); }
+    catch(e){ console.warn(e); continue; }
+
+    for(const tx of transfers){
+      const sig =tx.signature??tx.txHash??'';
+      const time=tx.blockTime??tx.time??0;
+      const src =tx.src??tx.from_address??tx.sourceAddress??addr;
+      const dst =tx.dst??tx.to_address??tx.destAddress??'';
+      const raw =tx.lamport??tx.amount??0;
+      const amt =raw>1e8?raw/1e9:raw; // lamport → SOL
+      const type=tx.tokenAddress?'token':'sol';
+      const sym =tx.tokenSymbol??tx.symbol??'SOL';
+
+      if(!src||!dst||src===dst) continue;
+      if(filter==='sol'&&type!=='sol') continue;
+      if(filter==='token'&&type!=='token') continue;
+      if(amt<minSol) continue;
+
+      const srcType=src===address?(d===0?'root':'relay'):'sender';
+      const dstType=dst===address?(d===0?'root':'relay'):'receiver';
+      addNode(src,srcType,d);
+      addNode(dst,dstType,d+1);
+      addEdge(src,dst,amt,type,sig,time,sym);
+
+      allTxs.push({sig,time,src,dst,amtSol:amt,symbol:sym,type});
+
+      const peer=src===addr?dst:src;
+      if(d+1<=maxDepth&&!visited.has(peer)) queue.push({addr:peer,d:d+1});
+    }
+    await sleep(280);
+  }
+  allTxs.sort((a,b)=>b.time-a.time);
+  setStatus(`完了 — ${nodes.length} wallets, ${edges.length} transfers`,'ok');
+}
+
+/* ═══════════════════════════════════════════════
+   POST-PROCESS: hub detection, risk, etc.
+═══════════════════════════════════════════════ */
+function postProcess(){
+  // mark hubs: degree >= 4 or top 10%
+  const maxDeg=Math.max(...nodes.map(n=>n.degree),1);
+  const hubThreshold=Math.max(4,maxDeg*.4);
+  for(const n of nodes){
+    if(n.degree>=hubThreshold&&n.type!=='root') n.type='hub';
+  }
+  updateStats();
+  updateWalletTable();
+  detectPatterns();
+  renderTxList();
+}
+
+function updateStats(){
+  document.getElementById('stat-nodes').textContent=nodes.length;
+  document.getElementById('stat-edges').textContent=edges.length;
+  let inf=0,outf=0;
+  for(const e of edges){
+    if(e.type==='sol'){
+      if(e.to===rootAddr) inf+=e.amount;
+      if(e.from===rootAddr) outf+=e.amount;
+    }
+  }
+  document.getElementById('stat-inflow').textContent=fmtSol(inf)+' ◆';
+  document.getElementById('stat-outflow').textContent=fmtSol(outf)+' ◆';
+  const hubs=nodes.filter(n=>n.type==='hub').length;
+  document.getElementById('stat-hubs').textContent=hubs;
+  const maxD=nodes.length?Math.max(...nodes.map(n=>n.depth)):0;
+  document.getElementById('stat-depth').textContent=maxD;
+  document.getElementById('graph-info').textContent=`NODES:${nodes.length} EDGES:${edges.length}`;
+}
+
+function updateWalletTable(){
+  const sorted=[...nodes].sort((a,b)=>twSortVol?(b.inflow+b.outflow)-(a.inflow+a.outflow):b.degree-a.degree);
+  document.getElementById('wallet-tbody').innerHTML=sorted.slice(0,30).map(n=>{
+    const col=nodeColor(n.type);
+    return `<tr>
+      <td><span class="hub-indicator" style="background:${col};box-shadow:0 0 4px ${col};"></span>${n.label}</td>
+      <td class="amount-in">${fmtSol(n.inflow)}</td>
+      <td class="amount-out">${fmtSol(n.outflow)}</td>
+      <td style="color:${col};">${n.degree}</td>
+    </tr>`;
+  }).join('');
+}
+
+function toggleTWSort(){
+  twSortVol=!twSortVol;
+  document.getElementById('tw-sort').textContent=twSortVol?'VOL ↓':'DEG ↓';
+  updateWalletTable();
+}
+
+/* ─── PATTERN DETECTION ─── */
+function detectPatterns(){
+  const patterns=[];
+  const risks=[];
+
+  // Fan-out: 1 sender → many receivers
+  for(const n of nodes){
+    const outs=edges.filter(e=>e.from===n.id);
+    if(outs.length>=5){
+      patterns.push({title:'FAN-OUT (分散送金)',color:'#ffb800',
+        desc:`${n.label} から ${outs.length} 個のウォレットへ分散送金。ミキサー/配布の可能性。`,
+        wallets:[n.id,...outs.map(e=>e.to).slice(0,4)]
+      });
+      if(outs.length>=8) risks.push({level:'high',msg:`FAN-OUT: ${n.label} → ${outs.length} 先`});
+      else risks.push({level:'mid',msg:`FAN-OUT: ${n.label} → ${outs.length} 先`});
+    }
+  }
+
+  // Fan-in: many senders → 1 receiver
+  for(const n of nodes){
+    const ins=edges.filter(e=>e.to===n.id);
+    if(ins.length>=5){
+      patterns.push({title:'FAN-IN (資金集約)',color:'#ff2d6b',
+        desc:`${ins.length} 個のウォレットから ${n.label} へ集約。コンソリデーションの可能性。`,
+        wallets:[n.id,...ins.map(e=>e.from).slice(0,4)]
+      });
+      if(ins.length>=8) risks.push({level:'high',msg:`FAN-IN: ${ins.length} 元 → ${n.label}`});
+      else risks.push({level:'mid',msg:`FAN-IN: ${ins.length} 元 → ${n.label}`});
+    }
+  }
+
+  // Circular flow detection (A→B→C→A)
+  for(const e1 of edges){
+    for(const e2 of edges){
+      if(e2.from!==e1.to) continue;
+      for(const e3 of edges){
+        if(e3.from===e2.to&&e3.to===e1.from&&e1.from!==e2.from){
+          patterns.push({title:'循環送金 (CIRCULAR)',color:'#ff2d6b',
+            desc:`${shortAddr(e1.from)} → ${shortAddr(e1.to)} → ${shortAddr(e2.to)} → 起点への資金循環を検出。`,
+            wallets:[e1.from,e1.to,e2.to]
+          });
+          risks.push({level:'high',msg:`循環: ${shortAddr(e1.from)}→${shortAddr(e1.to)}→${shortAddr(e2.to)}`});
+          break;
+        }
+      }
+    }
+  }
+
+  // Rapid redistribution: node received and forwarded >80% within same block
+  for(const n of nodes){
+    if(n.type==='root') continue;
+    const ratio=n.outflow/(n.inflow||1);
+    if(n.inflow>0.1&&ratio>0.8&&ratio<1.5){
+      patterns.push({title:'即時転送 (PASS-THROUGH)',color:'#8855ff',
+        desc:`${n.label}: 受信${fmtSol(n.inflow)} SOLの ${Math.round(ratio*100)}% を即転送。中継ウォレットの可能性。`,
+        wallets:[n.id]
+      });
+      risks.push({level:'mid',msg:`PASS-THROUGH: ${n.label} (${Math.round(ratio*100)}%転送)`});
+    }
+  }
+
+  // Render patterns
+  const ap=document.getElementById('analysis-panel');
+  document.getElementById('analysis-badge').textContent=`${patterns.length} patterns`;
+  if(!patterns.length){
+    ap.innerHTML='<div style="padding:40px;text-align:center;color:var(--dim);font-size:10px;letter-spacing:2px;">パターンなし / データ不足</div>';
+  } else {
+    ap.innerHTML=patterns.map(p=>`
+      <div class="pattern-card">
+        <div class="pattern-title" style="color:${p.color};">${p.title}</div>
+        <div class="pattern-desc">${p.desc}</div>
+        <div class="pattern-wallets">${p.wallets.map(w=>`<span style="color:var(--accent);margin-right:8px;">${shortAddr(w)}</span>`).join('')}</div>
+      </div>`).join('');
+  }
+
+  // Risk flags sidebar
+  const rl=document.getElementById('risk-list');
+  if(!risks.length){
+    rl.innerHTML='<span style="color:var(--green);">フラグなし</span>';
+  } else {
+    rl.innerHTML=risks.map(r=>`
+      <div class="risk-row">
+        <span class="risk-badge ${r.level==='high'?'risk-high':r.level==='mid'?'risk-mid':'risk-low'}">${r.level.toUpperCase()}</span>
+        <span>${r.msg}</span>
+      </div>`).join('');
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   FORCE-DIRECTED GRAPH
+═══════════════════════════════════════════════ */
+const GC=document.getElementById('graph-canvas');
+const gctx=GC.getContext('2d');
+let camX=0,camY=0,camZ=1;
+let dragging=null,panStart=null,dragOX=0,dragOY=0;
+let animId=null;
+
+function cW(){return GC.width;}
+function cH(){return GC.height;}
+
+function nodeColor(type){
+  return{root:'#00e5ff',receiver:'#00ff9d',sender:'#ff2d6b',relay:'#ffb800',hub:'#8855ff',wallet:'#3a5a8a'}[type]??'#3a5a8a';
+}
+function nodeRadius(n){
+  const base=14;
+  const vol=n.inflow+n.outflow;
+  return base+Math.min(10,Math.log2(vol+1)*1.5);
+}
+
+function tickForce(){
+  const K=90,REP=5000,DAMP=.84;
+  for(const n of nodes){
+    if(n.pinned) continue;
+    let fx=0,fy=0;
+    for(const m of nodes){
+      if(m===n) continue;
+      const dx=n.x-m.x,dy=n.y-m.y,d2=dx*dx+dy*dy+1;
+      const f=REP/d2;
+      fx+=dx*f;fy+=dy*f;
+    }
+    for(const e of edges){
+      let o=null;
+      if(e.from===n.id) o=nodeById(e.to);
+      if(e.to===n.id)   o=nodeById(e.from);
+      if(!o) continue;
+      const dx=o.x-n.x,dy=o.y-n.y,d=Math.sqrt(dx*dx+dy*dy)+1;
+      const f=(d-K)*.025;
+      fx+=dx/d*f;fy+=dy/d*f;
+    }
+    fx+=(cW()/2-n.x)*.0015;
+    fy+=(cH()/2-n.y)*.0015;
+    n.vx=(n.vx+fx)*DAMP;
+    n.vy=(n.vy+fy)*DAMP;
+    const spd=Math.hypot(n.vx,n.vy);
+    if(spd>10){n.vx=n.vx/spd*10;n.vy=n.vy/spd*10;}
+    n.x+=n.vx;n.y+=n.vy;
+  }
+}
+
+function drawArrow(x1,y1,x2,y2,col,w,label,alpha=.7){
+  const dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy);
+  if(len<2) return;
+  const ux=dx/len,uy=dy/len;
+  const r1=nodeRadius(nodeById(x1+'_dummy')||{inflow:0,outflow:0})+2;
+  const r2=18;
+  const sx=x1+ux*r1,sy=y1+uy*r1,ex=x2-ux*r2,ey=y2-uy*r2;
+  gctx.save();
+  gctx.globalAlpha=alpha;
+  gctx.strokeStyle=col;gctx.lineWidth=w;
+  gctx.beginPath();gctx.moveTo(sx,sy);gctx.lineTo(ex,ey);gctx.stroke();
+  // arrowhead
+  const hl=9,hw=4,hx=ex-ux*hl,hy=ey-uy*hl;
+  const px=-uy,py=ux;
+  gctx.fillStyle=col;
+  gctx.beginPath();gctx.moveTo(ex,ey);gctx.lineTo(hx+px*hw,hy+py*hw);gctx.lineTo(hx-px*hw,hy-py*hw);gctx.closePath();gctx.fill();
+  if(label){
+    const mx=(sx+ex)/2+px*13,my=(sy+ey)/2+py*13;
+    gctx.font='8px Share Tech Mono';gctx.fillStyle=col;gctx.textAlign='center';
+    gctx.fillText(label,mx,my);
+  }
+  gctx.restore();
+}
+
+function drawGraph(){
+  gctx.clearRect(0,0,cW(),cH());
+  gctx.save();
+  gctx.translate(camX,camY);gctx.scale(camZ,camZ);
+
+  // edges
+  for(const e of edges){
+    const a=nodeById(e.from),b=nodeById(e.to);
+    if(!a||!b) continue;
+    const col=e.type==='token'?'#ffb800':'#00ff9d';
+    const w=Math.max(.8,Math.min(5,Math.log2(e.amount+1)*.9+.5));
+    const lbl=e.amount>.001?fmtSol(e.amount)+(e.type==='sol'?' SOL':' '+e.symbol):'';
+    drawArrow(a.x,a.y,b.x,b.y,col,w,lbl,.65);
+  }
+
+  // nodes
+  for(const n of nodes){
+    const col=nodeColor(n.type);
+    const r=nodeRadius(n);
+    // glow
+    const grad=gctx.createRadialGradient(n.x,n.y,r*.3,n.x,n.y,r+8);
+    grad.addColorStop(0,col+'44');grad.addColorStop(1,'transparent');
+    gctx.beginPath();gctx.arc(n.x,n.y,r+8,0,Math.PI*2);
+    gctx.fillStyle=grad;gctx.fill();
+    // circle
+    gctx.beginPath();gctx.arc(n.x,n.y,r,0,Math.PI*2);
+    gctx.fillStyle=n.type==='root'?col+'33':'#050a14';
+    gctx.strokeStyle=col;gctx.lineWidth=n.type==='root'?2.5:1.5;
+    gctx.fill();gctx.stroke();
+    // label
+    gctx.font='9px Share Tech Mono';
+    gctx.fillStyle=col;gctx.textAlign='center';
+    gctx.fillText(n.label,n.x,n.y+r+13);
+    // depth badge
+    gctx.font='7px Share Tech Mono';
+    gctx.fillStyle='#ffffff88';
+    gctx.fillText('D'+n.depth,n.x,n.y+3);
+  }
+  gctx.restore();
+}
+
+let frame=0;
+function loop(){
+  frame++;
+  if(frame%2===0) tickForce();
+  drawGraph();
+  animId=requestAnimationFrame(loop);
+}
+
+/* ═══════════════════════════════════════════════
+   SANKEY DIAGRAM
+═══════════════════════════════════════════════ */
+const SK=document.getElementById('sankey-canvas');
+const sctx=SK.getContext('2d');
+
+function drawSankey(){
+  sctx.clearRect(0,0,SK.width,SK.height);
+  if(!edges.length) return;
+
+  const W=SK.width,H=SK.height;
+  const PAD=60,BAR=18,GAP=6;
+
+  // aggregate by (from,to)
+  const flowMap=new Map();
+  for(const e of edges){
+    const k=e.from+'→'+e.to;
+    flowMap.set(k,(flowMap.get(k)||0)+e.amount);
+  }
+  const flows=[...flowMap.entries()].map(([k,v])=>{const[f,t]=k.split('→');return{f,t,v};}).sort((a,b)=>b.v-a.v).slice(0,20);
+  const totalFlow=flows.reduce((s,f)=>s+f.v,0)||1;
+
+  // collect unique left (senders) and right (receivers)
+  const lefts=[...new Set(flows.map(f=>f.f))];
+  const rights=[...new Set(flows.map(f=>f.t))];
+
+  const lH=(H-PAD*2)/Math.max(lefts.length,1)-GAP;
+  const rH=(H-PAD*2)/Math.max(rights.length,1)-GAP;
+  const barH=Math.max(8,Math.min(40,lH,rH));
+
+  function lY(i){return PAD+i*(barH+GAP)+barH/2;}
+  function rY(i){return PAD+i*(barH+GAP)+barH/2;}
+
+  // draw bars left
+  lefts.forEach((addr,i)=>{
+    const y=lY(i)-barH/2;
+    const col=nodeColor(nodeById(addr)?.type??'sender');
+    sctx.fillStyle=col;
+    sctx.fillRect(PAD,y,BAR,barH);
+    sctx.font='9px Share Tech Mono';sctx.fillStyle=col;sctx.textAlign='right';
+    sctx.fillText(shortAddr(addr),PAD-6,y+barH/2+3);
+  });
+
+  // draw bars right
+  rights.forEach((addr,i)=>{
+    const y=rY(i)-barH/2;
+    const col=nodeColor(nodeById(addr)?.type??'receiver');
+    sctx.fillStyle=col;
+    sctx.fillRect(W-PAD-BAR,y,BAR,barH);
+    sctx.font='9px Share Tech Mono';sctx.fillStyle=col;sctx.textAlign='left';
+    sctx.fillText(shortAddr(addr),W-PAD+6,y+barH/2+3);
+  });
+
+  // draw flows (bezier bands)
+  const lOffsets=new Array(lefts.length).fill(0);
+  const rOffsets=new Array(rights.length).fill(0);
+
+  for(const fl of flows){
+    const li=lefts.indexOf(fl.f),ri=rights.indexOf(fl.t);
+    if(li<0||ri<0) continue;
+    const bandH=Math.max(1,(fl.v/totalFlow)*(H-PAD*2));
+    const ly=lY(li)+lOffsets[li]-bandH/2;
+    const ry=rY(ri)+rOffsets[ri]-bandH/2;
+    lOffsets[li]+=bandH+1;
+    rOffsets[ri]+=bandH+1;
+
+    const x1=PAD+BAR,x2=W-PAD-BAR;
+    const cp=W/2;
+    const col=nodeColor(nodeById(fl.f)?.type??'sender');
+
+    sctx.beginPath();
+    sctx.moveTo(x1,ly);
+    sctx.bezierCurveTo(cp,ly,cp,ry,x2,ry);
+    sctx.lineTo(x2,ry+bandH);
+    sctx.bezierCurveTo(cp,ry+bandH,cp,ly+bandH,x1,ly+bandH);
+    sctx.closePath();
+    sctx.fillStyle=col+'55';
+    sctx.strokeStyle=col+'88';sctx.lineWidth=.5;
+    sctx.fill();sctx.stroke();
+
+    // amount label
+    sctx.font='8px Share Tech Mono';sctx.fillStyle=col;sctx.textAlign='center';
+    sctx.fillText(fmtSol(fl.v)+' SOL',cp,ly+bandH/2+3);
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   TIMELINE
+═══════════════════════════════════════════════ */
+const TC=document.getElementById('timeline-canvas');
+const tctx=TC.getContext('2d');
+let tlPlaying=false,tlIdx=0,tlAnimId=null;
+
+function drawTimeline(upTo){
+  tctx.clearRect(0,0,TC.width,TC.height);
+  const W=TC.width,H=TC.height;
+  const sorted=allTxs.filter(t=>t.time>0).sort((a,b)=>a.time-b.time);
+  if(!sorted.length){
+    tctx.fillStyle='#2a3a5a';tctx.font='12px Share Tech Mono';tctx.textAlign='center';
+    tctx.fillText('タイムスタンプなし / データ不足',W/2,H/2);return;
+  }
+
+  const minT=sorted[0].time,maxT=sorted[sorted.length-1].time||minT+1;
+  const tRange=maxT-minT||1;
+  const cutoff=sorted[Math.min(upTo,sorted.length-1)].time;
+
+  document.getElementById('tl-info').textContent=`${sorted.length} TX`;
+  document.getElementById('tl-time').textContent=new Date(cutoff*1000).toLocaleDateString('ja-JP')+' '+new Date(cutoff*1000).toLocaleTimeString('ja-JP');
+
+  // axis
+  const AX=50,AY=H-50;
+  tctx.strokeStyle='#0f1f3a';tctx.lineWidth=1;
+  tctx.beginPath();tctx.moveTo(AX,20);tctx.lineTo(AX,AY);tctx.lineTo(W-20,AY);tctx.stroke();
+
+  // time ticks
+  tctx.font='8px Share Tech Mono';tctx.fillStyle='#2a3a5a';tctx.textAlign='center';
+  for(let i=0;i<=5;i++){
+    const tx=AX+(W-AX-20)/5*i;
+    const ts=minT+tRange/5*i;
+    tctx.fillText(new Date(ts*1000).toLocaleDateString('ja-JP',{month:'2-digit',day:'2-digit'}),tx,AY+14);
+    tctx.beginPath();tctx.moveTo(tx,AY-3);tctx.lineTo(tx,AY+3);tctx.strokeStyle='#0f1f3a';tctx.stroke();
+  }
+
+  // unique wallets Y-axis
+  const walletList=[...new Set([...sorted.map(t=>t.src),...sorted.map(t=>t.dst)])].slice(0,20);
+  const wH=(AY-30)/Math.max(walletList.length,1);
+
+  walletList.forEach((w,i)=>{
+    const y=30+i*wH;
+    tctx.font='8px Share Tech Mono';
+    tctx.fillStyle=nodeColor(nodeById(w)?.type??'wallet');
+    tctx.textAlign='right';
+    tctx.fillText(shortAddr(w),AX-6,y+4);
+    // horizontal lane
+    tctx.strokeStyle='#0a1420';tctx.lineWidth=1;
+    tctx.beginPath();tctx.moveTo(AX,y);tctx.lineTo(W-20,y);tctx.stroke();
+  });
+
+  // TX dots & arrows
+  for(let i=0;i<sorted.length;i++){
+    const tx=sorted[i];
+    if(tx.time>cutoff) break;
+    const xi=AX+(tx.time-minT)/tRange*(W-AX-30);
+    const srcI=walletList.indexOf(tx.src);
+    const dstI=walletList.indexOf(tx.dst);
+    if(srcI<0&&dstI<0) continue;
+
+    const alpha=i===upTo?.9:.35;
+    const col=tx.type==='token'?'#ffb800':'#00e5ff';
+
+    if(srcI>=0&&dstI>=0){
+      const y1=30+srcI*wH,y2=30+dstI*wH;
+      tctx.strokeStyle=col;tctx.globalAlpha=alpha*.6;tctx.lineWidth=1;
+      tctx.beginPath();tctx.moveTo(xi,y1);tctx.lineTo(xi,y2);tctx.stroke();
+    }
+    const plotI=dstI>=0?dstI:(srcI>=0?srcI:-1);
+    if(plotI>=0){
+      const y=30+plotI*wH;
+      const r=Math.max(2,Math.min(6,Math.log2(tx.amtSol+1)*1.2+1.5));
+      tctx.globalAlpha=alpha;
+      tctx.beginPath();tctx.arc(xi,y,r,0,Math.PI*2);
+      tctx.fillStyle=col;tctx.fill();
+    }
+    tctx.globalAlpha=1;
+  }
+}
+
+function tlToggle(){
+  tlPlaying=!tlPlaying;
+  document.getElementById('tl-play-btn').textContent=tlPlaying?'⏸ PAUSE':'▶ PLAY';
+  if(tlPlaying) tlAnimate();
+  else{cancelAnimationFrame(tlAnimId);tlAnimId=null;}
+}
+function tlAnimate(){
+  const sorted=allTxs.filter(t=>t.time>0).sort((a,b)=>a.time-b.time);
+  const spd=parseInt(document.getElementById('tl-speed').value)||1;
+  tlIdx=Math.min(tlIdx+spd,sorted.length-1);
+  document.getElementById('tl-slider').value=Math.round(tlIdx/Math.max(sorted.length-1,1)*100);
+  drawTimeline(tlIdx);
+  if(tlIdx>=sorted.length-1){tlPlaying=false;document.getElementById('tl-play-btn').textContent='▶ PLAY';return;}
+  tlAnimId=requestAnimationFrame(tlAnimate);
+}
+function tlSeek(val){
+  const sorted=allTxs.filter(t=>t.time>0).sort((a,b)=>a.time-b.time);
+  tlIdx=Math.round(val/100*Math.max(sorted.length-1,0));
+  drawTimeline(tlIdx);
+}
+
+/* ═══════════════════════════════════════════════
+   TX LIST
+═══════════════════════════════════════════════ */
+function renderTxList(){
+  document.getElementById('tx-count').textContent=allTxs.length;
+  document.getElementById('tx-list').innerHTML=allTxs.slice(0,80).map(tx=>{
+    const isIn=tx.dst===rootAddr;
+    const cls=isIn?'amount-in':'amount-out';
+    const sign=isIn?'+':'-';
+    return `<div class="tx-item">
+      <div class="tx-top">
+        <span class="tx-sig">${(tx.sig||'—').slice(0,28)}…</span>
+        <span class="tx-time">${fmtTime(tx.time)}</span>
+      </div>
+      <div class="tx-detail">
+        <span class="addr">${shortAddr(tx.src)}</span> → <span class="addr">${shortAddr(tx.dst)}</span>
+        &nbsp;<b class="${cls}">${sign}${fmtSol(tx.amtSol)}</b> ${tx.symbol}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════════
+   RENDER ALL
+═══════════════════════════════════════════════ */
+function renderAll(){
+  if(!animId) loop();
+  drawSankey();
+  const sorted=allTxs.filter(t=>t.time>0).sort((a,b)=>a.time-b.time);
+  tlIdx=sorted.length-1;
+  document.getElementById('tl-slider').max=Math.max(sorted.length-1,1);
+  document.getElementById('tl-slider').value=tlIdx;
+  drawTimeline(tlIdx);
+}
+
+/* ═══════════════════════════════════════════════
+   TABS
+═══════════════════════════════════════════════ */
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach((t,i)=>{
+    const names=['graph','sankey','timeline','analysis'];
+    t.classList.toggle('active',names[i]===name);
+  });
+  document.querySelectorAll('.tab-content').forEach(el=>{
+    el.classList.toggle('active',el.id==='tab-'+name);
+  });
+  if(name==='sankey') drawSankey();
+  if(name==='timeline'){resizeTL();drawTimeline(tlIdx);}
+}
+
+/* ═══════════════════════════════════════════════
+   CANVAS MOUSE
+═══════════════════════════════════════════════ */
+function worldPos(ex,ey){
+  const rect=GC.getBoundingClientRect();
+  return{x:(ex-rect.left-camX)/camZ,y:(ey-rect.top-camY)/camZ};
+}
+function hitNode(wx,wy){
+  return nodes.find(n=>Math.hypot(n.x-wx,n.y-wy)<nodeRadius(n)+4)||null;
+}
+
+GC.addEventListener('mousedown',e=>{
+  const wp=worldPos(e.clientX,e.clientY);
+  const n=hitNode(wp.x,wp.y);
+  if(n){dragging=n;n.pinned=true;dragOX=n.x-wp.x;dragOY=n.y-wp.y;}
+  else panStart={mx:e.clientX,my:e.clientY,cx:camX,cy:camY};
+});
+GC.addEventListener('mousemove',e=>{
+  const wp=worldPos(e.clientX,e.clientY);
+  if(dragging){dragging.x=wp.x+dragOX;dragging.y=wp.y+dragOY;dragging.vx=0;dragging.vy=0;}
+  else if(panStart){camX=panStart.cx+(e.clientX-panStart.mx);camY=panStart.cy+(e.clientY-panStart.my);}
+  const n=hitNode(wp.x,wp.y);
+  const tt=document.getElementById('tooltip');
+  if(n){
+    tt.innerHTML=`<div class="tt-addr">${n.id}</div>
+      <div class="tt-in">IN : ${fmtSol(n.inflow)} SOL</div>
+      <div class="tt-out">OUT: ${fmtSol(n.outflow)} SOL</div>
+      <div style="color:#3a5a7a;margin-top:2px;">DEGREE: ${n.degree} &nbsp; DEPTH: ${n.depth}</div>
+      <div style="color:#2a3a5a;margin-top:2px;">TYPE: ${n.type.toUpperCase()}</div>`;
+    tt.style.display='block';
+    tt.style.left=(e.clientX+14)+'px';tt.style.top=(e.clientY-8)+'px';
+  } else tt.style.display='none';
+});
+GC.addEventListener('mouseup',()=>{if(dragging){dragging.pinned=false;dragging=null;}panStart=null;});
+GC.addEventListener('mouseleave',()=>{dragging=null;panStart=null;document.getElementById('tooltip').style.display='none';});
+GC.addEventListener('wheel',e=>{
+  e.preventDefault();
+  const f=e.deltaY<0?1.1:.9;
+  const rect=GC.getBoundingClientRect();
+  const mx=e.clientX-rect.left,my=e.clientY-rect.top;
+  camX=mx-(mx-camX)*f;camY=my-(my-camY)*f;
+  camZ=Math.max(.05,Math.min(5,camZ*f));
+},{passive:false});
+
+/* ═══════════════════════════════════════════════
+   EXPORT PNG
+═══════════════════════════════════════════════ */
+function exportPNG(){
+  drawGraph();
+  const a=document.createElement('a');
+  a.href=GC.toDataURL('image/png');
+  a.download='solscan-flow-'+Date.now()+'.png';
+  a.click();
+}
+
+/* ═══════════════════════════════════════════════
+   CLEAR
+═══════════════════════════════════════════════ */
+function clearAll(full=true){
+  nodes=[];edges=[];allTxs=[];
+  if(full){
+    rootAddr='';
+    document.getElementById('addr-input').value='';
+    document.getElementById('graph-empty').style.display='';
+    ['stat-nodes','stat-edges','stat-inflow','stat-outflow','stat-hubs','stat-depth'].forEach(id=>{
+      document.getElementById(id).textContent='—';
+    });
+    document.getElementById('tx-count').textContent='0';
+    document.getElementById('tx-list').innerHTML='<div style="padding:30px 14px;text-align:center;color:var(--dim);font-size:10px;">—</div>';
+    document.getElementById('wallet-tbody').innerHTML='';
+    document.getElementById('risk-list').innerHTML='<span style="color:var(--dim);">なし</span>';
+    document.getElementById('analysis-panel').innerHTML='<div style="padding:40px;text-align:center;color:var(--dim);font-size:10px;letter-spacing:2px;">SCAN実行後に分析結果が表示されます</div>';
+    document.getElementById('graph-info').textContent='NODES:0 EDGES:0';
+    setStatus('READY');
+  }
+  gctx.clearRect(0,0,cW(),cH());
+  sctx.clearRect(0,0,SK.width,SK.height);
+  tctx.clearRect(0,0,TC.width,TC.height);
+}
+
+/* ═══════════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════════ */
+function setStatus(msg,cls=''){
+  const el=document.getElementById('status-bar');
+  el.textContent=msg;el.className='status-bar'+(cls?' '+cls:'');
+}
+function setProgress(p){document.getElementById('progress-fill').style.width=p+'%';}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+function shortAddr(a){if(!a)return'—';return a.length>12?a.slice(0,4)+'…'+a.slice(-4):a;}
+function fmtSol(v){
+  if(!v||v===0)return'0';
+  if(v>=1e6)return(v/1e6).toFixed(1)+'M';
+  if(v>=1000)return(v/1000).toFixed(1)+'K';
+  if(v>=1)return v.toFixed(3);
   return v.toFixed(6);
 }
-function fmtTime(ts) {
-  if (!ts) return '—';
-  const d = new Date(ts * 1000);
-  return d.toLocaleDateString('ja-JP',{month:'2-digit',day:'2-digit'}) + ' ' +
-         d.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
+function fmtTime(ts){
+  if(!ts)return'—';
+  const d=new Date(ts*1000);
+  return d.toLocaleDateString('ja-JP',{month:'2-digit',day:'2-digit'})+' '+d.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
 }
+
+/* ═══════════════════════════════════════════════
+   RESIZE
+═══════════════════════════════════════════════ */
+function resizeGraph(){
+  const rect=GC.parentElement.getBoundingClientRect();
+  GC.width=rect.width;GC.height=Math.max(480,rect.height-80);
+}
+function resizeSK(){
+  const rect=SK.parentElement.getBoundingClientRect();
+  SK.width=rect.width;SK.height=Math.max(480,rect.height-40);
+}
+function resizeTL(){
+  const rect=TC.parentElement.getBoundingClientRect();
+  TC.width=rect.width;TC.height=Math.max(480,rect.height-60);
+}
+function resizeAll(){resizeGraph();resizeSK();resizeTL();}
+window.addEventListener('resize',resizeAll);
+resizeAll();
+camX=cW()/2-200;camY=cH()/2-100;
 
 // clock
-function updateClock() {
-  document.getElementById('hdr-clock').textContent =
-    new Date().toLocaleTimeString('ja-JP');
-}
-setInterval(updateClock, 1000);
-updateClock();
-
-// ─────────────────────────────────────────────
-//  MOUSE / TOUCH INTERACTIONS
-// ─────────────────────────────────────────────
-function worldPos(ex, ey) {
-  const rect = C.getBoundingClientRect();
-  return {
-    x: (ex - rect.left - camX) / camZ,
-    y: (ey - rect.top  - camY) / camZ
-  };
-}
-function hitNode(wx, wy, r = 22) {
-  return nodes.find(n => Math.hypot(n.x-wx, n.y-wy) < r) ?? null;
-}
-
-C.addEventListener('mousedown', e => {
-  const wp = worldPos(e.clientX, e.clientY);
-  const n  = hitNode(wp.x, wp.y);
-  if (n) {
-    dragging = n;
-    n.pinned = true;
-    dragOffX = n.x - wp.x;
-    dragOffY = n.y - wp.y;
-  } else {
-    panStart = { mx: e.clientX, my: e.clientY, cx: camX, cy: camY };
-  }
-});
-C.addEventListener('mousemove', e => {
-  const wp = worldPos(e.clientX, e.clientY);
-
-  if (dragging) {
-    dragging.x = wp.x + dragOffX;
-    dragging.y = wp.y + dragOffY;
-    dragging.vx = 0; dragging.vy = 0;
-  } else if (panStart) {
-    camX = panStart.cx + (e.clientX - panStart.mx);
-    camY = panStart.cy + (e.clientY - panStart.my);
-  }
-
-  // tooltip
-  const n = hitNode(wp.x, wp.y);
-  const tt = document.getElementById('tooltip');
-  if (n) {
-    const inflow  = edges.filter(ed => ed.to   === n.id).reduce((s,ed)=>s+ed.amount,0);
-    const outflow = edges.filter(ed => ed.from === n.id).reduce((s,ed)=>s+ed.amount,0);
-    tt.innerHTML = `
-      <div class="tt-addr">${n.id}</div>
-      <div style="margin-top:6px;color:#4a9a7a">IN :  <span class="tt-val">${fmtSol(inflow)} SOL</span></div>
-      <div style="color:#9a4a6a">OUT:  <span class="tt-val">${fmtSol(outflow)} SOL</span></div>
-      <div style="color:var(--dim);margin-top:4px;">TRANSFERS: ${edges.filter(ed=>ed.from===n.id||ed.to===n.id).length}</div>
-    `;
-    tt.style.display = 'block';
-    tt.style.left = (e.clientX + 14) + 'px';
-    tt.style.top  = (e.clientY - 10) + 'px';
-  } else {
-    tt.style.display = 'none';
-  }
-});
-C.addEventListener('mouseup', e => {
-  if (dragging) { dragging.pinned = false; dragging = null; }
-  panStart = null;
-});
-C.addEventListener('mouseleave', () => {
-  dragging = null; panStart = null;
-  document.getElementById('tooltip').style.display = 'none';
-});
-C.addEventListener('wheel', e => {
-  e.preventDefault();
-  const factor = e.deltaY < 0 ? 1.1 : 0.9;
-  const rect = C.getBoundingClientRect();
-  const mx = e.clientX - rect.left, my = e.clientY - rect.top;
-  camX = mx - (mx - camX) * factor;
-  camY = my - (my - camY) * factor;
-  camZ = Math.max(.1, Math.min(4, camZ * factor));
-}, { passive: false });
-
-C.addEventListener('click', e => {
-  const wp = worldPos(e.clientX, e.clientY);
-  const n  = hitNode(wp.x, wp.y);
-  if (n && n.id !== rootAddr && !scanning) {
-    // expand node on click
-    const val = document.getElementById('addr-input').value.trim();
-    document.getElementById('addr-input').value = n.id;
-    startScan();
-    document.getElementById('addr-input').value = val;
-  }
-});
+setInterval(()=>{document.getElementById('hdr-clock').textContent=new Date().toLocaleTimeString('ja-JP');},1000);
+document.getElementById('hdr-clock').textContent=new Date().toLocaleTimeString('ja-JP');
 
 // Enter key
-document.getElementById('addr-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') startScan();
-});
+document.getElementById('addr-input').addEventListener('keydown',e=>{if(e.key==='Enter')startScan();});
 
-// Resize
-window.addEventListener('resize', () => { resizeCanvas(); });
-resizeCanvas();
-camX = canvasW() / 2 - 200;
-camY = canvasH() / 2 - 100;
-
-// Start render loop even before scan (shows empty canvas)
+// start render loop
 loop();
 </script>
 </body>
