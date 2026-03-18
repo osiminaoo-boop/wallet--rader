@@ -6,10 +6,10 @@
 <title>SOLSCAN FUND FLOW</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
-:root{--bg:#03050a;--panel:#070c18;--border:#0f1f3a;--accent:#00e5ff;--accent2:#ff2d6b;--green:#00ff9d;--gold:#ffb800;--text:#b0c8e8;--dim:#2a3a5a;}
+:root{--bg:#eef2f7;--panel:#ffffff;--border:#c8d4e8;--accent:#1a6fd4;--accent2:#e03050;--green:#00875a;--gold:#b45309;--text:#1a2a3a;--dim:#7788aa;}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono',monospace;min-height:100vh;overflow-x:hidden;}
-body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,229,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.02) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(26,111,212,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(26,111,212,.04) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0;}
 .wrap{position:relative;z-index:1;max-width:1500px;margin:0 auto;padding:14px;}
 header{display:flex;align-items:center;justify-content:space-between;padding:12px 0 16px;border-bottom:1px solid var(--border);margin-bottom:14px;}
 .logo{font-family:'Orbitron',monospace;font-size:20px;font-weight:900;letter-spacing:5px;color:var(--accent);text-shadow:0 0 20px rgba(0,229,255,.6);}
@@ -19,7 +19,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
 .controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:flex-end;}
 .ctrl-group{display:flex;flex-direction:column;gap:3px;}
 .ctrl-label{font-size:9px;color:var(--dim);letter-spacing:2px;}
-input[type=text],input[type=number],select{font-family:'Share Tech Mono',monospace;font-size:12px;background:var(--panel);color:var(--accent);border:1px solid var(--border);padding:8px 11px;outline:none;transition:border .2s;}
+input[type=text],input[type=number],select{font-family:'Share Tech Mono',monospace;font-size:12px;background:var(--panel);color:var(--text);border:1px solid var(--border);padding:8px 11px;outline:none;transition:border .2s;}
 input[type=text]{min-width:320px;}
 input[type=number]{width:80px;}
 select{min-width:120px;cursor:pointer;}
@@ -122,6 +122,10 @@ input:focus,select:focus{border-color:var(--accent);}
 </header>
 
 <div class="controls">
+  <div class="ctrl-group" style="min-width:200px;">
+    <div class="ctrl-label">SOLSCAN API KEY <a href="https://pro.solscan.io/" target="_blank" style="color:var(--accent);font-size:8px;">無料取得→</a></div>
+    <input type="text" id="api-key-input" placeholder="eyJ… (pro.solscan.io)" style="min-width:200px;" />
+  </div>
   <div class="ctrl-group" style="flex:1;min-width:260px;">
     <div class="ctrl-label">WALLET / TX SIGNATURE</div>
     <input type="text" id="addr-input" placeholder="Solanaアドレス or TXシグネチャ…" />
@@ -279,32 +283,44 @@ let twSortVol=true;
 /* ═══════════════════════════════════════════════
    API
 ═══════════════════════════════════════════════ */
-const PUB='https://public-api.solscan.io';
+const PUB='https://pro-api.solscan.io/v2.0';
+
+function getApiKey(){return document.getElementById('api-key-input').value.trim();}
 
 async function apiFetch(url){
-  let r=await fetch(url,{headers:{'User-Agent':'SolscanFlow/2.0'}});
-  if(r.status===429){await sleep(1400);r=await fetch(url);}
-  if(!r.ok) throw new Error(`HTTP ${r.status}`);
+  const key=getApiKey();
+  const headers={'Content-Type':'application/json'};
+  if(key) headers['token']=key;
+  let r=await fetch(url,{headers});
+  if(r.status===429){await sleep(1400);r=await fetch(url,{headers});}
+  if(!r.ok) throw new Error(`HTTP ${r.status} — APIキーを確認してください`);
   return r.json();
 }
 
 async function getTransfers(addr,limit){
-  // try /account/transfer first
-  try{
-    const d=await apiFetch(`${PUB}/account/transfer?account=${addr}&limit=${limit}&offset=0`);
-    if(d?.data?.length) return d.data;
-  }catch{}
-  // fallback: transaction list
-  const d=await apiFetch(`${PUB}/account/transactions?account=${addr}&limit=${limit}`);
-  return Array.isArray(d)?d:[];
+  const d=await apiFetch(`${PUB}/account/transfer?address=${addr}&page=1&page_size=${limit}&sort_by=block_time&sort_order=desc`);
+  const list=Array.isArray(d?.data)?d.data:(Array.isArray(d?.data?.data)?d.data.data:[]);
+  // normalize to common format
+  return list.map(tx=>({
+    signature: tx.trans_id??tx.signature??'',
+    blockTime:  tx.block_time??tx.blockTime??0,
+    src:        tx.from_address??tx.src??addr,
+    dst:        tx.to_address??tx.dst??'',
+    lamport:    tx.amount??0,
+    decimals:   tx.token_decimals??9,
+    tokenAddress: tx.token_address??'',
+    tokenSymbol:  tx.token_symbol??tx.token_name??'SOL',
+    flow:       tx.flow??''
+  }));
 }
 
 async function getTxDetail(sig){
-  return apiFetch(`${PUB}/transaction/${sig}`);
+  const d=await apiFetch(`${PUB}/transaction/detail?tx=${sig}`);
+  return d?.data??d;
 }
 
 async function getAccountInfo(addr){
-  try{return await apiFetch(`${PUB}/account/${addr}`);}catch{return null;}
+  try{const d=await apiFetch(`${PUB}/account/detail?address=${addr}`);return d?.data??d;}catch{return null;}
 }
 
 /* ═══════════════════════════════════════════════
@@ -407,14 +423,16 @@ async function scanWallet(address,maxDepth,limit,minSol,filter){
     catch(e){ console.warn(e); continue; }
 
     for(const tx of transfers){
-      const sig =tx.signature??tx.txHash??'';
-      const time=tx.blockTime??tx.time??0;
-      const src =tx.src??tx.from_address??tx.sourceAddress??addr;
-      const dst =tx.dst??tx.to_address??tx.destAddress??'';
-      const raw =tx.lamport??tx.amount??0;
-      const amt =raw>1e8?raw/1e9:raw; // lamport → SOL
-      const type=tx.tokenAddress?'token':'sol';
-      const sym =tx.tokenSymbol??tx.symbol??'SOL';
+      const sig =tx.signature??'';
+      const time=tx.blockTime??0;
+      const src =tx.src??addr;
+      const dst =tx.dst??'';
+      const raw =tx.lamport??0;
+      const dec =tx.decimals??9;
+      const amt =raw/Math.pow(10,dec); // normalize by decimals
+      const isNativeSol=!tx.tokenAddress||tx.tokenAddress==='So11111111111111111111111111111111111111112';
+      const type=isNativeSol?'sol':'token';
+      const sym =isNativeSol?'SOL':(tx.tokenSymbol??'TOKEN');
 
       if(!src||!dst||src===dst) continue;
       if(filter==='sol'&&type!=='sol') continue;
@@ -681,7 +699,7 @@ function drawGraph(){
     gctx.fillStyle=grad;gctx.fill();
     // circle
     gctx.beginPath();gctx.arc(n.x,n.y,r,0,Math.PI*2);
-    gctx.fillStyle=n.type==='root'?col+'33':'#050a14';
+    gctx.fillStyle=n.type==='root'?col+'33':'#f0f5ff';
     gctx.strokeStyle=col;gctx.lineWidth=n.type==='root'?2.5:1.5;
     gctx.fill();gctx.stroke();
     // label
@@ -690,7 +708,7 @@ function drawGraph(){
     gctx.fillText(n.label,n.x,n.y+r+13);
     // depth badge
     gctx.font='7px Share Tech Mono';
-    gctx.fillStyle='#ffffff88';
+    gctx.fillStyle='#33445566';
     gctx.fillText('D'+n.depth,n.x,n.y+3);
   }
   gctx.restore();
@@ -802,7 +820,7 @@ function drawTimeline(upTo){
   const W=TC.width,H=TC.height;
   const sorted=allTxs.filter(t=>t.time>0).sort((a,b)=>a.time-b.time);
   if(!sorted.length){
-    tctx.fillStyle='#2a3a5a';tctx.font='12px Share Tech Mono';tctx.textAlign='center';
+    tctx.fillStyle='#778899';tctx.font='12px Share Tech Mono';tctx.textAlign='center';
     tctx.fillText('タイムスタンプなし / データ不足',W/2,H/2);return;
   }
 
@@ -815,16 +833,16 @@ function drawTimeline(upTo){
 
   // axis
   const AX=50,AY=H-50;
-  tctx.strokeStyle='#0f1f3a';tctx.lineWidth=1;
+  tctx.strokeStyle='#c8d4e8';tctx.lineWidth=1;
   tctx.beginPath();tctx.moveTo(AX,20);tctx.lineTo(AX,AY);tctx.lineTo(W-20,AY);tctx.stroke();
 
   // time ticks
-  tctx.font='8px Share Tech Mono';tctx.fillStyle='#2a3a5a';tctx.textAlign='center';
+  tctx.font='8px Share Tech Mono';tctx.fillStyle='#7788aa';tctx.textAlign='center';
   for(let i=0;i<=5;i++){
     const tx=AX+(W-AX-20)/5*i;
     const ts=minT+tRange/5*i;
     tctx.fillText(new Date(ts*1000).toLocaleDateString('ja-JP',{month:'2-digit',day:'2-digit'}),tx,AY+14);
-    tctx.beginPath();tctx.moveTo(tx,AY-3);tctx.lineTo(tx,AY+3);tctx.strokeStyle='#0f1f3a';tctx.stroke();
+    tctx.beginPath();tctx.moveTo(tx,AY-3);tctx.lineTo(tx,AY+3);tctx.strokeStyle='#c8d4e8';tctx.stroke();
   }
 
   // unique wallets Y-axis
@@ -838,7 +856,7 @@ function drawTimeline(upTo){
     tctx.textAlign='right';
     tctx.fillText(shortAddr(w),AX-6,y+4);
     // horizontal lane
-    tctx.strokeStyle='#0a1420';tctx.lineWidth=1;
+    tctx.strokeStyle='#e0e8f4';tctx.lineWidth=1;
     tctx.beginPath();tctx.moveTo(AX,y);tctx.lineTo(W-20,y);tctx.stroke();
   });
 
@@ -977,6 +995,24 @@ GC.addEventListener('mousemove',e=>{
 });
 GC.addEventListener('mouseup',()=>{if(dragging){dragging.pinned=false;dragging=null;}panStart=null;});
 GC.addEventListener('mouseleave',()=>{dragging=null;panStart=null;document.getElementById('tooltip').style.display='none';});
+
+// Touch events (mobile)
+GC.addEventListener('touchstart',e=>{
+  e.preventDefault();
+  const t=e.touches[0];
+  const wp=worldPos(t.clientX,t.clientY);
+  const n=hitNode(wp.x,wp.y);
+  if(n){dragging=n;n.pinned=true;dragOX=n.x-wp.x;dragOY=n.y-wp.y;}
+  else panStart={mx:t.clientX,my:t.clientY,cx:camX,cy:camY};
+},{passive:false});
+GC.addEventListener('touchmove',e=>{
+  e.preventDefault();
+  const t=e.touches[0];
+  const wp=worldPos(t.clientX,t.clientY);
+  if(dragging){dragging.x=wp.x+dragOX;dragging.y=wp.y+dragOY;dragging.vx=0;dragging.vy=0;}
+  else if(panStart){camX=panStart.cx+(t.clientX-panStart.mx);camY=panStart.cy+(t.clientY-panStart.my);}
+},{passive:false});
+GC.addEventListener('touchend',()=>{if(dragging){dragging.pinned=false;dragging=null;}panStart=null;});
 GC.addEventListener('wheel',e=>{
   e.preventDefault();
   const f=e.deltaY<0?1.1:.9;
