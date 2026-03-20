@@ -1022,6 +1022,8 @@ async function scanPast30Min(seconds) {
         if (t.amount < 0.01) { skipCount++; continue; } // 0.01 SOL未満はスキップ
         // preBalance=0なら初めての入金（parseSolTransfersのidxを使用）
         if (t.preBalance !== 0) { skipCount++; continue; }
+        // preBalance=0でも残高を使い切った既存ウォレットの可能性があるため確認
+        if (!await isNewWallet(dest, cutoff)) { skipCount++; continue; }
 
         const label = `${(exchangeWallets[wallet]?.name||"Exchange")}出金 #${stats.detected + 1}`;
         if (Object.keys(watchedWallets).length >= 150) { skipCount++; continue; }
@@ -1483,6 +1485,8 @@ async function checkBinance2() {
 
         // preBalance=0なら初めての入金（parseSolTransfersのidxを使用）
         if (t.preBalance !== 0) continue;
+        // preBalance=0でも残高を使い切った既存ウォレットの可能性があるため確認
+        if (!await isNewWallet(dest, sessionStart)) continue;
 
         const label = `${(exchangeWallets[wallet]?.name||"Exchange")}出金 #${stats.detected + 1}`;
         if (Object.keys(watchedWallets).length >= 150) continue;
