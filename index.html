@@ -767,7 +767,7 @@ function sigProcessed(sig) {
   return true;
 }
 
-// エラー時はsafeGetSignaturesが[]を返すためlength===0→trueとなり楽観的に新規扱い（preBalance=0の事前フィルタが残っているため）
+// エラー時はsafeGetSignaturesが[]を返すため楽観的にtrue（preBalance=0の事前フィルタあり）
 async function isFirstTx(addr, sig) {
   const prior = await safeGetSignatures(addr, 1, sig);
   return prior.length === 0;
@@ -1256,7 +1256,7 @@ function trackCoin(mint, type, walletAddr) {
 }
 
 // MC cache: mint → {mc}
-const rankingMcCache = {};
+let rankingMcCache = {};
 
 function renderRanking() {
   const list = document.getElementById('ranking-list');
@@ -1529,7 +1529,7 @@ async function checkBinance2() {
 
 let isScanning = false;
 async function runScan() {
-  if (isScanning) return; // 前回スキャンが未完了なら二重実行しない
+  if (isScanning) return;
   isScanning = true;
   try {
     stats.scans++;
@@ -1715,7 +1715,7 @@ function clearAll() {
   // キャッシュもクリア
   _rpcCache.clear();
   stats = { wallets:0, detected:0, buys:0, scans:0, created:0 }; coinBuys = {}; createdCoins = [];
-  for (const k of Object.keys(rankingMcCache)) delete rankingMcCache[k];
+  rankingMcCache = {}; isUpdatingMC = false;
   // 取引所のON/OFF状態は保持（再選択不要）
   // 監視停止
   if (isRunning) {
@@ -1754,7 +1754,6 @@ loadState();
 // APIキー復元
 const savedKey = localStorage.getItem('wr_apikey');
 if (savedKey) document.getElementById('heliusKey').value = savedKey;
-// キーを変更したらエラー表示フラグをリセット（新しいキーでエラーを再表示できるように）
 document.getElementById('heliusKey').addEventListener('input', () => { _apiKeyErrShown = false; });
 
 // 保存済みイベントを復元表示
