@@ -767,6 +767,12 @@ function sigProcessed(sig) {
   return true;
 }
 
+// エラー時はsafeGetSignaturesが[]を返すためlength===0→trueとなり楽観的に新規扱い（preBalance=0の事前フィルタが残っているため）
+async function isFirstTx(addr, sig) {
+  const prior = await safeGetSignatures(addr, 1, sig);
+  return prior.length === 0;
+}
+
 async function isNewWallet(addr, cutoff = null) {
   try {
     // キャッシュをバイパスして直接取得（新規判定は常に最新情報が必要）
@@ -1022,8 +1028,8 @@ async function scanPast30Min(seconds) {
         if (t.amount < 0.01) { skipCount++; continue; } // 0.01 SOL未満はスキップ
         // preBalance=0なら初めての入金（parseSolTransfersのidxを使用）
         if (t.preBalance !== 0) { skipCount++; continue; }
-        // preBalance=0でも残高を使い切った既存ウォレットの可能性があるため確認
-        if (!await isNewWallet(dest, cutoff)) { skipCount++; continue; }
+        // preBalance=0でも残高を使い切った既存ウォレットの可能性があるため、初回TXか確認
+        if (!await isFirstTx(dest, s.signature)) { skipCount++; continue; }
 
         const label = `${(exchangeWallets[wallet]?.name||"Exchange")}出金 #${stats.detected + 1}`;
         if (Object.keys(watchedWallets).length >= 150) { skipCount++; continue; }
@@ -1485,8 +1491,8 @@ async function checkBinance2() {
 
         // preBalance=0なら初めての入金（parseSolTransfersのidxを使用）
         if (t.preBalance !== 0) continue;
-        // preBalance=0でも残高を使い切った既存ウォレットの可能性があるため確認
-        if (!await isNewWallet(dest, sessionStart)) continue;
+        // preBalance=0でも残高を使い切った既存ウォレットの可能性があるため、初回TXか確認
+        if (!await isFirstTx(dest, s.signature)) continue;
 
         const label = `${(exchangeWallets[wallet]?.name||"Exchange")}出金 #${stats.detected + 1}`;
         if (Object.keys(watchedWallets).length >= 150) continue;
