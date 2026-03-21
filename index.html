@@ -1754,6 +1754,8 @@ loadState();
 // APIキー復元
 const savedKey = localStorage.getItem('wr_apikey');
 if (savedKey) document.getElementById('heliusKey').value = savedKey;
+// キーを変更したらエラー表示フラグをリセット（新しいキーでエラーを再表示できるように）
+document.getElementById('heliusKey').addEventListener('input', () => { _apiKeyErrShown = false; });
 
 // 保存済みイベントを復元表示
 if (events.length > 0) {
