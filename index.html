@@ -1755,7 +1755,11 @@ loadState();
 // APIキー復元
 const savedKey = localStorage.getItem('wr_apikey');
 if (savedKey) document.getElementById('heliusKey').value = savedKey;
-document.getElementById('heliusKey').addEventListener('input', () => { _apiKeyErrShown = false; });
+document.getElementById('heliusKey').addEventListener('input', () => {
+  _apiKeyErrShown = false;
+  const v = document.getElementById('heliusKey').value.trim();
+  if (v) localStorage.setItem('wr_apikey', v);
+});
 
 // 保存済みイベントを復元表示
 if (events.length > 0) {
