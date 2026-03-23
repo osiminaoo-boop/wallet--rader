@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>アダルト動画サービス比較ランキング2026【無料体験あり】</title>
+<meta name="description" content="FANZA・MGS・Hビデオなど人気アダルト動画配信サービスを徹底比較。無料トライアルや月額料金、作品数を一覧で確認。2026年最新版。">
+<meta name="robots" content="index, follow">
+<!-- OGP -->
+<meta property="og:title" content="アダルト動画サービス比較ランキング2026">
+<meta property="og:description" content="無料体験あり・高画質・作品数でおすすめVODを徹底比較">
+<meta property="og:type" content="website">
+
+<style>
+:root {
+  --bg: #0d0d0d;
+  --surface: #1a1a1a;
+  --surface2: #222;
+  --border: #333;
+  --accent: #e8003d;
+  --accent2: #ff6b9d;
+  --gold: #f5a623;
+  --text: #e8e8e8;
+  --muted: #888;
+  --green: #00c851;
+  --radius: 10px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+/* ─── Age Gate ─── */
+#age-gate {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.96);
+  z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+}
+.age-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 48px 40px;
+  max-width: 420px;
+  text-align: center;
+}
+.age-box h2 { font-size: 22px; margin-bottom: 12px; color: var(--accent); }
+.age-box p { color: var(--muted); font-size: 13px; margin-bottom: 28px; }
+.btn-enter {
+  display: block; width: 100%;
+  background: var(--accent);
+  color: #fff; border: none; cursor: pointer;
+  padding: 14px; border-radius: 8px;
+  font-size: 16px; font-weight: bold;
+  margin-bottom: 12px;
+  transition: opacity .2s;
+}
+.btn-enter:hover { opacity: .85; }
+.btn-leave {
+  display: block; width: 100%;
+  background: transparent; color: var(--muted);
+  border: 1px solid var(--border); cursor: pointer;
+  padding: 12px; border-radius: 8px; font-size: 14px;
+}
+.btn-leave:hover { background: var(--surface2); }
+
+/* ─── Main Layout ─── */
+#main { display: none; }
+
+header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 20px;
+  position: sticky; top: 0; z-index: 100;
+}
+.header-inner {
+  max-width: 860px; margin: auto;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.logo { font-size: 20px; font-weight: bold; color: var(--accent); }
+.logo span { color: var(--text); font-size: 13px; font-weight: normal; margin-left: 8px; }
+.ad-label {
+  font-size: 11px; color: var(--muted);
+  border: 1px solid var(--border); padding: 2px 6px; border-radius: 4px;
+}
+
+.container { max-width: 860px; margin: auto; padding: 0 16px 60px; }
+
+/* ─── Hero ─── */
+.hero {
+  text-align: center;
+  padding: 48px 0 32px;
+}
+.hero h1 {
+  font-size: clamp(22px, 4vw, 32px);
+  font-weight: bold;
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+.hero h1 em { color: var(--accent); font-style: normal; }
+.hero p { color: var(--muted); font-size: 14px; }
+.update-date {
+  display: inline-block; margin-top: 10px;
+  font-size: 12px; color: var(--muted);
+  background: var(--surface); border: 1px solid var(--border);
+  padding: 4px 12px; border-radius: 20px;
+}
+
+/* ─── Section heading ─── */
+.section-title {
+  font-size: 18px; font-weight: bold;
+  border-left: 4px solid var(--accent);
+  padding-left: 12px; margin: 40px 0 20px;
+}
+
+/* ─── Rank Cards ─── */
+.rank-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+  overflow: hidden;
+  transition: border-color .2s;
+}
+.rank-card:hover { border-color: var(--accent); }
+
+.rank-card.rank1 { border-color: var(--gold); }
+.rank-card.rank1 .rank-header { background: linear-gradient(135deg, #2a1f00, #1a1a1a); }
+
+.rank-header {
+  display: flex; align-items: center; gap: 16px;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+}
+.rank-num {
+  font-size: 36px; font-weight: 900;
+  color: var(--muted); line-height: 1; min-width: 44px;
+}
+.rank1 .rank-num { color: var(--gold); }
+.rank2 .rank-num { color: #c0c0c0; }
+.rank3 .rank-num { color: #cd7f32; }
+
+.rank-info { flex: 1; }
+.rank-name { font-size: 20px; font-weight: bold; margin-bottom: 4px; }
+.rank-tagline { font-size: 13px; color: var(--muted); }
+
+.rank-score {
+  text-align: right;
+}
+.score-val { font-size: 28px; font-weight: 900; color: var(--accent); }
+.score-label { font-size: 11px; color: var(--muted); }
+
+.rank-body { padding: 20px 24px; }
+
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.stat-item {
+  background: var(--surface2);
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+.stat-label { font-size: 11px; color: var(--muted); margin-bottom: 2px; }
+.stat-val { font-size: 16px; font-weight: bold; }
+.stat-val.green { color: var(--green); }
+.stat-val.gold { color: var(--gold); }
+
+.pros-cons {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  margin-bottom: 20px;
+  font-size: 13px;
+}
+.pros li::before { content: '✓ '; color: var(--green); }
+.cons li::before { content: '✗ '; color: #ff4444; }
+ul { list-style: none; }
+li { padding: 3px 0; }
+
+.btn-cta {
+  display: inline-block;
+  background: var(--accent);
+  color: #fff; font-weight: bold; font-size: 16px;
+  padding: 14px 32px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: opacity .2s;
+  cursor: pointer; border: none;
+}
+.btn-cta:hover { opacity: .85; }
+.btn-cta.gold-btn { background: var(--gold); color: #000; }
+
+.affiliate-note {
+  font-size: 11px; color: var(--muted); margin-top: 8px;
+}
+
+/* ─── Comparison Table ─── */
+.table-wrap { overflow-x: auto; margin-bottom: 32px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th {
+  background: var(--surface2);
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  text-align: center; font-size: 12px;
+  white-space: nowrap;
+}
+th:first-child { text-align: left; }
+td {
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  text-align: center;
+}
+td:first-child { text-align: left; font-weight: bold; }
+tr:nth-child(even) td { background: rgba(255,255,255,.02); }
+.check { color: var(--green); font-weight: bold; }
+.cross { color: #ff4444; }
+.tag-best {
+  display: inline-block; font-size: 10px; font-weight: bold;
+  background: var(--accent); color: #fff;
+  padding: 2px 6px; border-radius: 4px; margin-left: 4px;
+  vertical-align: middle;
+}
+
+/* ─── FAQ ─── */
+.faq-item { border-bottom: 1px solid var(--border); padding: 18px 0; }
+.faq-q {
+  font-weight: bold; font-size: 15px; cursor: pointer;
+  display: flex; align-items: flex-start; gap: 10px;
+}
+.faq-q::before { content: 'Q.'; color: var(--accent); flex-shrink: 0; }
+.faq-a { padding: 12px 0 0 24px; color: var(--muted); font-size: 14px; }
+.faq-a::before { content: 'A. '; color: var(--accent2); font-weight: bold; }
+
+/* ─── Footer ─── */
+footer {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 32px 16px;
+  font-size: 12px; color: var(--muted);
+  text-align: center;
+}
+footer a { color: var(--muted); }
+.footer-links { display: flex; gap: 20px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap; }
+
+/* ─── Notice bar ─── */
+.notice-bar {
+  background: #1a0a00;
+  border: 1px solid #3a2000;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #c8a070;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 600px) {
+  .rank-header { flex-wrap: wrap; }
+  .pros-cons { grid-template-columns: 1fr; }
+  .stats-row { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ─── 年齢確認 ─── -->
+<div id="age-gate">
+  <div class="age-box">
+    <h2>⚠ 年齢確認</h2>
+    <p>このサイトは<strong style="color:#e8e8e8">18歳以上</strong>を対象とした<br>成人向けコンテンツの比較・情報サイトです。<br><br>あなたは18歳以上ですか？</p>
+    <button class="btn-enter" onclick="enterSite()">18歳以上です（入場する）</button>
+    <button class="btn-leave" onclick="location.href='https://www.google.co.jp'">18歳未満です（退場する）</button>
+  </div>
+</div>
+
+<!-- ─── メインコンテンツ ─── -->
+<div id="main">
+
+<header>
+  <div class="header-inner">
+    <div class="logo">VODナビ<span>アダルト動画比較</span></div>
+    <span class="ad-label">広告・PR含む</span>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- Hero -->
+  <div class="hero">
+    <h1>アダルト動画サービス<br><em>おすすめ比較ランキング</em>2026年版</h1>
+    <p>月額料金・作品数・無料体験を徹底調査。本当にお得なサービスだけを紹介します。</p>
+    <span class="update-date">最終更新：2026年3月23日</span>
+  </div>
+
+  <div class="notice-bar">
+    ⚠ 本サイトはアフィリエイト広告を掲載しています。記事内のリンクから申し込むと、当サイトに報酬が発生する場合があります。ただし、掲載順位は報酬に左右されず、独自調査に基づいています。
+  </div>
+
+  <!-- ランキング -->
+  <h2 class="section-title">おすすめVODランキング TOP5</h2>
+
+  <!-- 1位 -->
+  <div class="rank-card rank1">
+    <div class="rank-header">
+      <div class="rank-num">1</div>
+      <div class="rank-info">
+        <div class="rank-name">FANZA動画（旧DMM.R18）</div>
+        <div class="rank-tagline">国内最大・550,000本以上の圧倒的作品数</div>
+      </div>
+      <div class="rank-score">
+        <div class="score-val">98</div>
+        <div class="score-label">総合スコア</div>
+      </div>
+    </div>
+    <div class="rank-body">
+      <div class="stats-row">
+        <div class="stat-item">
+          <div class="stat-label">月額料金</div>
+          <div class="stat-val">無料〜</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">作品数</div>
+          <div class="stat-val gold">55万本+</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">無料体験</div>
+          <div class="stat-val green">あり</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">画質</div>
+          <div class="stat-val">最大4K</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">ダウンロード</div>
+          <div class="stat-val green">○</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">VR対応</div>
+          <div class="stat-val green">○</div>
+        </div>
+      </div>
+      <div class="pros-cons">
+        <ul class="pros">
+          <li>国内No.1の作品数（55万本超）</li>
+          <li>単品購入・月額どちらも対応</li>
+          <li>VR・4K作品が豊富</li>
+          <li>スマホアプリあり</li>
+          <li>女性向けコンテンツも充実</li>
+        </ul>
+        <ul class="cons">
+          <li>UIが少し複雑</li>
+          <li>月額プランの作品は限定的</li>
+        </ul>
+      </div>
+      <a href="YOUR_FANZA_AFFILIATE_LINK_HERE" class="btn-cta gold-btn" rel="nofollow sponsored" target="_blank">
+        🎬 FANZAの無料体験を試す →
+      </a>
+      <div class="affiliate-note">※ PR：アフィリエイトリンクです</div>
+    </div>
+  </div>
+
+  <!-- 2位 -->
+  <div class="rank-card rank2">
+    <div class="rank-header">
+      <div class="rank-num">2</div>
+      <div class="rank-info">
+        <div class="rank-name">MGS動画</div>
+        <div class="rank-tagline">マニアックジャンルに強い・高画質専門サービス</div>
+      </div>
+      <div class="rank-score">
+        <div class="score-val">91</div>
+        <div class="score-label">総合スコア</div>
+      </div>
+    </div>
+    <div class="rank-body">
+      <div class="stats-row">
+        <div class="stat-item">
+          <div class="stat-label">月額料金</div>
+          <div class="stat-val">単品購入</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">作品数</div>
+          <div class="stat-val gold">20万本+</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">無料サンプル</div>
+          <div class="stat-val green">あり</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">画質</div>
+          <div class="stat-val">最大FHD</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">ダウンロード</div>
+          <div class="stat-val green">○</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">VR対応</div>
+          <div class="stat-val">一部</div>
+        </div>
+      </div>
+      <div class="pros-cons">
+        <ul class="pros">
+          <li>独占・先行配信作品多数</li>
+          <li>マニアックなジャンルが充実</li>
+          <li>高画質専用サービス</li>
+          <li>購入後は永続視聴可能</li>
+        </ul>
+        <ul class="cons">
+          <li>月額サブスクがない</li>
+          <li>FANZAより作品数は少なめ</li>
+        </ul>
+      </div>
+      <a href="YOUR_MGS_AFFILIATE_LINK_HERE" class="btn-cta" rel="nofollow sponsored" target="_blank">
+        🎬 MGS動画で作品を探す →
+      </a>
+      <div class="affiliate-note">※ PR：アフィリエイトリンクです</div>
+    </div>
+  </div>
+
+  <!-- 3位 -->
+  <div class="rank-card rank3">
+    <div class="rank-header">
+      <div class="rank-num">3</div>
+      <div class="rank-info">
+        <div class="rank-name">Hビデオ</div>
+        <div class="rank-tagline">月額定額で見放題・コスパ最強</div>
+      </div>
+      <div class="rank-score">
+        <div class="score-val">86</div>
+        <div class="score-label">総合スコア</div>
+      </div>
+    </div>
+    <div class="rank-body">
+      <div class="stats-row">
+        <div class="stat-item">
+          <div class="stat-label">月額料金</div>
+          <div class="stat-val">月額定額</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">作品数</div>
+          <div class="stat-val gold">10万本+</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">無料体験</div>
+          <div class="stat-val green">30日間</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">画質</div>
+          <div class="stat-val">FHD</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">ダウンロード</div>
+          <div class="stat-val green">○</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">VR対応</div>
+          <div class="stat-val">△</div>
+        </div>
+      </div>
+      <div class="pros-cons">
+        <ul class="pros">
+          <li>30日間無料トライアルあり</li>
+          <li>月額定額で見放題</li>
+          <li>スマホ対応が優れている</li>
+        </ul>
+        <ul class="cons">
+          <li>FANZAより作品数が少ない</li>
+          <li>4K非対応</li>
+        </ul>
+      </div>
+      <a href="YOUR_HVIDEO_AFFILIATE_LINK_HERE" class="btn-cta" rel="nofollow sponsored" target="_blank">
+        🎬 Hビデオの30日間無料を試す →
+      </a>
+      <div class="affiliate-note">※ PR：アフィリエイトリンクです</div>
+    </div>
+  </div>
+
+  <!-- 4位 -->
+  <div class="rank-card">
+    <div class="rank-header">
+      <div class="rank-num" style="color:#888">4</div>
+      <div class="rank-info">
+        <div class="rank-name">一本道</div>
+        <div class="rank-tagline">国産メーカー直営・独占作品が強み</div>
+      </div>
+      <div class="rank-score">
+        <div class="score-val" style="color:#888">82</div>
+        <div class="score-label">総合スコア</div>
+      </div>
+    </div>
+    <div class="rank-body">
+      <div class="stats-row">
+        <div class="stat-item"><div class="stat-label">月額料金</div><div class="stat-val">月額定額</div></div>
+        <div class="stat-item"><div class="stat-label">作品数</div><div class="stat-val">3万本+</div></div>
+        <div class="stat-item"><div class="stat-label">無料体験</div><div class="stat-val green">あり</div></div>
+        <div class="stat-item"><div class="stat-label">独占作品</div><div class="stat-val green">多数</div></div>
+      </div>
+      <a href="YOUR_ICHIMICHI_AFFILIATE_LINK_HERE" class="btn-cta" rel="nofollow sponsored" target="_blank">
+        🎬 一本道を見てみる →
+      </a>
+      <div class="affiliate-note">※ PR：アフィリエイトリンクです</div>
+    </div>
+  </div>
+
+  <!-- 5位 -->
+  <div class="rank-card">
+    <div class="rank-header">
+      <div class="rank-num" style="color:#888">5</div>
+      <div class="rank-info">
+        <div class="rank-name">DUGA</div>
+        <div class="rank-tagline">独自ジャンル・同人・ニッチ系が充実</div>
+      </div>
+      <div class="rank-score">
+        <div class="score-val" style="color:#888">78</div>
+        <div class="score-label">総合スコア</div>
+      </div>
+    </div>
+    <div class="rank-body">
+      <div class="stats-row">
+        <div class="stat-item"><div class="stat-label">月額料金</div><div class="stat-val">単品/月額</div></div>
+        <div class="stat-item"><div class="stat-label">作品数</div><div class="stat-val">15万本+</div></div>
+        <div class="stat-item"><div class="stat-label">無料サンプル</div><div class="stat-val green">あり</div></div>
+        <div class="stat-item"><div class="stat-label">同人・アニメ</div><div class="stat-val green">充実</div></div>
+      </div>
+      <a href="YOUR_DUGA_AFFILIATE_LINK_HERE" class="btn-cta" rel="nofollow sponsored" target="_blank">
+        🎬 DUGAを見てみる →
+      </a>
+      <div class="affiliate-note">※ PR：アフィリエイトリンクです</div>
+    </div>
+  </div>
+
+  <!-- 一覧比較表 -->
+  <h2 class="section-title">サービス一覧比較表</h2>
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>サービス名</th>
+        <th>月額料金</th>
+        <th>作品数</th>
+        <th>無料体験</th>
+        <th>4K対応</th>
+        <th>VR対応</th>
+        <th>DL可</th>
+        <th>スマホ</th>
+      </tr>
+      <tr>
+        <td>FANZA動画 <span class="tag-best">おすすめ</span></td>
+        <td>無料〜</td>
+        <td>55万本+</td>
+        <td><span class="check">○</span></td>
+        <td><span class="check">○</span></td>
+        <td><span class="check">○</span></td>
+        <td><span class="check">○</span></td>
+        <td><span class="check">○</span></td>
+      </tr>
+      <tr>
+        <td>MGS動画</td>
+        <td>単品購入</td>
+        <td>20万本+</td>
+        <td><span class="check">サンプル</span></td>
+        <td><span class="check">○</span></td>
+        <td>一部</td>
+        <td><span class="check">○</span></td>
+        <td><span class="check">○</span></td>
+      </tr>
+      <tr>
+        <td>Hビデオ</td>
+        <td>月額定額</td>
+        <td>10万本+</td>
+        <td><span class="check">30日間</span></td>
+        <td><span class="cross">×</span></td>
+        <td>△</td>
+        <td><span class="check">○</span></td>
+        <td><span class="check">○</span></td>
+      </tr>
+      <tr>
+        <td>一本道</td>
+        <td>月額定額</td>
+        <td>3万本+</td>
+        <td><span class="check">○</span></td>
+        <td><span class="cross">×</span></td>
+        <td><span class="cross">×</span></td>
+        <td><span class="check">○</span></td>
+        <td><span class="check">○</span></td>
+      </tr>
+      <tr>
+        <td>DUGA</td>
+        <td>単品/月額</td>
+        <td>15万本+</td>
+        <td>サンプル</td>
+        <td><span class="cross">×</span></td>
+        <td><span class="cross">×</span></td>
+        <td><span class="check">○</span></td>
+        <td><span class="check">○</span></td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- 選び方ガイド -->
+  <h2 class="section-title">目的別おすすめの選び方</h2>
+  <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap:14px; margin-bottom:32px;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;">
+      <div style="font-weight:bold;margin-bottom:8px;color:var(--accent2)">📦 とにかく作品数が多いのがいい</div>
+      <div style="font-size:13px;color:var(--muted)">→ <strong style="color:var(--text)">FANZA動画</strong> 一択。55万本超で他の追随を許さない。</div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;">
+      <div style="font-weight:bold;margin-bottom:8px;color:var(--accent2)">💰 月額定額でコスパよく楽しみたい</div>
+      <div style="font-size:13px;color:var(--muted)">→ <strong style="color:var(--text)">Hビデオ</strong>。30日間無料体験つきでリスクゼロ。</div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;">
+      <div style="font-weight:bold;margin-bottom:8px;color:var(--accent2)">🔞 マニアックなジャンルを探したい</div>
+      <div style="font-size:13px;color:var(--muted)">→ <strong style="color:var(--text)">MGS動画</strong> か <strong style="color:var(--text)">DUGA</strong>。独占・ニッチ系が豊富。</div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;">
+      <div style="font-weight:bold;margin-bottom:8px;color:var(--accent2)">🥽 VR・高画質にこだわりたい</div>
+      <div style="font-size:13px;color:var(--muted)">→ <strong style="color:var(--text)">FANZA動画</strong>。4K・VR対応作品数もトップクラス。</div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <h2 class="section-title">よくある質問</h2>
+
+  <div class="faq-item">
+    <div class="faq-q">クレジットカードなしで登録できるサービスはありますか？</div>
+    <div class="faq-a">FANZAではキャリア決済（docomo / au / SoftBank）や電子マネー払いに対応しています。クレジットカードがなくてもスマホ料金と合算して支払えます。</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">無料体験だけ使って解約することはできますか？</div>
+    <div class="faq-a">可能です。Hビデオなどの無料体験付きサービスは、期間内に解約手続きをすれば一切料金はかかりません。解約はマイページから数クリックで完了します。</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">スマホだけで視聴できますか？</div>
+    <div class="faq-a">ランキング上位のサービスはすべてスマホブラウザ対応、またはアプリに対応しています。出先でも問題なく視聴できます。</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">ダウンロードして保存できますか？</div>
+    <div class="faq-a">FANZAやMGS動画など多くのサービスでダウンロード機能が提供されています。一度ダウンロードすればオフラインでも視聴可能です（サービスによっては期限あり）。</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">どのサービスが一番コスパがいいですか？</div>
+    <div class="faq-a">「作品あたり単価」で考えるとFANZA動画のポイント購入が最もお得です。月額見放題でコスパを重視するならHビデオがおすすめです。</div>
+  </div>
+
+</div><!-- /container -->
+
+<footer>
+  <div class="footer-links">
+    <a href="#privacy">プライバシーポリシー</a>
+    <a href="#disclaimer">免責事項</a>
+    <a href="#about">運営者情報</a>
+  </div>
+
+  <div id="privacy" style="max-width:700px;margin:0 auto 24px;text-align:left;font-size:12px;color:#666;border-top:1px solid var(--border);padding-top:24px;">
+    <strong style="color:#999">プライバシーポリシー</strong><br><br>
+    当サイトでは、Google Analyticsによるアクセス解析を行っています（Cookieを使用）。また、アフィリエイトプログラムへの参加により、リンク経由の購入・登録に対して報酬を受け取る場合があります。掲載情報は調査時点のものであり、変更される場合があります。
+  </div>
+
+  <div id="disclaimer" style="max-width:700px;margin:0 auto 24px;text-align:left;font-size:12px;color:#666;">
+    <strong style="color:#999">免責事項</strong><br><br>
+    当サイトの情報はできる限り正確に保つよう努めていますが、掲載内容の正確性・完全性を保証するものではありません。各サービスの最新情報は公式サイトにてご確認ください。
+  </div>
+
+  <div id="about" style="max-width:700px;margin:0 auto 24px;text-align:left;font-size:12px;color:#666;">
+    <strong style="color:#999">運営者情報</strong><br><br>
+    サイト名：VODナビ（アダルト動画比較サイト）<br>
+    運営者：【あなたのペンネームを入力】<br>
+    お問い合わせ：【連絡先メールを入力】
+  </div>
+
+  <p style="color:#555">© 2026 VODナビ. All Rights Reserved.</p>
+  <p style="margin-top:6px;color:#444">このサイトは18歳以上を対象としています。</p>
+</footer>
+
+</div><!-- /main -->
+
+<script>
+function enterSite() {
+  document.getElementById('age-gate').style.display = 'none';
+  document.getElementById('main').style.display = 'block';
+  // 30日間クッキー保存（再訪時にスキップ）
+  const d = new Date();
+  d.setDate(d.getDate() + 30);
+  document.cookie = 'age_confirmed=1; expires=' + d.toUTCString() + '; path=/; SameSite=Lax';
+}
+
+// 既にクッキーがあればスキップ
+(function() {
+  if (document.cookie.includes('age_confirmed=1')) {
+    document.getElementById('age-gate').style.display = 'none';
+    document.getElementById('main').style.display = 'block';
+  }
+})();
+</script>
+
+</body>
+</html>
