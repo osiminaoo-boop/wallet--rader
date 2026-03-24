@@ -49,6 +49,11 @@ font-family:’Inter’, sans-serif;
 font-size:20px; font-weight:700; letter-spacing:1px;
 color: var(--text);
 }
+.logo-icon {
+width:28px; height:28px; border-radius:6px;
+background:var(--accent); display:flex; align-items:center; justify-content:center;
+font-size:14px; font-weight:900; color:#fff; flex-shrink:0;
+}
 .logo em { color:var(--accent); font-style:normal; }
 .logo-sub { font-size:11px; color:var(--dim); letter-spacing:1px; margin-top:3px; }
 
@@ -89,6 +94,7 @@ border:1px solid var(--border); padding:8px 12px;
 border-radius:6px;
 outline:none; transition:border-color .15s, box-shadow .15s;
 }
+input::placeholder { color:var(--dim); }
 input:focus {
 border-color:var(--accent);
 box-shadow:0 0 0 3px rgba(9,105,218,.12);
@@ -286,21 +292,24 @@ animation:tickerRun 25s linear infinite;
 <!-- HEADER -->
 
 <header>
-  <div>
-    <div class="logo">WALLET<em>RADAR</em></div>
-    <div class="logo-sub">SOLANA SMART MONEY TRACKER</div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="logo-icon">W</div>
+    <div>
+      <div class="logo">WALLET<em>RADAR</em></div>
+      <div class="logo-sub">SOLANA SMART MONEY TRACKER</div>
+    </div>
   </div>
   <div class="hdr-right">
     <div class="live-dot" id="liveDot"></div>
     <span class="clock" id="clock">--:--:--</span>
-    <button onclick="document.getElementById('helpModal').style.display='flex'" style="background:#fff;border:1px solid var(--border);color:var(--dim);font-size:13px;width:30px;height:30px;border-radius:50%;cursor:pointer;font-weight:700;padding:0;line-height:1">?</button>
+    <button onclick="document.getElementById('helpModal').style.display='flex'" style="background:#fff;border:1px solid var(--border);color:var(--dim);font-size:13px;font-weight:700;width:28px;height:28px;border-radius:6px;cursor:pointer;padding:0;line-height:1">?</button>
   </div>
 </header>
 
 <!-- HELP MODAL -->
 
 <div id="helpModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:center;justify-content:center;padding:16px" onclick="if(event.target===this)this.style.display='none'">
-  <div style="background:#fff;border:1px solid var(--border);border-radius:12px;max-width:480px;width:100%;max-height:85vh;overflow-y:auto;padding:20px;font-family:'Inter',sans-serif;font-size:13px;line-height:1.8;color:var(--text);box-shadow:0 8px 24px rgba(0,0,0,.12)">
+  <div style="background:var(--panel);border:1px solid var(--border);border-radius:8px;max-width:480px;width:100%;max-height:85vh;overflow-y:auto;padding:20px;font-family:'Inter',sans-serif;font-size:13px;line-height:1.8;color:var(--text);box-shadow:0 24px 60px rgba(0,0,0,.8)">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
       <div style="font-size:16px;font-weight:700;color:var(--text)">使い方</div>
       <button onclick="document.getElementById('helpModal').style.display='none'" style="background:none;border:none;color:var(--dim);font-size:20px;cursor:pointer;line-height:1">✕</button>
@@ -350,7 +359,7 @@ animation:tickerRun 25s linear infinite;
 </div>
 
 <div style="color:var(--gold);margin-bottom:8px;font-size:13px">▶ 注意点</div>
-<div style="color:#ffffff">
+<div style="color:var(--text)">
   • 取引所は <span style="color:var(--accent)">1つだけ</span> 選択（複数選択不可）<br>
   • iPhoneはバックグラウンドで止まる → 画面オンのまま使用<br>
   • MEXCはSOL出金が少ない場合あり（USDC出金は非対応）<br>
@@ -384,7 +393,7 @@ animation:tickerRun 25s linear infinite;
 
 <!-- SCAN TARGETS (上部) -->
 
-<div style="display:flex;gap:10px;padding:10px 16px;background:#fff;border:1px solid var(--border);border-radius:8px;margin-top:8px;flex-wrap:wrap" id="scan-targets-top"></div>
+<div style="display:flex;gap:8px;padding:10px 14px;background:var(--panel);border:1px solid var(--border);border-radius:6px;margin-top:8px;flex-wrap:wrap" id="scan-targets-top"></div>
 
 <!-- GRID -->
 
@@ -1142,7 +1151,7 @@ async function scanPast30Min(seconds) {
   }
 
   const exchSummary = Object.entries(exchSigCounts).map(([n, c]) => `${n}: ${c}件`).join(' / ');
-  addEvent({ html: `<div class="ev-meta"><span class="badge" style="background:#dafbe1;color:var(--green)">DONE</span><span class="ev-time">${now()}</span></div><div class="ev-title">✅ 過去${rangeLabel}スキャン完了</div><div class="ev-detail" style="color:var(--dim)">新規ウォレット: <span>${newWallets.length}件</span> 検知 &nbsp;|&nbsp; スキップ: <span>${skipCount}件</span><br>取引所TX取得数: <span>${exchSummary}</span></div>` });
+  addEvent({ html: `<div class="ev-meta"><span class="badge" style="background:#ddf4ff;color:var(--accent)">DONE</span><span class="ev-time">${now()}</span></div><div class="ev-title">✅ 過去${rangeLabel}スキャン完了</div><div class="ev-detail" style="color:var(--dim)">新規ウォレット: <span>${newWallets.length}件</span> 検知 &nbsp;|&nbsp; スキップ: <span>${skipCount}件</span><br>取引所TX取得数: <span>${exchSummary}</span></div>` });
   saveState();
 }
 
