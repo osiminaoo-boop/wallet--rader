@@ -1728,6 +1728,7 @@ async function checkOneWallet(addr, info) {
 function clearWatched() {
   watchedWallets = {};
   processedSigs.clear();
+  exchangeLastSig = {}; // 取引所スキャンもリセット（次回から全件再スキャン）
   stats.wallets = 0;
   stats.detected = 0;
   localStorage.removeItem('wr_wallets');
