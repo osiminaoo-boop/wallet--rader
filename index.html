@@ -951,6 +951,7 @@ function short(addr) { return addr.slice(0,8) + '...' + addr.slice(-4); }
 function solscanTx(sig)  { return `https://solscan.io/tx/${sig}`; }
 function solscanAcc(a)   { return `https://solscan.io/account/${a}`; }
 function pumpUrl(mint)   { return `https://pump.fun/${mint}`; }
+function gmgnUrl(mint)   { return `https://gmgn.ai/sol/token/${mint}`; }
 function dexUrl(mint)    { return `https://dexscreener.com/solana/${mint}`; }
 function isPump(mint)    { return mint.endsWith('pump'); }
 function isBags(tx) { const accounts = tx?.transaction?.message?.accountKeys || []; return accounts.some(a => (typeof a === 'string' ? a : a?.pubkey) === BAGS_PROGRAM); }
@@ -1097,6 +1098,7 @@ async function scanPast30Min(seconds) {
           <div class="ev-coin">
             <a href="${dexUrl(createdMint)}" target="_blank">DEX</a>
             <a href="${pumpUrl(createdMint)}" target="_blank">PUMP</a>
+            <a href="${gmgnUrl(createdMint)}" target="_blank">GMGN</a>
             <a href="${solscanTx(s.signature)}" target="_blank">TX</a>
           </div>` });
         updateStats();
@@ -1128,6 +1130,7 @@ async function scanPast30Min(seconds) {
           <div class="ev-coin">
             <a href="${dexUrl(b.mint)}" target="_blank">DEX</a>
             ${isPump(b.mint) ? `<a href="${pumpUrl(b.mint)}" target="_blank">PUMP</a>` : ''}
+            <a href="${gmgnUrl(b.mint)}" target="_blank">GMGN</a>
             <a href="${solscanTx(s.signature)}" target="_blank">TX</a>
           </div>` });
         updateStats();
@@ -1200,6 +1203,7 @@ function renderCreatedList() {
       <div style="display:flex;gap:6px">
         <a href="https://dexscreener.com/solana/${c.mint}" target="_blank" style="font-size:11px;color:var(--accent);padding:4px 10px;border:1px solid var(--border);border-radius:4px;background:var(--bg);text-decoration:none">DEX</a>
         <a href="https://pump.fun/${c.mint}" target="_blank" style="font-size:11px;color:var(--gold);padding:4px 10px;border:1px solid var(--border);border-radius:4px;background:var(--bg);text-decoration:none">PUMP</a>
+        <a href="https://gmgn.ai/sol/token/${c.mint}" target="_blank" style="font-size:11px;color:var(--green);padding:4px 10px;border:1px solid var(--border);border-radius:4px;background:var(--bg);text-decoration:none">GMGN</a>
       </div>
     </div>
   `).join('');
@@ -1290,6 +1294,7 @@ function renderRanking() {
         ${(data.wallets&&data.wallets?.length) ? `<span style="font-size:11px;color:var(--dim)">👛${data.wallets?.length}アドレス</span>` : ''}
         <a href="https://dexscreener.com/solana/${mint}" target="_blank" style="font-size:11px;color:var(--accent);margin-left:auto;text-decoration:none">DEX</a>
         <a href="https://pump.fun/${mint}" target="_blank" style="font-size:11px;color:var(--gold);text-decoration:none">PUMP</a>
+        <a href="https://gmgn.ai/sol/token/${mint}" target="_blank" style="font-size:11px;color:var(--green);text-decoration:none">GMGN</a>
       </div>
     </div>`;
   }).join('');
@@ -1649,7 +1654,9 @@ async function checkOneWallet(addr, info) {
             🪙 CA:<br>${mintLabel(createdMint)}
           </div>
           <div class="ev-coin">
+            <a href="${dexUrl(createdMint)}" target="_blank">DEX</a>
             <a href="${pumpUrl(createdMint)}" target="_blank">PUMP</a>
+            <a href="${gmgnUrl(createdMint)}" target="_blank">GMGN</a>
             <a href="${solscanTx(s.signature)}" target="_blank">TX</a>
           </div>` });
         updateStats();
@@ -1678,6 +1685,7 @@ async function checkOneWallet(addr, info) {
             <div class="ev-coin">
               <a href="${dexUrl(b.mint)}" target="_blank">DEX</a>
               ${isPump(b.mint) ? `<a href="${pumpUrl(b.mint)}" target="_blank">PUMP</a>` : ''}
+              <a href="${gmgnUrl(b.mint)}" target="_blank">GMGN</a>
               <a href="${solscanTx(s.signature)}" target="_blank">TX</a>
             </div>` });
           updateStats();
@@ -1961,6 +1969,7 @@ async function analyzeCA() {
       <div style="display:flex;gap:8px">
         <a href="${dexUrl2}" target="_blank" style="flex:1;text-align:center;font-size:13px;font-weight:600;color:var(--accent);text-decoration:none;border:1px solid var(--accent);padding:9px 0;border-radius:6px;background:#ddf4ff">📈 DEX</a>
         <a href="https://pump.fun/${ca}" target="_blank" style="flex:1;text-align:center;font-size:13px;font-weight:600;color:var(--accent2);text-decoration:none;border:1px solid var(--accent2);padding:9px 0;border-radius:6px;background:#ffebe9">🚀 PUMP</a>
+        <a href="https://gmgn.ai/sol/token/${ca}" target="_blank" style="flex:1;text-align:center;font-size:13px;font-weight:600;color:var(--green);text-decoration:none;border:1px solid var(--green);padding:9px 0;border-radius:6px;background:#dafbe1">📊 GMGN</a>
       </div>
     `;
 
