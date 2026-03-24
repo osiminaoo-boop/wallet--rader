@@ -1009,6 +1009,9 @@ async function scanPast30Min(seconds) {
         const tx = txs[ci];
       if (!s.blockTime || s.blockTime < cutoff) continue;
 
+      // 重複チェック：既にprocessed済みのTXはスキップ
+      if (sigProcessed(s.signature)) continue;
+
       // TX取得失敗時はprocessed扱いにしない（次回スキャンで再試行できるように）
       if (!tx) continue;
       processedSigs.set(s.signature, Date.now());
