@@ -619,25 +619,31 @@ function rpcUrl()  { return `https://mainnet.helius-rpc.com/?api-key=${apiKey()}
 
 let _apiKeyErrShown = false;
 async function rpc(method, params) {
-  const res = await fetch(rpcUrl(), {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ jsonrpc:'2.0', id:1, method, params })
-  });
-  const d = await res.json();
-  if (d.error) {
-    // HTTPステータス401/403、またはエラーメッセージにAPIキー関連の文言がある場合のみ表示
-    const msg = (d.error.message || '').toLowerCase();
-    const isKeyError = res.status === 401 || res.status === 403
-      || msg.includes('api key') || msg.includes('unauthorized') || msg.includes('invalid key');
-    if (isKeyError && !_apiKeyErrShown) {
-      _apiKeyErrShown = true;
-      addEvent({ html: `<div class="ev-meta"><span class="badge" style="background:rgba(255,50,50,.15);color:#ff5050;border:1px solid #ff5050">API KEY ERROR</span><span class="ev-time">${now()}</span></div><div class="ev-title">❌ Helius APIキーが無効です</div><div class="ev-detail" style="color:var(--dim)">有効なAPIキーを入力してください<br><a href="https://dev.helius.xyz" target="_blank">dev.helius.xyz</a> で取得できます</div>` });
+  const ac = new AbortController();
+  const tid = setTimeout(() => ac.abort(), 10000); // 10秒でタイムアウト
+  try {
+    const res = await fetch(rpcUrl(), {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ jsonrpc:'2.0', id:1, method, params }),
+      signal: ac.signal
+    });
+    const d = await res.json();
+    if (d.error) {
+      const msg = (d.error.message || '').toLowerCase();
+      const isKeyError = res.status === 401 || res.status === 403
+        || msg.includes('api key') || msg.includes('unauthorized') || msg.includes('invalid key');
+      if (isKeyError && !_apiKeyErrShown) {
+        _apiKeyErrShown = true;
+        addEvent({ html: `<div class="ev-meta"><span class="badge" style="background:rgba(255,50,50,.15);color:#ff5050;border:1px solid #ff5050">API KEY ERROR</span><span class="ev-time">${now()}</span></div><div class="ev-title">❌ Helius APIキーが無効です</div><div class="ev-detail" style="color:var(--dim)">有効なAPIキーを入力してください<br><a href="https://dev.helius.xyz" target="_blank">dev.helius.xyz</a> で取得できます</div>` });
+      }
+      return null;
     }
-    return null;
+    _apiKeyErrShown = false;
+    return d.result;
+  } finally {
+    clearTimeout(tid);
   }
-  _apiKeyErrShown = false;
-  return d.result;
 }
 
 // ─────────────────────────────────────────
@@ -662,15 +668,16 @@ function getCache(key) {
   return e.value;
 }
 
-async function withBackoff(fn, maxRetry = 6, base = 500) {
+async function withBackoff(fn, maxRetry = 3, base = 400) {
   for (let i = 0; i <= maxRetry; i++) {
     try {
       const res = await fn();
       // fetchレスポンスの場合は429チェック
       if (res && typeof res.status === 'number') {
         if (res.status === 429) {
-          const retryAfter = parseInt(res.headers?.get?.('Retry-After') || '1', 10);
-          const delay = Math.round((retryAfter * 1000 + Math.pow(2, i) * base) * (0.8 + Math.random() * 0.4));
+          // retryAfterは最大3秒に制限（長い待機でスキャンが止まるのを防ぐ）
+          const retryAfter = Math.min(parseInt(res.headers?.get?.('Retry-After') || '1', 10), 3);
+          const delay = Math.min(Math.round((retryAfter * 1000 + Math.pow(2, i) * base) * (0.8 + Math.random() * 0.4)), 5000);
           await new Promise(r => setTimeout(r, delay));
           continue;
         }
@@ -679,7 +686,7 @@ async function withBackoff(fn, maxRetry = 6, base = 500) {
       return res;
     } catch(err) {
       if (i === maxRetry) throw err;
-      const delay = Math.round(base * Math.pow(2, i) * (0.8 + Math.random() * 0.4));
+      const delay = Math.min(Math.round(base * Math.pow(2, i) * (0.8 + Math.random() * 0.4)), 5000);
       await new Promise(r => setTimeout(r, delay));
     }
   }
@@ -1823,15 +1830,17 @@ window.addEventListener('focus', async () => {
   }
 });
 
-// watchdogタイマー：10秒ごとにタイマーが生きているか確認
-setInterval(async () => {
+// watchdogタイマー：10秒ごとにスキャンが止まっていないか確認
+setInterval(() => {
   if (isRunning && apiKey()) {
     const now_ms = Date.now();
     const interval = parseInt(document.getElementById('intervalSec').value) * 1000 || 20000;
-    if (now_ms - lastScanTime > interval * 2) {
+    if (now_ms - lastScanTime > interval * 3) {
+      // isScanningが詰まっている可能性があるので強制リセット
+      isScanning = false;
       clearInterval(monitorTimer);
-      await runScan();
       monitorTimer = setInterval(runScan, interval);
+      runScan(); // awaitしない（watchdog自体を止めないため）
     }
   }
 }, 10000);
