@@ -1041,8 +1041,6 @@ async function scanPast30Min(seconds) {
         if (t.amount < 0.01) { skipCount++; continue; } // 0.01 SOL未満はスキップ
         // preBalance=0なら初めての入金（parseSolTransfersのidxを使用）
         if (t.preBalance !== 0) { skipCount++; continue; }
-        // preBalance=0でも残高を使い切った既存ウォレットの可能性があるため、初回TXか確認
-        if (!await isFirstTx(dest, s.signature)) { skipCount++; continue; }
 
         const label = `${(exchangeWallets[wallet]?.name||"Exchange")}出金 #${stats.detected + 1}`;
         if (Object.keys(watchedWallets).length >= 150) { skipCount++; continue; }
