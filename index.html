@@ -529,6 +529,7 @@ function isExchangeAddr(a)  { return !!exchangeWallets[a]; }
 // ─────────────────────────────────────────
 let watchedWallets  = {};
 let processedSigs   = new Map(); // sig -> timestamp(ms)
+let exchangeLastSig = {}; // 取引所ウォレットごとの最終確認sig
 let isRunning       = false;
 let sessionStart    = 0;
 let monitorTimer    = null;
@@ -1483,15 +1484,25 @@ function addManualWallet() {
 // ─────────────────────────────────────────
 async function checkBinance2() {
   if (!sessionStart) return; // START前はスキャンしない
-  const cutoff = sessionStart;
 
   for (const wallet of getExchangeAddrs()) {
-    // sessionStartからの経過時間に応じてページ数を動的に決定
-    const elapsedMin = sessionStart ? Math.floor((Date.now()/1000 - sessionStart) / 60) : 1440;
-    const maxPages = Math.max(1, Math.min(10, Math.ceil(elapsedMin / 3))); // 3分ごとに1ページ、最大10
-    const sigs = await getSignaturesUntil(wallet, cutoff, maxPages);
+    // lastSigベース：前回確認済みのsig以降の新着のみ取得（毎回全履歴を遡らない）
+    const prevLastSig = exchangeLastSig[wallet] || null;
+    let sigs = [];
+    try {
+      await GLOBAL_SEM.acquire();
+      const res = await withBackoff(() => rpc('getSignaturesForAddress', [wallet, { limit: 50, commitment: 'confirmed' }])).catch(() => []);
+      sigs = res || [];
+    } finally { GLOBAL_SEM.release(); }
+    if (!sigs.length) continue;
+
+    const newLastSig = sigs[0]?.signature;
+
     for (const s of sigs) {
-      if (!s.signature || sigProcessed(s.signature)) continue;
+      if (!s.signature) continue;
+      if (prevLastSig && s.signature === prevLastSig) break; // 前回確認済みのsigに到達→終了
+      if (sessionStart && s.blockTime && s.blockTime < sessionStart) break; // セッション開始前は不要
+      if (sigProcessed(s.signature)) continue;
 
       const tx = await safeGetTx(s.signature);
       // TX取得失敗時はprocessed扱いにしない（次回スキャンで再試行できるように）
@@ -1537,6 +1548,8 @@ async function checkBinance2() {
         updateStats();
       }
     }
+    // 今回の最新sigを記録（次回スキャンの起点にする）
+    if (newLastSig) exchangeLastSig[wallet] = newLastSig;
   }
 }
 
@@ -1728,6 +1741,7 @@ function clearAll() {
   events = [];
   // watchedWalletsは保持（CLEARしても監視継続）
   processedSigs.clear();
+  exchangeLastSig = {};
   sessionStart = 0;
   // キャッシュもクリア
   _rpcCache.clear();
@@ -1808,25 +1822,26 @@ if (savedKey) {
 
 // iOSでページが非アクティブ→アクティブになったとき自動再開
 let lastScanTime = Date.now();
-document.addEventListener('visibilitychange', async () => {
+document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') {
     if (!isRunning && apiKey()) {
       setTimeout(() => toggleMonitor(), 300);
     } else if (isRunning) {
-      clearInterval(monitorTimer);
-      const interval = parseInt(document.getElementById('intervalSec').value) * 1000 || 20000;
-      await runScan();
-      monitorTimer = setInterval(runScan, interval);
+      // タイマーが死んでいれば再起動。awaitしない（二重タイマー防止）
+      if (!monitorTimer) {
+        const interval = parseInt(document.getElementById('intervalSec').value) * 1000 || 20000;
+        monitorTimer = setInterval(runScan, interval);
+      }
+      runScan();
     }
   }
 });
 
-window.addEventListener('focus', async () => {
-  if (isRunning) {
-    clearInterval(monitorTimer);
+window.addEventListener('focus', () => {
+  if (isRunning && !monitorTimer) {
     const interval = parseInt(document.getElementById('intervalSec').value) * 1000 || 20000;
-    await runScan();
     monitorTimer = setInterval(runScan, interval);
+    runScan();
   }
 });
 
