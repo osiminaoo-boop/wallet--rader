@@ -6,18 +6,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WALLET RADAR</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Syne:wght@400;600;800&display=swap');
+@import url(‘https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap’);
 
 :root {
---bg: #0d1117;
---panel: #161b22;
---border: #21262d;
---accent: #58a6ff;
---accent2: #f85149;
---green: #3fb950;
---gold: #d29922;
---text: #c9d1d9;
---dim: #6e7681;
+--bg: #f6f8fa;
+--panel: #ffffff;
+--border: #d0d7de;
+--border-subtle: #eaeef2;
+--accent: #0969da;
+--accent2: #cf222e;
+--green: #1a7f37;
+--gold: #9a6700;
+--text: #1f2328;
+--dim: #57606a;
+--panel-header: #f6f8fa;
 }
 
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -25,23 +27,14 @@
 body {
 background: var(--bg);
 color: var(--text);
-font-family: ‘Syne’, sans-serif;
+font-family: ‘Inter’, sans-serif;
 min-height: 100vh;
 overflow-x: hidden;
+font-size: 14px;
+line-height: 1.5;
 }
 
-/* bg grid - subtle */
-body::after {
-content:’’;
-position:fixed; inset:0;
-background-image:
-linear-gradient(rgba(88,166,255,.015) 1px, transparent 1px),
-linear-gradient(90deg, rgba(88,166,255,.015) 1px, transparent 1px);
-background-size: 48px 48px;
-pointer-events:none; z-index:0;
-}
-
-.wrap { position:relative; z-index:1; max-width:1100px; margin:0 auto; padding:16px; }
+.wrap { max-width:1100px; margin:0 auto; padding:16px; }
 
 /* ── HEADER ── */
 header {
@@ -52,70 +45,72 @@ margin-bottom:20px;
 }
 
 .logo {
-font-family:’Orbitron’, monospace;
-font-size:22px; font-weight:900; letter-spacing:5px;
-color:var(--accent);
-text-shadow:0 0 12px rgba(88,166,255,.3);
+font-family:’Inter’, sans-serif;
+font-size:20px; font-weight:700; letter-spacing:1px;
+color: var(--text);
 }
-.logo em { color:var(--accent2); font-style:normal; text-shadow:none; }
-.logo-sub { font-family:’Share Tech Mono’,monospace; font-size:10px; color:var(--dim); letter-spacing:3px; margin-top:3px; }
+.logo em { color:var(--accent); font-style:normal; }
+.logo-sub { font-size:11px; color:var(--dim); letter-spacing:1px; margin-top:3px; }
 
 .hdr-right { display:flex; align-items:center; gap:16px; }
 
 .live-dot {
 width:8px; height:8px; border-radius:50%;
-background:var(--dim);
-box-shadow:none;
+background:var(--border);
 transition:all .3s;
 }
-.live-dot.on { background:var(--green); box-shadow:0 0 6px rgba(63,185,80,.5); animation:pulse 2s infinite; }
-.live-dot.scanning { background:var(--gold); box-shadow:0 0 6px rgba(210,153,34,.5); animation:pulse .6s infinite; }
+.live-dot.on { background:var(--green); animation:pulse 2s infinite; }
+.live-dot.scanning { background:var(--gold); animation:pulse .6s infinite; }
 
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
 
 .clock {
-font-family:‘Share Tech Mono’,monospace; font-size:11px; color:var(--dim);
+font-family:’JetBrains Mono’,monospace; font-size:12px; color:var(--dim);
 }
 
 /* ── API KEY INPUT ── */
 .api-bar {
-display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;
+display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; align-items:flex-end;
 }
 
 .input-wrap {
 flex:1; min-width:200px;
-display:flex; flex-direction:column; gap:3px;
+display:flex; flex-direction:column; gap:4px;
 }
 .input-label {
-font-family:‘Share Tech Mono’,monospace; font-size:9px;
-color:var(--dim); letter-spacing:2px;
+font-size:11px; font-weight:600;
+color:var(--dim); letter-spacing:.5px;
 }
 input[type=text], input[type=number] {
 width:100%;
-font-family:‘Share Tech Mono’,monospace; font-size:12px;
-background:var(--panel); color:var(--accent);
-border:1px solid var(--border); padding:9px 12px;
-outline:none; transition:border .2s;
+font-family:’JetBrains Mono’,monospace; font-size:12px;
+background:#fff; color:var(--text);
+border:1px solid var(--border); padding:8px 12px;
+border-radius:6px;
+outline:none; transition:border-color .15s, box-shadow .15s;
 }
-input:focus { border-color:var(--accent); }
+input:focus {
+border-color:var(--accent);
+box-shadow:0 0 0 3px rgba(9,105,218,.12);
+}
 
 /* ── BUTTONS ── */
 .btn {
-font-family:‘Orbitron’,monospace; font-size:10px; font-weight:700;
-letter-spacing:2px; padding:9px 18px;
-border:1px solid var(--accent); background:transparent; color:var(--accent);
-cursor:pointer; transition:all .2s; white-space:nowrap;
-clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);
+font-family:’Inter’,sans-serif; font-size:13px; font-weight:600;
+padding:8px 16px;
+border:1px solid var(--border); background:#fff; color:var(--text);
+cursor:pointer; transition:all .15s; white-space:nowrap;
+border-radius:6px;
 }
-.btn:hover, .btn.active {
-background:var(--accent); color:var(--bg);
-box-shadow:0 0 10px rgba(88,166,255,.25);
+.btn:hover { background:var(--bg); border-color:#8c959f; }
+.btn.active {
+background:var(--accent); color:#fff; border-color:var(--accent);
 }
-.btn:disabled { opacity:.3; cursor:not-allowed; }
-.btn.red { border-color:var(--accent2); color:var(--accent2); }
-.btn.red:hover { background:var(--accent2); color:#fff; box-shadow:0 0 20px rgba(255,45,107,.4); }
-.btn.green-btn { border-color:var(--green); color:var(--green); }
-.btn.green-btn:hover { background:var(--green); color:var(--bg); }
+.btn:disabled { opacity:.4; cursor:not-allowed; }
+.btn.red { border-color:#d0d7de; color:var(--accent2); }
+.btn.red:hover { background:#fff0f0; border-color:var(--accent2); }
+.btn.green-btn { background:var(--accent); color:#fff; border-color:var(--accent); }
+.btn.green-btn:hover { background:#0860ca; }
 
 /* ── LAYOUT ── */
 .grid { display:grid; grid-template-columns:1fr 320px; gap:16px; }
@@ -125,73 +120,73 @@ box-shadow:0 0 10px rgba(88,166,255,.25);
 .panel {
 background:var(--panel);
 border:1px solid var(--border);
-position:relative; overflow:hidden;
-}
-.panel::before {
-content:’’; position:absolute; top:0; left:0; right:0; height:1px;
-background:linear-gradient(90deg,transparent,var(--accent),transparent);
-opacity:.5;
+border-radius:8px;
+overflow:hidden;
 }
 .ph {
 display:flex; align-items:center; justify-content:space-between;
-padding:11px 16px; border-bottom:1px solid var(--border);
-font-family:’Orbitron’,monospace; font-size:10px; letter-spacing:2px; color:var(--accent);
+padding:10px 16px; border-bottom:1px solid var(--border);
+background:var(--panel-header);
+font-size:12px; font-weight:600; letter-spacing:.5px; color:var(--text);
 }
-.ph-count { font-size:10px; color:var(--dim); }
+.ph-count { font-size:11px; color:var(--dim); font-weight:400; }
 
 /* CA ANALYZER */
 .ca-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px; }
-.ca-cell { background:rgba(0,229,255,.04); border:1px solid var(--border); padding:8px 10px; }
-.ca-val { font-family:’Orbitron’,monospace; font-size:13px; color:var(--accent); }
-.ca-lbl { font-family:’Share Tech Mono’,monospace; font-size:10px; color:var(--dim); letter-spacing:1px; margin-top:3px; }
-.ca-spinner { display:inline-block; width:12px; height:12px; border:2px solid var(--dim); border-top-color:var(--accent); border-radius:50%; animation:spin .8s linear infinite; margin-right:6px; }
+.ca-cell { background:var(--bg); border:1px solid var(--border); padding:10px 12px; border-radius:6px; }
+.ca-val { font-family:’JetBrains Mono’,monospace; font-size:13px; font-weight:600; color:var(--text); }
+.ca-lbl { font-size:11px; color:var(--dim); margin-top:3px; }
+.ca-spinner { display:inline-block; width:12px; height:12px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .8s linear infinite; margin-right:6px; }
 
 /* ── EVENTS LIST ── */
-#events-list { max-height:520px; overflow-y:auto; scrollbar-width:thin; scrollbar-color:var(--dim) transparent; }
+#events-list { max-height:520px; overflow-y:auto; scrollbar-width:thin; scrollbar-color:var(--border) transparent; }
 
 .event-item {
 padding:14px 16px;
-border-bottom:1px solid #0f1f3a;
-background:transparent;
-animation:slideIn .35s ease-out;
+border-bottom:1px solid var(--border-subtle);
+background:#fff;
+animation:slideIn .25s ease-out;
 cursor:default;
 }
+.event-item:hover { background:var(--bg); }
 .event-item.ev-type-outflow { border-left:3px solid var(--accent); padding-left:13px; }
 .event-item.ev-type-created  { border-left:3px solid var(--gold); padding-left:13px; }
 .event-item.ev-type-buy      { border-left:3px solid var(--green); padding-left:13px; }
 .event-item.ev-type-transfer { border-left:3px solid var(--accent2); padding-left:13px; }
 .event-item.ev-type-info     { border-left:none; }
-@keyframes slideIn { from{opacity:0;transform:translateX(-16px)} to{opacity:1;transform:none} }
+@keyframes slideIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:none} }
 @keyframes spin { to{transform:rotate(360deg)} }
 
-.ev-meta { display:flex; align-items:center; gap:8px; margin-bottom:7px; }
+.ev-meta { display:flex; align-items:center; gap:6px; margin-bottom:6px; flex-wrap:wrap; }
 
 .badge {
-font-family:’Orbitron’,monospace; font-size:9px; font-weight:700;
-padding:3px 7px; letter-spacing:1px;
+font-size:11px; font-weight:600;
+padding:2px 8px; letter-spacing:.3px;
+border-radius:20px;
 }
-.badge-outflow { background:rgba(0,229,255,.1); color:var(--accent); border:1px solid var(--accent); }
-.badge-buy     { background:rgba(0,255,157,.12); color:var(--green); border:1px solid var(--green); }
-.badge-pump    { background:rgba(255,184,0,.12); color:var(--gold); border:1px solid var(--gold); }
-.badge-transfer{ background:rgba(255,45,107,.1); color:var(--accent2); border:1px solid var(--accent2); }
+.badge-outflow { background:#ddf4ff; color:#0969da; }
+.badge-buy     { background:#dafbe1; color:#1a7f37; }
+.badge-pump    { background:#fff8c5; color:#9a6700; }
+.badge-transfer{ background:#ffebe9; color:#cf222e; }
 
-.ev-time { font-family:‘Share Tech Mono’,monospace; font-size:9px; color:#4a6a9a; margin-left:auto; }
+.ev-time { font-family:’JetBrains Mono’,monospace; font-size:11px; color:var(--dim); margin-left:auto; }
 
-.ev-title { font-size:14px; font-weight:600; color:#dce8f8; margin-bottom:5px; }
-.ev-detail { font-family:‘Share Tech Mono’,monospace; font-size:10px; color:#8ab0d0; line-height:1.9; margin-top:6px; padding:4px 0 0 0; }
-.ev-detail span { color:#d0e8ff; font-weight:600; }
+.ev-title { font-size:14px; font-weight:600; color:var(--text); margin-bottom:6px; }
+.ev-detail { font-family:’JetBrains Mono’,monospace; font-size:11px; color:var(--dim); line-height:1.8; margin-top:4px; }
+.ev-detail span { color:var(--text); font-weight:600; }
 .ev-detail a { color:var(--accent); text-decoration:none; }
 .ev-detail a:hover { text-decoration:underline; }
 
 .ev-coin {
 display:inline-flex; align-items:center; gap:6px;
-margin-top:7px; padding:6px 10px;
-background:rgba(0,255,157,.06); border:1px solid rgba(0,255,157,.2);
-font-family:‘Share Tech Mono’,monospace; font-size:11px;
+margin-top:8px; padding:6px 10px;
+background:var(--bg); border:1px solid var(--border);
+border-radius:6px;
+font-family:’JetBrains Mono’,monospace; font-size:11px;
 }
-.ev-coin .ticker { color:var(--green); font-weight:bold; font-size:13px; }
-.ev-coin a { color:var(--accent); text-decoration:none; font-size:10px; padding:2px 6px; border:1px solid rgba(0,229,255,.3); }
-.ev-coin a:hover { background:rgba(0,229,255,.15); }
+.ev-coin .ticker { color:var(--green); font-weight:700; font-size:12px; }
+.ev-coin a { color:var(--accent); text-decoration:none; font-size:11px; padding:2px 8px; border:1px solid var(--border); border-radius:4px; background:#fff; }
+.ev-coin a:hover { background:var(--bg); border-color:#8c959f; }
 
 /* ── SIDEBAR ── */
 .sidebar { display:flex; flex-direction:column; gap:14px; }
@@ -199,55 +194,58 @@ font-family:‘Share Tech Mono’,monospace; font-size:11px;
 /* watched wallets */
 .wallet-row {
 display:flex; align-items:flex-start; gap:10px;
-padding:10px 14px; border-bottom:1px solid rgba(15,31,58,.6);
-transition:background .15s;
+padding:10px 14px; border-bottom:1px solid var(--border-subtle);
+transition:background .1s;
 }
-.wallet-row:hover { background:rgba(0,229,255,.03); }
+.wallet-row:hover { background:var(--bg); }
 
-.wallet-dot { width:6px; height:6px; border-radius:50%; background:var(--green); box-shadow:0 0 4px rgba(63,185,80,.4); margin-top:5px; flex-shrink:0; }
+.wallet-dot { width:7px; height:7px; border-radius:50%; background:var(--green); margin-top:5px; flex-shrink:0; }
 
 .wallet-info { flex:1; min-width:0; }
-.wallet-label { font-size:11px; font-weight:600; color:var(--text); }
-.wallet-addr  { font-family:‘Share Tech Mono’,monospace; font-size:9px; color:var(--dim); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.wallet-since { font-family:‘Share Tech Mono’,monospace; font-size:9px; color:var(--dim); margin-top:1px; }
+.wallet-label { font-size:12px; font-weight:600; color:var(--text); }
+.wallet-addr  { font-family:’JetBrains Mono’,monospace; font-size:10px; color:var(--dim); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.wallet-since { font-family:’JetBrains Mono’,monospace; font-size:10px; color:var(--dim); margin-top:1px; }
 
 .wallet-remove {
 background:none; border:none; color:var(--dim); cursor:pointer;
-font-size:12px; padding:2px 5px; transition:color .15s;
+font-size:14px; padding:2px 5px; transition:color .1s; border-radius:4px;
 }
-.wallet-remove:hover { color:var(--accent2); }
+.wallet-remove:hover { color:var(--accent2); background:#ffebe9; }
 
 /* ── NAME POPUP ── */
 .name-popup-overlay {
-position:fixed; inset:0; background:rgba(0,0,0,.7);
+position:fixed; inset:0; background:rgba(0,0,0,.4);
 z-index:10000; display:flex; align-items:center; justify-content:center;
 }
 .name-popup {
-background:var(--panel); border:1px solid var(--accent);
-padding:20px; width:300px; max-width:90vw;
+background:#fff; border:1px solid var(--border);
+border-radius:12px;
+padding:24px; width:320px; max-width:90vw;
+box-shadow:0 8px 24px rgba(0,0,0,.12);
 }
 .name-popup-title {
-font-family:‘Orbitron’,monospace; font-size:10px; letter-spacing:2px;
-color:var(--accent); margin-bottom:12px;
+font-size:14px; font-weight:700;
+color:var(--text); margin-bottom:12px;
 }
 .name-popup-addr {
-font-family:‘Share Tech Mono’,monospace; font-size:9px; color:var(--dim);
+font-family:’JetBrains Mono’,monospace; font-size:10px; color:var(--dim);
 margin-bottom:12px; word-break:break-all;
 }
 .name-popup input {
-width:100%; background:#0a1628; color:var(--text);
+width:100%; background:#fff; color:var(--text);
 border:1px solid var(--border); padding:8px 10px;
-font-family:‘Share Tech Mono’,monospace; font-size:12px;
+border-radius:6px;
+font-family:’JetBrains Mono’,monospace; font-size:12px;
 outline:none; margin-bottom:12px;
 }
-.name-popup input:focus { border-color:var(--accent); }
+.name-popup input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(9,105,218,.12); }
 .name-popup-btns { display:flex; gap:8px; justify-content:flex-end; }
 
 /* stats */
 .stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--border); }
-.stat-cell { background:var(--panel); padding:14px; text-align:center; }
-.stat-val { font-family:‘Orbitron’,monospace; font-size:22px; font-weight:700; color:var(--accent); }
-.stat-lbl { font-family:’Share Tech Mono’,monospace; font-size:10px; color:var(--dim); letter-spacing:2px; margin-top:3px; }
+.stat-cell { background:#fff; padding:14px; text-align:center; }
+.stat-val { font-family:’JetBrains Mono’,monospace; font-size:22px; font-weight:700; color:var(--text); }
+.stat-lbl { font-size:11px; color:var(--dim); letter-spacing:.5px; margin-top:3px; }
 
 /* manual add */
 .add-bar { display:flex; gap:8px; padding:12px 14px; border-top:1px solid var(--border); }
@@ -256,27 +254,29 @@ outline:none; margin-bottom:12px;
 /* empty */
 .empty {
 padding:48px 20px; text-align:center;
-font-family:‘Share Tech Mono’,monospace; font-size:11px;
-color:var(--dim); letter-spacing:2px; line-height:2.2;
+font-size:13px;
+color:var(--dim); line-height:2;
 }
 
 /* ticker */
 .ticker {
 margin-top:16px; border:1px solid var(--border);
+border-radius:6px;
 overflow:hidden; padding:8px 0; position:relative;
+background:#fff;
 }
 .ticker::before,.ticker::after {
 content:’’; position:absolute; top:0; bottom:0; width:40px; z-index:2;
 }
-.ticker::before { left:0; background:linear-gradient(90deg,var(--bg),transparent); }
-.ticker::after  { right:0; background:linear-gradient(-90deg,var(--bg),transparent); }
+.ticker::before { left:0; background:linear-gradient(90deg,#fff,transparent); }
+.ticker::after  { right:0; background:linear-gradient(-90deg,#fff,transparent); }
 .ticker-inner {
 display:flex; white-space:nowrap;
 animation:tickerRun 25s linear infinite;
 }
 @keyframes tickerRun { from{transform:translateX(60vw)} to{transform:translateX(-100%)} }
-.ticker-item { font-family:‘Share Tech Mono’,monospace; font-size:10px; color:var(--dim); padding:0 28px; }
-.ticker-item b { color:var(--accent); }
+.ticker-item { font-family:’JetBrains Mono’,monospace; font-size:11px; color:var(--dim); padding:0 28px; }
+.ticker-item b { color:var(--accent); font-weight:600; }
 </style>
 
 </head>
@@ -293,20 +293,20 @@ animation:tickerRun 25s linear infinite;
   <div class="hdr-right">
     <div class="live-dot" id="liveDot"></div>
     <span class="clock" id="clock">--:--:--</span>
-    <button onclick="document.getElementById('helpModal').style.display='flex'" style="background:rgba(0,229,255,.1);border:1px solid var(--accent);color:var(--accent);font-size:13px;width:30px;height:30px;border-radius:50%;cursor:pointer;font-family:'Orbitron',monospace;padding:0;line-height:1">?</button>
+    <button onclick="document.getElementById('helpModal').style.display='flex'" style="background:#fff;border:1px solid var(--border);color:var(--dim);font-size:13px;width:30px;height:30px;border-radius:50%;cursor:pointer;font-weight:700;padding:0;line-height:1">?</button>
   </div>
 </header>
 
 <!-- HELP MODAL -->
 
 <div id="helpModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:center;justify-content:center;padding:16px" onclick="if(event.target===this)this.style.display='none'">
-  <div style="background:#1a2a4a;border:1px solid var(--accent);max-width:480px;width:100%;max-height:85vh;overflow-y:auto;padding:20px;font-family:'Share Tech Mono',monospace;font-size:12px;line-height:2;color:#ffffff">
+  <div style="background:#fff;border:1px solid var(--border);border-radius:12px;max-width:480px;width:100%;max-height:85vh;overflow-y:auto;padding:20px;font-family:'Inter',sans-serif;font-size:13px;line-height:1.8;color:var(--text);box-shadow:0 8px 24px rgba(0,0,0,.12)">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-      <div style="font-family:'Orbitron',monospace;font-size:14px;color:var(--accent)">HOW TO USE</div>
-      <button onclick="document.getElementById('helpModal').style.display='none'" style="background:none;border:none;color:#ccd6f6;font-size:18px;cursor:pointer">✕</button>
+      <div style="font-size:16px;font-weight:700;color:var(--text)">使い方</div>
+      <button onclick="document.getElementById('helpModal').style.display='none'" style="background:none;border:none;color:var(--dim);font-size:20px;cursor:pointer;line-height:1">✕</button>
     </div>
-    <div style="color:#ffd700;margin-bottom:8px;font-size:13px">▶ セットアップ（初回）</div>
-    <div style="color:#ffffff;margin-bottom:14px">
+    <div style="color:var(--gold);margin-bottom:8px;font-size:13px">▶ セットアップ（初回）</div>
+    <div style="color:var(--text);margin-bottom:14px">
       <span style="color:var(--accent)">1.</span> <a href="https://helius.dev" target="_blank" style="color:var(--accent)">helius.dev</a> で無料登録してAPIキーを取得<br>
       <span style="color:var(--accent)">2.</span> 画面上部の「HELIUS API KEY」欄にキーを貼り付け<br>
       <span style="color:var(--accent)">3.</span> SCAN TARGETSで監視したい取引所を1つ選択<br>
@@ -314,24 +314,24 @@ animation:tickerRun 25s linear infinite;
     </div>
 
 ```
-<div style="color:#ffd700;margin-bottom:8px;font-size:13px">▶ ボタン説明</div>
-<div style="color:#ffffff;margin-bottom:14px">
+<div style="color:var(--gold);margin-bottom:8px;font-size:13px">▶ ボタン説明</div>
+<div style="color:var(--text);margin-bottom:14px">
   <span style="color:var(--accent)">▶ START</span> — 監視開始。押した瞬間以降に取引所から初めてSOLを受け取った新規ウォレットのみ検知する<br><br>
   <span style="color:var(--accent)">■ STOP</span> — 監視停止。再度STARTすると新しいセッションで再開<br><br>
   <span style="color:var(--accent)">🔍 SCAN（10分/30分）</span> — 過去10分または30分を遡って手動スキャン。STARTしていなくても使用可能<br><br>
   <span style="color:var(--accent)">✕ CLEAR</span> — イベント履歴・統計をリセット。監視ウォレットは保持される<br><br>
-  <span style="color:#ff6b35">👁 監視リセット</span> — 監視ウォレットリストを全削除
+  <span style="color:var(--accent2)">👁 監視リセット</span> — 監視ウォレットリストを全削除
 </div>
 
-<div style="color:#ffd700;margin-bottom:8px;font-size:13px">▶ 検知条件</div>
-<div style="color:#ffffff;margin-bottom:14px">
+<div style="color:var(--gold);margin-bottom:8px;font-size:13px">▶ 検知条件</div>
+<div style="color:var(--text);margin-bottom:14px">
   • 選択した取引所からの <span style="color:var(--accent)">0.01 SOL以上</span> の出金TX<br>
   • 出金先のウォレットが <span style="color:var(--accent)">初めてSOLを受け取る</span>（preBalance = 0）<br>
   • 出金先がpump.fun / Bags銘柄を <span style="color:var(--green)">購入 or 作成</span> したらイベント表示
 </div>
 
-<div style="color:#ffd700;margin-bottom:8px;font-size:13px">▶ イベントの種類</div>
-<div style="color:#ffffff;margin-bottom:14px">
+<div style="color:var(--gold);margin-bottom:8px;font-size:13px">▶ イベントの種類</div>
+<div style="color:var(--text);margin-bottom:14px">
   🏦 <span style="color:var(--accent2)">OUTFLOW + NEW WALLET</span><br>
   　取引所から新規ウォレットへの出金を検知。監視リストに自動追加<br><br>
   🎨 <span style="color:var(--green)">COIN CREATED</span><br>
@@ -340,8 +340,8 @@ animation:tickerRun 25s linear infinite;
   　監視ウォレットがPump.fun / Bags銘柄を購入（CA末尾がpumpまたはBAGSのもの）
 </div>
 
-<div style="color:#ffd700;margin-bottom:8px;font-size:13px">▶ 各パネル</div>
-<div style="color:#ffffff;margin-bottom:14px">
+<div style="color:var(--gold);margin-bottom:8px;font-size:13px">▶ 各パネル</div>
+<div style="color:var(--text);margin-bottom:14px">
   <span style="color:var(--accent)">LIVE EVENTS</span> — リアルタイム検知ログ<br>
   <span style="color:var(--accent)">WATCHED WALLETS</span> — 監視中ウォレット一覧。タップで名前編集・手動追加も可<br>
   <span style="color:var(--accent)">CREATED COINS</span> — 監視ウォレットが作成したコイン一覧<br>
@@ -349,7 +349,7 @@ animation:tickerRun 25s linear infinite;
   <span style="color:var(--accent)">CA ANALYZER</span> — CAを入力してホルダー数・MC・チャートを表示
 </div>
 
-<div style="color:#ffd700;margin-bottom:8px;font-size:13px">▶ 注意点</div>
+<div style="color:var(--gold);margin-bottom:8px;font-size:13px">▶ 注意点</div>
 <div style="color:#ffffff">
   • 取引所は <span style="color:var(--accent)">1つだけ</span> 選択（複数選択不可）<br>
   • iPhoneはバックグラウンドで止まる → 画面オンのまま使用<br>
@@ -374,17 +374,17 @@ animation:tickerRun 25s linear infinite;
   </div>
   <button class="btn green-btn" id="startBtn" onclick="toggleMonitor()">▶ START</button>
   <button class="btn red" id="clearBtn" onclick="clearAll()">✕ CLEAR</button>
-  <button class="btn" onclick="clearWatched()" style="border-color:#ff6b35;color:#ff6b35">👁 監視リセット</button>
-  <select id="scanRange" style="background:#1a2f50;color:#ffb800;border:1px solid #ffb800;padding:8px 8px;font-family:monospace;font-size:11px;cursor:pointer;border-radius:2px">
-    <option value="600" style="background:#1a2f50;color:#ffb800">10分</option>
-    <option value="1800" style="background:#1a2f50;color:#ffb800">30分</option>
+  <button class="btn" onclick="clearWatched()" style="border-color:var(--accent2);color:var(--accent2)">👁 監視リセット</button>
+  <select id="scanRange" style="background:#fff;color:var(--text);border:1px solid var(--border);padding:8px 10px;font-family:'Inter',sans-serif;font-size:13px;cursor:pointer;border-radius:6px;outline:none">
+    <option value="600">10分</option>
+    <option value="1800">30分</option>
   </select>
   <button class="btn" id="catchupBtn" onclick="manualCatchup()" style="border-color:var(--gold);color:var(--gold)">🔍 SCAN</button>
 </div>
 
 <!-- SCAN TARGETS (上部) -->
 
-<div style="display:flex;gap:16px;padding:10px 16px;background:rgba(0,229,255,.03);border:1px solid rgba(0,229,255,.1);margin-top:8px;flex-wrap:wrap" id="scan-targets-top"></div>
+<div style="display:flex;gap:10px;padding:10px 16px;background:#fff;border:1px solid var(--border);border-radius:8px;margin-top:8px;flex-wrap:wrap" id="scan-targets-top"></div>
 
 <!-- GRID -->
 
@@ -444,10 +444,10 @@ animation:tickerRun 25s linear infinite;
 <div class="panel">
   <div class="ph"><span>🤖 CA ANALYZER</span></div>
   <div style="padding:10px 12px;display:flex;gap:8px;border-bottom:1px solid var(--border)">
-    <input type="text" id="caInput" placeholder="CAを貼り付け..." style="flex:1;font-size:10px;background:#0a1628;color:#e0f0ff;border:1px solid var(--border);padding:7px 9px;font-family:'Share Tech Mono',monospace;outline:none"/>
+    <input type="text" id="caInput" placeholder="CAを貼り付け..." style="flex:1;font-size:12px;background:#fff;color:var(--text);border:1px solid var(--border);padding:7px 9px;font-family:'JetBrains Mono',monospace;outline:none;border-radius:6px"/>
     <button class="btn" onclick="analyzeCA()" id="caBtn" style="padding:7px 12px;font-size:9px;border-color:var(--accent);color:var(--accent)">分析</button>
   </div>
-  <div id="ca-result" style="padding:12px 14px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--dim);min-height:60px">
+  <div id="ca-result" style="padding:12px 14px;font-size:12px;color:var(--dim);min-height:60px">
     CAを入力して分析ボタンを押してください
   </div>
 </div>
@@ -982,7 +982,7 @@ async function scanPast30Min(seconds) {
   const rangeLabel = seconds <= 600 ? '10分' : seconds <= 1800 ? '30分' : '1時間';
 
   const scanStartTime = now();
-  addEvent({ html: `<div class="ev-meta"><span class="badge" style="background:rgba(0,229,255,.1);color:var(--accent);border:1px solid var(--accent)">CATCHUP</span><span class="ev-time">${scanStartTime}</span></div><div class="ev-title">🔍 過去${rangeLabel}スキャン開始</div><div class="ev-detail" style="color:var(--dim)">⏰ スキャン実行時刻: <span>${scanStartTime}</span><br>取引所出金 → 新規ウォレット → コイン作成 の流れを追跡します</div>` });
+  addEvent({ html: `<div class="ev-meta"><span class="badge" style="background:#ddf4ff;color:var(--accent)">CATCHUP</span><span class="ev-time">${scanStartTime}</span></div><div class="ev-title">🔍 過去${rangeLabel}スキャン開始</div><div class="ev-detail" style="color:var(--dim)">⏰ スキャン実行時刻: <span>${scanStartTime}</span><br>取引所出金 → 新規ウォレット → コイン作成 の流れを追跡します</div>` });
 
   // Step1: 全取引所の過去スキャン出金を取得
   const newWallets = [];
@@ -1035,8 +1035,8 @@ async function scanPast30Min(seconds) {
         addEvent({ html: `
           <div class="ev-meta">
             <span class="badge badge-outflow">OUTFLOW</span>
-            <span class="badge" style="background:rgba(255,184,0,.12);color:var(--gold);border:1px solid var(--gold)">NEW WALLET</span>
-            <span class="badge" style="background:rgba(0,229,255,.05);color:var(--dim);border:1px solid var(--dim)">CATCHUP</span>
+            <span class="badge" style="background:#fff8c5;color:var(--gold)">NEW WALLET</span>
+            <span class="badge" style="background:var(--bg);color:var(--dim)">CATCHUP</span>
             <span class="ev-time">${now()}</span>
           </div>
           <div class="ev-title">🏦 ${exchangeWallets[wallet]?.name||"Exchange"}出金を検知（過去${rangeLabel}）</div>
@@ -1083,7 +1083,7 @@ async function scanPast30Min(seconds) {
         addEvent({ html: `
           <div class="ev-meta">
             <span class="badge badge-pump">🚀 COIN CREATED</span>
-            <span class="badge" style="background:rgba(0,229,255,.05);color:var(--dim);border:1px solid var(--dim)">CATCHUP</span>
+            <span class="badge" style="background:var(--bg);color:var(--dim)">CATCHUP</span>
             <span class="ev-time">${now()}</span>
           </div>
           <div class="ev-title">🎨 コイン作成を検知！（過去${rangeLabel}）</div>
@@ -1114,7 +1114,7 @@ async function scanPast30Min(seconds) {
         addEvent({ html: `
           <div class="ev-meta">
             <span class="badge badge-buy">TOKEN BUY</span>
-            <span class="badge" style="background:rgba(0,229,255,.05);color:var(--dim);border:1px solid var(--dim)">CATCHUP</span>
+            <span class="badge" style="background:var(--bg);color:var(--dim)">CATCHUP</span>
             <span class="ev-time">${now()}</span>
           </div>
           <div class="ev-title">🎯 トークン購入を検知（過去${rangeLabel}）</div>
@@ -1139,7 +1139,7 @@ async function scanPast30Min(seconds) {
   }
 
   const exchSummary = Object.entries(exchSigCounts).map(([n, c]) => `${n}: ${c}件`).join(' / ');
-  addEvent({ html: `<div class="ev-meta"><span class="badge" style="background:rgba(0,255,157,.1);color:var(--green);border:1px solid var(--green)">DONE</span><span class="ev-time">${now()}</span></div><div class="ev-title">✅ 過去${rangeLabel}スキャン完了</div><div class="ev-detail" style="color:var(--dim)">新規ウォレット: <span>${newWallets.length}件</span> 検知 &nbsp;|&nbsp; スキップ: <span>${skipCount}件</span><br>取引所TX取得数: <span>${exchSummary}</span></div>` });
+  addEvent({ html: `<div class="ev-meta"><span class="badge" style="background:#dafbe1;color:var(--green)">DONE</span><span class="ev-time">${now()}</span></div><div class="ev-title">✅ 過去${rangeLabel}スキャン完了</div><div class="ev-detail" style="color:var(--dim)">新規ウォレット: <span>${newWallets.length}件</span> 検知 &nbsp;|&nbsp; スキップ: <span>${skipCount}件</span><br>取引所TX取得数: <span>${exchSummary}</span></div>` });
   saveState();
 }
 
@@ -1154,12 +1154,9 @@ function renderScanTargets() {
   if (!container) return;
   const entries = Object.entries(exchangeWallets);
   container.innerHTML = entries.map(([addr, data]) => `
-    <div onclick="toggleExchange('${addr}')" style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:6px 10px;border:1px solid ${data.enabled ? 'rgba(0,229,255,.4)' : 'rgba(42,58,90,.4)'};background:${data.enabled ? 'rgba(0,229,255,.08)' : 'transparent'};border-radius:2px;user-select:none">
-      <div style="width:16px;height:16px;border-radius:50%;border:2px solid ${data.enabled ? 'var(--accent)' : 'var(--dim)'};background:${data.enabled ? 'var(--accent)' : 'transparent'};flex-shrink:0"></div>
-      <div>
-        <div style="font-family:'Orbitron',monospace;font-size:10px;color:${data.enabled ? 'var(--accent)' : 'var(--dim)'};">${data.name}</div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--dim)">${addr.slice(0,8)}...${addr.slice(-6)}</div>
-      </div>
+    <div onclick="toggleExchange('${addr}')" style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:6px 12px;border:1px solid ${data.enabled ? 'var(--accent)' : 'var(--border)'};background:${data.enabled ? '#ddf4ff' : '#fff'};border-radius:20px;user-select:none;transition:all .15s">
+      <div style="width:8px;height:8px;border-radius:50%;background:${data.enabled ? 'var(--accent)' : 'var(--border)'};flex-shrink:0"></div>
+      <div style="font-size:13px;font-weight:600;color:${data.enabled ? 'var(--accent)' : 'var(--dim)'};">${data.name}</div>
     </div>
   `).join('');
 }
@@ -1192,17 +1189,17 @@ function renderCreatedList() {
     return;
   }
   list.innerHTML = createdCoins.map((c, i) => `
-    <div style="margin:6px 10px;padding:10px 12px;border:1px solid rgba(255,184,0,.3);border-left:3px solid var(--gold);background:rgba(255,184,0,.04);border-radius:2px">
+    <div style="margin:6px 10px;padding:10px 12px;border:1px solid var(--border);border-left:3px solid var(--gold);background:#fff;border-radius:6px">
       <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
-        <span style="font-family:'Orbitron',monospace;font-size:10px;color:var(--gold);font-weight:700">#${i+1}</span>
-        <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#7a9abf">⏰ ${c.blockTime ? txTime(c.blockTime) : c.time}</span>
+        <span style="font-size:12px;color:var(--gold);font-weight:700">#${i+1}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim)">⏰ ${c.blockTime ? txTime(c.blockTime) : c.time}</span>
       </div>
-      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#4a6a9a;margin-bottom:6px">追跡元: ${c.label}</div>
-      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--dim);margin-bottom:4px">CA:</div>
-      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--accent);word-break:break-all;cursor:pointer;margin-bottom:8px;padding:4px 6px;background:rgba(0,0,0,.3);border:1px solid rgba(0,229,255,.2)" onclick="copyText('${c.mint}')" title="タップでコピー">📋 ${c.mint}</div>
+      <div style="font-size:11px;color:var(--dim);margin-bottom:6px">追跡元: ${c.label}</div>
+      <div style="font-size:11px;color:var(--dim);margin-bottom:4px">CA:</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text);word-break:break-all;cursor:pointer;margin-bottom:8px;padding:6px 8px;background:var(--bg);border:1px solid var(--border);border-radius:4px" onclick="copyText('${c.mint}')" title="タップでコピー">📋 ${c.mint}</div>
       <div style="display:flex;gap:6px">
-        <a href="https://dexscreener.com/solana/${c.mint}" target="_blank" style="font-size:9px;color:var(--accent);padding:3px 8px;border:1px solid rgba(0,229,255,.3)">DEX</a>
-        <a href="https://pump.fun/${c.mint}" target="_blank" style="font-size:9px;color:var(--gold);padding:3px 8px;border:1px solid rgba(255,184,0,.3)">PUMP</a>
+        <a href="https://dexscreener.com/solana/${c.mint}" target="_blank" style="font-size:11px;color:var(--accent);padding:4px 10px;border:1px solid var(--border);border-radius:4px;background:var(--bg);text-decoration:none">DEX</a>
+        <a href="https://pump.fun/${c.mint}" target="_blank" style="font-size:11px;color:var(--gold);padding:4px 10px;border:1px solid var(--border);border-radius:4px;background:var(--bg);text-decoration:none">PUMP</a>
       </div>
     </div>
   `).join('');
@@ -1213,7 +1210,7 @@ function renderCreatedList() {
 // ─────────────────────────────────────────
 // mint → 表示名（既知なら名前、不明なら短縮アドレス）
 function mintLabel(mint) {
-  if (KNOWN_TOKENS[mint]) return `<span style="color:var(--gold);font-weight:bold;font-size:15px;font-family:'Orbitron',monospace;letter-spacing:2px">${KNOWN_TOKENS[mint]}</span>`;
+  if (KNOWN_TOKENS[mint]) return `<span style="color:var(--gold);font-weight:700;font-size:14px">${KNOWN_TOKENS[mint]}</span>`;
   return `<span style="color:var(--green);font-size:11px;word-break:break-all;cursor:pointer" onclick="copyText('${mint}')" title="タップでコピー">📋 ${mint}</span>`;
 }
 
@@ -1276,23 +1273,23 @@ function renderRanking() {
   list.innerHTML = entries.map(([mint, data], i) => {
     const mcData = rankingMcCache[mint];
     const mcStr = mcData
-      ? `<span style="font-family:'Orbitron',monospace;font-size:11px;color:var(--gold)">$${fmtMC(mcData.mc)}</span>`
-      : `<span style="font-size:9px;color:var(--dim)">--</span>`;
-    const rankColor = i===0?'var(--gold)':i===1?'#aaa':i===2?'#cd7f32':'var(--dim)';
+      ? `<span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--gold)">$${fmtMC(mcData.mc)}</span>`
+      : `<span style="font-size:11px;color:var(--dim)">--</span>`;
+    const rankColor = i===0?'var(--gold)':i===1?'#6e7681':i===2?'#9a6700':'var(--dim)';
     return `
-    <div style="padding:8px 14px;border-bottom:1px solid rgba(15,31,58,.6)">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-        <span style="font-family:'Orbitron',monospace;font-size:11px;color:${rankColor}">#${i+1}</span>
-        <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--dim)">${data.lastTime}</span>
+    <div style="padding:10px 14px;border-bottom:1px solid var(--border-subtle)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+        <span style="font-size:12px;font-weight:700;color:${rankColor}">#${i+1}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dim)">${data.lastTime}</span>
         <span style="margin-left:auto;margin-right:6px">${mcStr}</span>
-        <span style="font-family:'Orbitron',monospace;font-size:11px;color:var(--green)">${data.count}回</span>
+        <span style="font-size:12px;font-weight:600;color:var(--green)">${data.count}回</span>
       </div>
-      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--accent);word-break:break-all;cursor:pointer" onclick="copyText('${mint}')" title="タップでコピー">📋 ${mint}</div>
-      <div style="display:flex;gap:6px;margin-top:5px">
-        ${data.count ? `<span style="font-size:9px;color:var(--green)">🎯購入${data.count}回</span>` : ''}
-        ${(data.wallets&&data.wallets?.length) ? `<span style="font-size:9px;color:var(--accent)">👛${data.wallets?.length}アドレス</span>` : ''}
-        <a href="https://dexscreener.com/solana/${mint}" target="_blank" style="font-size:9px;color:var(--accent);margin-left:auto">DEX</a>
-        <a href="https://pump.fun/${mint}" target="_blank" style="font-size:9px;color:var(--accent)">PUMP</a>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);word-break:break-all;cursor:pointer" onclick="copyText('${mint}')" title="タップでコピー">📋 ${mint}</div>
+      <div style="display:flex;gap:6px;margin-top:6px">
+        ${data.count ? `<span style="font-size:11px;color:var(--green)">🎯購入${data.count}回</span>` : ''}
+        ${(data.wallets&&data.wallets?.length) ? `<span style="font-size:11px;color:var(--dim)">👛${data.wallets?.length}アドレス</span>` : ''}
+        <a href="https://dexscreener.com/solana/${mint}" target="_blank" style="font-size:11px;color:var(--accent);margin-left:auto;text-decoration:none">DEX</a>
+        <a href="https://pump.fun/${mint}" target="_blank" style="font-size:11px;color:var(--gold);text-decoration:none">PUMP</a>
       </div>
     </div>`;
   }).join('');
@@ -1501,7 +1498,7 @@ async function checkBinance2() {
           html: `
             <div class="ev-meta">
               <span class="badge badge-outflow">OUTFLOW</span>
-              <span class="badge" style="background:rgba(255,184,0,.12);color:var(--gold);border:1px solid var(--gold)">NEW WALLET</span>
+              <span class="badge" style="background:#fff8c5;color:var(--gold)">NEW WALLET</span>
               <span class="ev-time">${now()}</span>
             </div>
             <div class="ev-title">🏦 ${exchangeWallets[wallet]?.name||"Exchange"}から出金を検知</div>
@@ -1923,47 +1920,47 @@ async function analyzeCA() {
     result.innerHTML = `
       <!-- コイン名 -->
       <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px">
-        <div style="font-family:'Orbitron',monospace;font-size:22px;color:var(--accent)">${name}</div>
-        <div style="font-family:'Orbitron',monospace;font-size:13px;color:var(--dim)">${symbol}</div>
+        <div style="font-size:20px;font-weight:700;color:var(--text)">${name}</div>
+        <div style="font-size:13px;color:var(--dim)">${symbol}</div>
       </div>
       <!-- CA -->
-      <div style="font-size:9px;color:var(--dim);margin-bottom:12px;word-break:break-all;cursor:pointer;padding:5px 8px;background:rgba(0,229,255,.04);border:1px solid var(--border)" onclick="copyText('${ca}')" title="タップでコピー">📋 ${ca}</div>
+      <div style="font-size:11px;color:var(--dim);margin-bottom:12px;word-break:break-all;cursor:pointer;padding:6px 10px;background:var(--bg);border:1px solid var(--border);border-radius:6px" onclick="copyText('${ca}')" title="タップでコピー">📋 ${ca}</div>
 
       <!-- チャート -->
-      <div style="width:100%;height:340px;border:1px solid var(--border);margin-bottom:12px;overflow:hidden">
-        <iframe src="https://dexscreener.com/solana/${ca}?embed=1&theme=dark&trades=0&info=0" style="width:100%;height:100%;border:none" loading="lazy"></iframe>
+      <div style="width:100%;height:340px;border:1px solid var(--border);border-radius:6px;margin-bottom:12px;overflow:hidden">
+        <iframe src="https://dexscreener.com/solana/${ca}?embed=1&theme=light&trades=0&info=0" style="width:100%;height:100%;border:none" loading="lazy"></iframe>
       </div>
 
       <!-- ステータスグリッド -->
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px">
-        <div style="background:rgba(255,184,0,.07);border:1px solid rgba(255,184,0,.25);padding:10px 10px;text-align:center">
-          <div style="font-size:8px;color:var(--dim);margin-bottom:4px;letter-spacing:1px">MARKET CAP</div>
-          <div style="font-size:16px;color:var(--gold);font-family:'Orbitron',monospace;line-height:1">${mc}</div>
+        <div style="background:#fff8c5;border:1px solid #e3b341;padding:10px;text-align:center;border-radius:6px">
+          <div style="font-size:11px;color:var(--dim);margin-bottom:4px">MARKET CAP</div>
+          <div style="font-size:15px;font-weight:700;color:var(--gold);font-family:'JetBrains Mono',monospace">${mc}</div>
         </div>
-        <div style="background:rgba(0,255,157,.07);border:1px solid rgba(0,255,157,.25);padding:10px 10px;text-align:center">
-          <div style="font-size:8px;color:var(--dim);margin-bottom:4px;letter-spacing:1px">HOLDERS</div>
-          <div style="font-size:16px;color:var(--green);font-family:'Orbitron',monospace;line-height:1">${holders}</div>
+        <div style="background:#dafbe1;border:1px solid #56d364;padding:10px;text-align:center;border-radius:6px">
+          <div style="font-size:11px;color:var(--dim);margin-bottom:4px">HOLDERS</div>
+          <div style="font-size:15px;font-weight:700;color:var(--green);font-family:'JetBrains Mono',monospace">${holders}</div>
         </div>
-        <div style="background:rgba(0,229,255,.05);border:1px solid rgba(0,229,255,.2);padding:10px 10px;text-align:center">
-          <div style="font-size:8px;color:var(--dim);margin-bottom:4px;letter-spacing:1px">24H VOL</div>
-          <div style="font-size:16px;color:var(--accent);font-family:'Orbitron',monospace;line-height:1">${vol}</div>
+        <div style="background:#ddf4ff;border:1px solid #54aeff;padding:10px;text-align:center;border-radius:6px">
+          <div style="font-size:11px;color:var(--dim);margin-bottom:4px">24H VOL</div>
+          <div style="font-size:15px;font-weight:700;color:var(--accent);font-family:'JetBrains Mono',monospace">${vol}</div>
         </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px">
-        <div style="background:rgba(0,229,255,.03);border:1px solid var(--border);padding:8px 10px">
-          <div style="font-size:8px;color:var(--dim);margin-bottom:3px;letter-spacing:1px">PRICE</div>
-          <div style="font-size:12px;color:var(--text);font-family:'Share Tech Mono',monospace">${price}</div>
+        <div style="background:var(--bg);border:1px solid var(--border);padding:10px;border-radius:6px">
+          <div style="font-size:11px;color:var(--dim);margin-bottom:3px">PRICE</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text);font-family:'JetBrains Mono',monospace">${price}</div>
         </div>
-        <div style="background:rgba(0,229,255,.03);border:1px solid var(--border);padding:8px 10px">
-          <div style="font-size:8px;color:var(--dim);margin-bottom:3px;letter-spacing:1px">CREATED</div>
-          <div style="font-size:12px;color:var(--text);font-family:'Share Tech Mono',monospace">${ageStr}</div>
+        <div style="background:var(--bg);border:1px solid var(--border);padding:10px;border-radius:6px">
+          <div style="font-size:11px;color:var(--dim);margin-bottom:3px">CREATED</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text);font-family:'JetBrains Mono',monospace">${ageStr}</div>
         </div>
       </div>
 
       <!-- リンク -->
       <div style="display:flex;gap:8px">
-        <a href="${dexUrl2}" target="_blank" style="flex:1;text-align:center;font-size:10px;color:var(--accent);text-decoration:none;border:1px solid var(--accent);padding:8px 0;font-family:'Orbitron',monospace;letter-spacing:1px">📈 DEX</a>
-        <a href="https://pump.fun/${ca}" target="_blank" style="flex:1;text-align:center;font-size:10px;color:var(--accent2);text-decoration:none;border:1px solid var(--accent2);padding:8px 0;font-family:'Orbitron',monospace;letter-spacing:1px">🚀 PUMP</a>
+        <a href="${dexUrl2}" target="_blank" style="flex:1;text-align:center;font-size:13px;font-weight:600;color:var(--accent);text-decoration:none;border:1px solid var(--accent);padding:9px 0;border-radius:6px;background:#ddf4ff">📈 DEX</a>
+        <a href="https://pump.fun/${ca}" target="_blank" style="flex:1;text-align:center;font-size:13px;font-weight:600;color:var(--accent2);text-decoration:none;border:1px solid var(--accent2);padding:9px 0;border-radius:6px;background:#ffebe9">🚀 PUMP</a>
       </div>
     `;
 
