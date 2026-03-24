@@ -999,6 +999,13 @@ async function scanPast30Min(seconds) {
   const cutoff = Math.floor(Date.now() / 1000) - seconds;
   const rangeLabel = seconds <= 600 ? '10分' : seconds <= 1800 ? '30分' : '1時間';
 
+  // 手動スキャン時は時間範囲内のprocessedSigsをリセット
+  // （バックグラウンドのスロットルスキャンで処理済みになったsigを再チェックするため）
+  const resetCutoff = Date.now() - (seconds * 1000);
+  for (const [sig, ts] of processedSigs) {
+    if (ts > resetCutoff) processedSigs.delete(sig);
+  }
+
   const scanStartTime = now();
   addEvent({ html: `<div class="ev-meta"><span class="badge" style="background:#ddf4ff;color:var(--accent)">CATCHUP</span><span class="ev-time">${scanStartTime}</span></div><div class="ev-title">🔍 過去${rangeLabel}スキャン開始</div><div class="ev-detail" style="color:var(--dim)">⏰ スキャン実行時刻: <span>${scanStartTime}</span><br>取引所出金 → 新規ウォレット → コイン作成 の流れを追跡します</div>` });
 
@@ -1041,6 +1048,7 @@ async function scanPast30Min(seconds) {
         if (t.amount < 0.01) { skipCount++; continue; } // 0.01 SOL未満はスキップ
         // preBalance=0なら初めての入金（parseSolTransfersのidxを使用）
         if (t.preBalance !== 0) { skipCount++; continue; }
+        if (watchedWallets[dest]) continue; // 既に監視中はスキップ（lastSigを上書きしない）
 
         const label = `${(exchangeWallets[wallet]?.name||"Exchange")}出金 #${stats.detected + 1}`;
         if (Object.keys(watchedWallets).length >= 150) { skipCount++; continue; }
