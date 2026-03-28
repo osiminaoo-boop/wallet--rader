@@ -316,7 +316,7 @@ animation:tickerRun 25s linear infinite;
     </div>
     <div style="color:var(--gold);margin-bottom:8px;font-size:13px">▶ セットアップ（初回）</div>
     <div style="color:var(--text);margin-bottom:14px">
-      <span style="color:var(--accent)">1.</span> <a href="https://helius.dev" target="_blank" style="color:var(--accent)">helius.dev</a> で無料登録してAPIキーを取得<br>
+      <span style="color:var(--accent)">1.</span> そのまま使用可（公開RPC）。安定性を上げたい場合は <a href="https://helius.dev" target="_blank" style="color:var(--accent)">helius.dev</a> で無料APIキーを取得<br>
       <span style="color:var(--accent)">2.</span> 画面上部の「HELIUS API KEY」欄にキーを貼り付け<br>
       <span style="color:var(--accent)">3.</span> SCAN TARGETSで監視したい取引所を1つ選択<br>
       <span style="color:var(--accent)">4.</span> STARTを押して監視開始
@@ -374,8 +374,12 @@ animation:tickerRun 25s linear infinite;
 
 <div class="api-bar" style="margin-top:18px">
   <div class="input-wrap">
-    <div class="input-label">HELIUS API KEY</div>
-    <input type="text" id="heliusKey" placeholder="your-helius-api-key" />
+    <div class="input-label">HELIUS API KEY <span style="font-weight:400;color:var(--dim)">(optional)</span></div>
+    <input type="text" id="heliusKey" placeholder="未入力時は公開RPCを使用" />
+  </div>
+  <div class="input-wrap">
+    <div class="input-label">GMGN API KEY</div>
+    <input type="text" id="gmgnKey" placeholder="gmgn-api-key (optional)" />
   </div>
   <div class="input-wrap" style="max-width:120px">
     <div class="input-label">INTERVAL (sec)</div>
@@ -613,10 +617,57 @@ setInterval(() => {
 }, 1000);
 
 // ─────────────────────────────────────────
-// HELIUS RPC
+// RPC（Heliusキーはオプション。未入力時は公開RPCにフォールバック）
 // ─────────────────────────────────────────
-function apiKey()  { return document.getElementById('heliusKey').value.trim(); }
-function rpcUrl()  { return `https://mainnet.helius-rpc.com/?api-key=${apiKey()}`; }
+const PUBLIC_RPC = 'https://api.mainnet-beta.solana.com';
+function apiKey()     { return document.getElementById('heliusKey').value.trim(); }
+function gmgnApiKey(){ return document.getElementById('gmgnKey').value.trim(); }
+function rpcUrl()    {
+  const k = apiKey();
+  return k ? `https://mainnet.helius-rpc.com/?api-key=${k}` : PUBLIC_RPC;
+}
+
+// ─────────────────────────────────────────
+// GMGN API
+// ─────────────────────────────────────────
+async function fetchGmgnTokenInfo(mint) {
+  const key = gmgnApiKey();
+  if (!key) return null;
+  try {
+    const headers = { 'Content-Type': 'application/json', 'GMGN-API-KEY': key };
+    const [infoRes, secRes] = await Promise.all([
+      fetch(`https://gmgn.ai/defi/quotation/v1/tokens/sol/${mint}`, { headers }),
+      fetch(`https://gmgn.ai/api/v1/token_security_sol/${mint}`, { headers })
+    ]);
+    const info = infoRes.ok ? await infoRes.json() : null;
+    const sec  = secRes.ok  ? await secRes.json()  : null;
+    return { info, sec };
+  } catch(e) {
+    console.warn('[GMGN] fetch error:', e);
+    return null;
+  }
+}
+
+function gmgnInfoHtml(data) {
+  if (!data) return '';
+  const { info, sec } = data;
+  const t = info?.data?.token || info?.token || {};
+  const s = sec?.data || sec || {};
+  const parts = [];
+  if (t.price)       parts.push(`💰 $${Number(t.price).toFixed(8)}`);
+  if (t.market_cap)  parts.push(`📊 MCap: $${Math.round(t.market_cap).toLocaleString()}`);
+  if (t.liquidity)   parts.push(`💧 Liq: $${Math.round(t.liquidity).toLocaleString()}`);
+  if (t.smart_buy_24h != null) parts.push(`🧠 SmartBuy24h: ${t.smart_buy_24h}`);
+  if (s.rug_ratio != null) {
+    const rugPct = Math.round(s.rug_ratio * 100);
+    const rugColor = rugPct >= 60 ? '#ff5050' : rugPct >= 30 ? '#ffa500' : '#4caf50';
+    parts.push(`<span style="color:${rugColor}">⚠️ Rug: ${rugPct}%</span>`);
+  }
+  if (s.is_honeypot) parts.push(`<span style="color:#ff5050">🍯 Honeypot</span>`);
+  if (s.renounced)   parts.push(`✅ Renounced`);
+  if (s.top_10_holder_rate != null) parts.push(`Top10: ${Math.round(s.top_10_holder_rate*100)}%`);
+  return parts.length ? `<div class="ev-detail" style="margin-top:4px;color:var(--dim)">${parts.join(' &nbsp;|&nbsp; ')}</div>` : '';
+}
 
 let _apiKeyErrShown = false;
 async function rpc(method, params) {
@@ -1104,6 +1155,7 @@ async function scanPast30Min(seconds) {
         stats.created++;
         trackCoin(createdMint, 'create', addr);
         addCreatedCoin(createdMint, label, s.blockTime);
+        const evId2 = `ev-gmgn-${createdMint}`;
         addEvent({ html: `
           <div class="ev-meta">
             <span class="badge badge-pump">🚀 COIN CREATED</span>
@@ -1118,6 +1170,7 @@ async function scanPast30Min(seconds) {
             🪙 CA:<br>
             <span style="color:var(--green);font-size:11px;word-break:break-all;cursor:pointer" onclick="copyText('${createdMint}')" title="タップでコピー">📋 ${createdMint}</span>
           </div>
+          <div id="${evId2}" style="color:var(--dim);font-size:11px;padding:2px 0">${gmgnApiKey() ? '⏳ GMGN取得中...' : ''}</div>
           <div class="ev-coin">
             <a href="${dexUrl(createdMint)}" target="_blank">DEX</a>
             <a href="${pumpUrl(createdMint)}" target="_blank">PUMP</a>
@@ -1125,6 +1178,12 @@ async function scanPast30Min(seconds) {
             <a href="${solscanTx(s.signature)}" target="_blank">TX</a>
           </div>` });
         updateStats();
+        if (gmgnApiKey()) {
+          fetchGmgnTokenInfo(createdMint).then(d => {
+            const el = document.getElementById(evId2);
+            if (el) el.outerHTML = gmgnInfoHtml(d);
+          });
+        }
       }
 
       // トークン購入チェック（全監視ウォレット対象）
@@ -1136,6 +1195,7 @@ async function scanPast30Min(seconds) {
         if (!isPump(b.mint) && !isBagsMint(b.mint) && !isBags(tx)) continue;
         stats.buys++;
         trackCoin(b.mint, 'buy', addr);
+        const buyEvId2 = `ev-gmgn-buy-${b.mint}-${s.signature.slice(-8)}`;
         addEvent({ html: `
           <div class="ev-meta">
             <span class="badge badge-buy">TOKEN BUY</span>
@@ -1150,6 +1210,7 @@ async function scanPast30Min(seconds) {
             🪙 CA:<br>
             ${mintLabel(b.mint)}
           </div>
+          <div id="${buyEvId2}" style="color:var(--dim);font-size:11px;padding:2px 0">${gmgnApiKey() ? '⏳ GMGN取得中...' : ''}</div>
           <div class="ev-coin">
             <a href="${dexUrl(b.mint)}" target="_blank">DEX</a>
             ${isPump(b.mint) ? `<a href="${pumpUrl(b.mint)}" target="_blank">PUMP</a>` : ''}
@@ -1157,6 +1218,12 @@ async function scanPast30Min(seconds) {
             <a href="${solscanTx(s.signature)}" target="_blank">TX</a>
           </div>` });
         updateStats();
+        if (gmgnApiKey()) {
+          fetchGmgnTokenInfo(b.mint).then(d => {
+            const el = document.getElementById(buyEvId2);
+            if (el) el.outerHTML = gmgnInfoHtml(d);
+          });
+        }
       }
       } // end if buys
     }
@@ -1595,8 +1662,6 @@ async function runScan() {
 // ─────────────────────────────────────────
 async function toggleMonitor() {
   const btn = document.getElementById('startBtn');
-  if (!apiKey()) { alert('Helius APIキーを入力してください'); return; }
-
   if (isRunning) {
     isRunning = false;
     clearInterval(monitorTimer);
@@ -1620,7 +1685,6 @@ async function toggleMonitor() {
 }
 
 async function manualCatchup() {
-  if (!apiKey()) { alert('Helius API Keyを入力してください'); return; }
   const btn = document.getElementById('catchupBtn');
   const seconds = parseInt(document.getElementById('scanRange').value) || 1800;
   btn.disabled = true; btn.textContent = '⏳ スキャン中...';
@@ -1677,6 +1741,7 @@ async function checkOneWallet(addr, info) {
         stats.created++;
         trackCoin(createdMint, 'create', addr);
         addCreatedCoin(createdMint, info.nickname || info.label, tx.blockTime);
+        const evId = `ev-gmgn-${createdMint}`;
         addEvent({ html: `
           <div class="ev-meta">
             <span class="badge badge-pump">COIN CREATED</span>
@@ -1688,6 +1753,7 @@ async function checkOneWallet(addr, info) {
             🏷 <span>${info.nickname || info.label}</span><br>
             🪙 CA:<br>${mintLabel(createdMint)}
           </div>
+          <div id="${evId}" style="color:var(--dim);font-size:11px;padding:2px 0">${gmgnApiKey() ? '⏳ GMGN取得中...' : ''}</div>
           <div class="ev-coin">
             <a href="${dexUrl(createdMint)}" target="_blank">DEX</a>
             <a href="${pumpUrl(createdMint)}" target="_blank">PUMP</a>
@@ -1695,6 +1761,13 @@ async function checkOneWallet(addr, info) {
             <a href="${solscanTx(s.signature)}" target="_blank">TX</a>
           </div>` });
         updateStats();
+        // GMGN情報を非同期で後付け表示
+        if (gmgnApiKey()) {
+          fetchGmgnTokenInfo(createdMint).then(d => {
+            const el = document.getElementById(evId);
+            if (el) el.outerHTML = gmgnInfoHtml(d);
+          });
+        }
       }
 
       const buys = parseTokenBuys(tx);
@@ -1705,6 +1778,7 @@ async function checkOneWallet(addr, info) {
           if (!isPump(b.mint) && !isBagsMint(b.mint) && !isBags(tx)) continue;
           stats.buys++;
           trackCoin(b.mint, 'buy', addr);
+          const buyEvId = `ev-gmgn-buy-${b.mint}-${s.signature.slice(-8)}`;
           addEvent({ html: `
             <div class="ev-meta">
               <span class="badge badge-buy">TOKEN BUY</span>
@@ -1717,6 +1791,7 @@ async function checkOneWallet(addr, info) {
               👛 <span style="cursor:pointer;color:var(--accent)" onclick="copyText('${addr}')">${short(addr)}</span><br>
               🪙 CA:<br>${mintLabel(b.mint)}
             </div>
+            <div id="${buyEvId}" style="color:var(--dim);font-size:11px;padding:2px 0">${gmgnApiKey() ? '⏳ GMGN取得中...' : ''}</div>
             <div class="ev-coin">
               <a href="${dexUrl(b.mint)}" target="_blank">DEX</a>
               ${isPump(b.mint) ? `<a href="${pumpUrl(b.mint)}" target="_blank">PUMP</a>` : ''}
@@ -1724,6 +1799,12 @@ async function checkOneWallet(addr, info) {
               <a href="${solscanTx(s.signature)}" target="_blank">TX</a>
             </div>` });
           updateStats();
+          if (gmgnApiKey()) {
+            fetchGmgnTokenInfo(b.mint).then(d => {
+              const el = document.getElementById(buyEvId);
+              if (el) el.outerHTML = gmgnInfoHtml(d);
+            });
+          }
         }
       }
     }
@@ -1798,6 +1879,13 @@ document.getElementById('heliusKey').addEventListener('input', () => {
   if (v) localStorage.setItem('wr_apikey', v);
 });
 
+const savedGmgnKey = localStorage.getItem('wr_gmgn_key');
+if (savedGmgnKey) document.getElementById('gmgnKey').value = savedGmgnKey;
+document.getElementById('gmgnKey').addEventListener('input', () => {
+  const v = document.getElementById('gmgnKey').value.trim();
+  if (v) localStorage.setItem('wr_gmgn_key', v);
+});
+
 // 保存済みイベントを復元表示
 if (events.length > 0) {
   const list = document.getElementById('events-list');
@@ -1831,7 +1919,7 @@ if (savedKey) {
 let lastScanTime = Date.now();
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') {
-    if (!isRunning && apiKey()) {
+    if (!isRunning) {
       setTimeout(() => toggleMonitor(), 300);
     } else if (isRunning) {
       // タイマーが死んでいれば再起動。awaitしない（二重タイマー防止）
@@ -1854,7 +1942,7 @@ window.addEventListener('focus', () => {
 
 // watchdogタイマー：10秒ごとにスキャンが止まっていないか確認
 setInterval(() => {
-  if (isRunning && apiKey()) {
+  if (isRunning) {
     const now_ms = Date.now();
     const interval = parseInt(document.getElementById('intervalSec').value) * 1000 || 20000;
     if (now_ms - lastScanTime > interval * 3) {
@@ -1873,9 +1961,6 @@ setInterval(() => {
 async function analyzeCA() {
   const ca = document.getElementById('caInput').value.trim();
   if (!ca || ca.length < 43) { alert('正しいCAを入力してください'); return; }
-  const key = apiKey();
-  if (!key) { alert('Helius APIキーを入力してください'); return; }
-
   const btn = document.getElementById('caBtn');
   const result = document.getElementById('ca-result');
   btn.disabled = true; btn.textContent = '...';
