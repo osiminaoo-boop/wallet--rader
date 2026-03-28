@@ -1195,6 +1195,7 @@ async function scanPast30Min(seconds) {
         if (!isPump(b.mint) && !isBagsMint(b.mint) && !isBags(tx)) continue;
         stats.buys++;
         trackCoin(b.mint, 'buy', addr);
+        const buyEvId2 = `ev-gmgn-buy-${b.mint}-${s.signature.slice(-8)}`;
         addEvent({ html: `
           <div class="ev-meta">
             <span class="badge badge-buy">TOKEN BUY</span>
@@ -1209,6 +1210,7 @@ async function scanPast30Min(seconds) {
             🪙 CA:<br>
             ${mintLabel(b.mint)}
           </div>
+          <div id="${buyEvId2}" style="color:var(--dim);font-size:11px;padding:2px 0">${gmgnApiKey() ? '⏳ GMGN取得中...' : ''}</div>
           <div class="ev-coin">
             <a href="${dexUrl(b.mint)}" target="_blank">DEX</a>
             ${isPump(b.mint) ? `<a href="${pumpUrl(b.mint)}" target="_blank">PUMP</a>` : ''}
@@ -1216,6 +1218,12 @@ async function scanPast30Min(seconds) {
             <a href="${solscanTx(s.signature)}" target="_blank">TX</a>
           </div>` });
         updateStats();
+        if (gmgnApiKey()) {
+          fetchGmgnTokenInfo(b.mint).then(d => {
+            const el = document.getElementById(buyEvId2);
+            if (el) el.outerHTML = gmgnInfoHtml(d);
+          });
+        }
       }
       } // end if buys
     }
@@ -1770,6 +1778,7 @@ async function checkOneWallet(addr, info) {
           if (!isPump(b.mint) && !isBagsMint(b.mint) && !isBags(tx)) continue;
           stats.buys++;
           trackCoin(b.mint, 'buy', addr);
+          const buyEvId = `ev-gmgn-buy-${b.mint}-${s.signature.slice(-8)}`;
           addEvent({ html: `
             <div class="ev-meta">
               <span class="badge badge-buy">TOKEN BUY</span>
@@ -1782,6 +1791,7 @@ async function checkOneWallet(addr, info) {
               👛 <span style="cursor:pointer;color:var(--accent)" onclick="copyText('${addr}')">${short(addr)}</span><br>
               🪙 CA:<br>${mintLabel(b.mint)}
             </div>
+            <div id="${buyEvId}" style="color:var(--dim);font-size:11px;padding:2px 0">${gmgnApiKey() ? '⏳ GMGN取得中...' : ''}</div>
             <div class="ev-coin">
               <a href="${dexUrl(b.mint)}" target="_blank">DEX</a>
               ${isPump(b.mint) ? `<a href="${pumpUrl(b.mint)}" target="_blank">PUMP</a>` : ''}
@@ -1789,6 +1799,12 @@ async function checkOneWallet(addr, info) {
               <a href="${solscanTx(s.signature)}" target="_blank">TX</a>
             </div>` });
           updateStats();
+          if (gmgnApiKey()) {
+            fetchGmgnTokenInfo(b.mint).then(d => {
+              const el = document.getElementById(buyEvId);
+              if (el) el.outerHTML = gmgnInfoHtml(d);
+            });
+          }
         }
       }
     }
