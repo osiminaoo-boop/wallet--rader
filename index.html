@@ -641,8 +641,8 @@ async function rpc(method, params) {
     const d = await res.json();
     if (d.error) {
       const msg = (d.error.message || '').toLowerCase();
-      const isKeyError = res.status === 401 || res.status === 403
-        || msg.includes('api key') || msg.includes('unauthorized') || msg.includes('invalid key');
+      const isKeyError = apiKey() && (res.status === 401 || res.status === 403
+        || msg.includes('api key') || msg.includes('unauthorized') || msg.includes('invalid key'));
       if (isKeyError && !_apiKeyErrShown) {
         _apiKeyErrShown = true;
         addEvent({ html: `<div class="ev-meta"><span class="badge" style="background:rgba(255,50,50,.15);color:#ff5050;border:1px solid #ff5050">API KEY ERROR</span><span class="ev-time">${now()}</span></div><div class="ev-title">❌ Helius APIキーが無効です</div><div class="ev-detail" style="color:var(--dim)">有効なAPIキーを入力してください<br><a href="https://dev.helius.xyz" target="_blank">dev.helius.xyz</a> で取得できます</div>` });
@@ -1837,10 +1837,8 @@ renderCreatedList();
 renderRanking();
 updateStats();
 
-// APIキーがあれば自動でSTART
-if (savedKey) {
-  setTimeout(() => toggleMonitor(), 1000);
-}
+// 自動START（前回起動していた場合）
+setTimeout(() => toggleMonitor(), 1000);
 
 // iOSでページが非アクティブ→アクティブになったとき自動再開
 let lastScanTime = Date.now();
