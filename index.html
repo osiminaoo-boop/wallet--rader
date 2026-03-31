@@ -387,6 +387,7 @@ animation:tickerRun 25s linear infinite;
   <select id="scanRange" style="background:#fff;color:var(--text);border:1px solid var(--border);padding:8px 10px;font-family:'Inter',sans-serif;font-size:13px;cursor:pointer;border-radius:6px;outline:none">
     <option value="600">10分</option>
     <option value="1800">30分</option>
+    <option value="18000">5時間</option>
   </select>
   <button class="btn" id="catchupBtn" onclick="manualCatchup()" style="border-color:var(--gold);color:var(--gold)">🔍 SCAN</button>
 </div>
@@ -1014,7 +1015,7 @@ function copyText(text) {
 async function scanPast30Min(seconds) {
   seconds = seconds || 1800;
   const cutoff = Math.floor(Date.now() / 1000) - seconds;
-  const rangeLabel = seconds <= 600 ? '10分' : seconds <= 1800 ? '30分' : '1時間';
+  const rangeLabel = seconds <= 600 ? '10分' : seconds <= 1800 ? '30分' : seconds <= 7200 ? '1時間' : '5時間';
 
   // 手動スキャン時は時間範囲内のprocessedSigsをリセット
   // （バックグラウンドのスロットルスキャンで処理済みになったsigを再チェックするため）
@@ -1032,7 +1033,7 @@ async function scanPast30Min(seconds) {
   const exchSigCounts = {}; // 取引所ごとのsigs取得件数（診断用）
   console.log(`[SCAN] スキャン開始 range=${rangeLabel} cutoff=${new Date(cutoff*1000).toLocaleTimeString()} 取引所=${getExchangeAddrs().map(a=>exchangeWallets[a]?.name).join(',')}`);
   for (const wallet of getExchangeAddrs()) {
-    const maxPages = seconds <= 600 ? 5 : 30; // 10分=5ページ、30分=30ページ（高頻度取引所対応）
+    const maxPages = seconds <= 600 ? 5 : seconds <= 1800 ? 30 : 150; // 10分=5p、30分=30p、5時間=150p
     const sigs = await getSignaturesUntil(wallet, cutoff, maxPages);
     const exchName = exchangeWallets[wallet]?.name || wallet.slice(0, 8);
     exchSigCounts[exchName] = sigs.length;
