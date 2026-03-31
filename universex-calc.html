@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>universeX 損益計算</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
+:root{--bg:#03050a;--panel:#070c18;--border:#0f1f3a;--accent:#00e5ff;--accent2:#ff2d6b;--green:#00ff9d;--gold:#ffb800;--text:#b0c8e8;--dim:#2a3a5a;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono',monospace;min-height:100vh;overflow-x:hidden;}
+body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,229,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.02) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0;}
+.wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:20px;}
+header{padding:16px 0 20px;border-bottom:1px solid var(--border);margin-bottom:24px;}
+.logo{font-family:'Orbitron',monospace;font-size:22px;font-weight:900;letter-spacing:4px;color:var(--accent);text-shadow:0 0 20px rgba(0,229,255,.6);}
+.logo em{color:var(--accent2);font-style:normal;}
+.logo-sub{font-size:9px;color:var(--dim);letter-spacing:3px;margin-top:4px;}
+
+/* input area */
+.input-card{background:var(--panel);border:1px solid var(--border);padding:20px;margin-bottom:16px;position:relative;overflow:hidden;}
+.input-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.4;}
+.input-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+@media(max-width:700px){.input-grid{grid-template-columns:1fr;}}
+.field{display:flex;flex-direction:column;gap:4px;}
+.field label{font-size:9px;color:var(--dim);letter-spacing:2px;}
+.field input{font-family:'Share Tech Mono',monospace;font-size:12px;background:#040810;color:var(--accent);border:1px solid var(--border);padding:10px 12px;outline:none;transition:border .2s;width:100%;}
+.field input:focus{border-color:var(--accent);}
+.field input::placeholder{color:var(--dim);}
+.btn{font-family:'Orbitron',monospace;font-size:11px;font-weight:700;letter-spacing:2px;padding:10px 28px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;transition:all .2s;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);}
+.btn:hover{background:var(--accent);color:var(--bg);box-shadow:0 0 20px rgba(0,229,255,.4);}
+.btn:disabled{opacity:.3;cursor:not-allowed;}
+.note{font-size:9px;color:var(--dim);letter-spacing:1px;margin-top:8px;line-height:1.8;}
+
+/* summary cards */
+.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px;}
+@media(max-width:800px){.summary{grid-template-columns:repeat(2,1fr);}}
+.stat{background:var(--panel);border:1px solid var(--border);padding:16px;text-align:center;}
+.stat-val{font-family:'Orbitron',monospace;font-size:18px;font-weight:700;color:var(--accent);margin-bottom:4px;}
+.stat-val.green{color:var(--green);}
+.stat-val.red{color:var(--accent2);}
+.stat-val.gold{color:var(--gold);}
+.stat-lbl{font-size:9px;color:var(--dim);letter-spacing:1px;}
+
+/* table */
+.tbl-wrap{background:var(--panel);border:1px solid var(--border);overflow:hidden;}
+.tbl-head{padding:10px 16px;border-bottom:1px solid var(--border);font-family:'Orbitron',monospace;font-size:9px;letter-spacing:2px;color:var(--accent);display:flex;justify-content:space-between;align-items:center;}
+table{width:100%;border-collapse:collapse;}
+th{font-size:9px;color:var(--dim);letter-spacing:1px;padding:8px 12px;border-bottom:1px solid var(--border);text-align:left;font-weight:normal;}
+td{font-size:11px;padding:8px 12px;border-bottom:1px solid #080f1e;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(0,229,255,.03);}
+.badge{display:inline-block;padding:2px 8px;font-size:9px;letter-spacing:1px;}
+.badge.buy{background:rgba(0,255,157,.1);color:var(--green);border:1px solid rgba(0,255,157,.3);}
+.badge.sell{background:rgba(255,45,107,.1);color:var(--accent2);border:1px solid rgba(255,45,107,.3);}
+.tx-link{color:var(--dim);font-size:9px;text-decoration:none;}
+.tx-link:hover{color:var(--accent);}
+.positive{color:var(--green);}
+.negative{color:var(--accent2);}
+
+/* status */
+.status{font-size:10px;letter-spacing:1px;padding:10px 16px;border-top:1px solid var(--border);}
+.status.info{color:var(--dim);}
+.status.ok{color:var(--green);}
+.status.err{color:var(--accent2);}
+#progress{height:2px;background:var(--border);}
+#prog-fill{height:100%;width:0;background:var(--accent);transition:width .4s;box-shadow:0 0 6px var(--accent);}
+.hidden{display:none;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">UNIVERSE<em>X</em> <em>CALC</em></div>
+    <div class="logo-sub">SOLANA · EARNINGS CALCULATOR · SOLSCAN</div>
+  </header>
+
+  <div class="input-card">
+    <div class="input-grid">
+      <div class="field">
+        <label>YOUR WALLET ADDRESS</label>
+        <input id="wallet" type="text" placeholder="Solanaウォレットアドレスを貼り付け" />
+      </div>
+      <div class="field">
+        <label>TOKEN CA (CONTRACT ADDRESS)</label>
+        <input id="ca" type="text" placeholder="コインのCAを貼り付け" />
+      </div>
+      <div class="field">
+        <label>SOLSCAN API KEY (推奨・なくても動く)</label>
+        <input id="apikey" type="text" placeholder="Solscan Pro APIキー（任意）" />
+      </div>
+      <div class="field" style="justify-content:flex-end;">
+        <label>&nbsp;</label>
+        <button class="btn" id="calcBtn" onclick="startCalc()">▶ CALCULATE</button>
+      </div>
+    </div>
+    <div class="note">
+      ※ universeXは中間ウォレット経由でトレードするためGMGNに表示されません。Solscanで直接トークン移動を取得して計算します。<br>
+      ※ API Keyなし = Solscan公開API（レート制限あり）　　API Keyあり = Pro API（高精度・大量取得可）
+    </div>
+  </div>
+
+  <div id="summary" class="summary hidden">
+    <div class="stat">
+      <div class="stat-val gold" id="s-invested">—</div>
+      <div class="stat-lbl">TOTAL INVESTED (SOL)</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" id="s-received">—</div>
+      <div class="stat-lbl">TOTAL RECEIVED (SOL)</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" id="s-holding">—</div>
+      <div class="stat-lbl">HOLDING VALUE (SOL)</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" id="s-pnl">—</div>
+      <div class="stat-lbl">TOTAL P&amp;L (SOL)</div>
+    </div>
+  </div>
+
+  <div id="tbl-wrap" class="tbl-wrap hidden">
+    <div class="tbl-head">
+      <span>TRANSACTION HISTORY</span>
+      <span id="tx-count" style="color:var(--dim);font-size:9px;"></span>
+    </div>
+    <div id="progress"><div id="prog-fill"></div></div>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>DATE</th>
+            <th>TYPE</th>
+            <th>TOKEN AMOUNT</th>
+            <th>SOL (推定)</th>
+            <th>TX</th>
+          </tr>
+        </thead>
+        <tbody id="tx-body"></tbody>
+      </table>
+    </div>
+    <div class="status info" id="status-bar">待機中...</div>
+  </div>
+</div>
+
+<script>
+const SOL_MINT = 'So11111111111111111111111111111111111111112';
+const WSOL_MINT = 'So11111111111111111111111111111111111111112';
+const USDC_MINT = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
+const LAMPORTS = 1e9;
+
+let txRows = [];
+
+function setStatus(msg, type='info') {
+  const el = document.getElementById('status-bar');
+  el.textContent = msg;
+  el.className = 'status ' + type;
+}
+function setProgress(pct) {
+  document.getElementById('prog-fill').style.width = pct + '%';
+}
+
+async function fetchJSON(url, headers={}) {
+  const r = await fetch(url, { headers });
+  if (!r.ok) throw new Error(`HTTP ${r.status}: ${url}`);
+  return r.json();
+}
+
+// Solscan public API: get token transfers for a wallet+mint
+async function getTokenTransfers(wallet, mint, apiKey) {
+  const rows = [];
+  const pageSize = 100;
+  let offset = 0;
+  let total = Infinity;
+  const headers = apiKey ? { 'token': apiKey } : {};
+
+  if (apiKey) {
+    // Pro API v2
+    let page = 1;
+    while (true) {
+      setStatus(`トランザクション取得中... (${rows.length}件)`, 'info');
+      const url = `https://pro-api.solscan.io/v2.0/account/transfer?address=${wallet}&token=${mint}&page=${page}&page_size=${pageSize}&sort_by=block_time&sort_order=desc`;
+      let data;
+      try { data = await fetchJSON(url, headers); } catch(e) { break; }
+      const items = data?.data || [];
+      if (!items.length) break;
+      rows.push(...items);
+      if (items.length < pageSize) break;
+      page++;
+      if (rows.length >= 1000) break;
+      await sleep(150);
+    }
+  } else {
+    // Public API
+    while (rows.length < total) {
+      setStatus(`トランザクション取得中... (${rows.length}件)`, 'info');
+      const url = `https://public-api.solscan.io/account/token/txs?account=${wallet}&token_address=${mint}&offset=${offset}&limit=${pageSize}`;
+      let data;
+      try { data = await fetchJSON(url); } catch(e) { break; }
+      const items = Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []);
+      if (!items.length) break;
+      rows.push(...items);
+      total = data?.total ?? items.length;
+      offset += items.length;
+      if (items.length < pageSize) break;
+      await sleep(300);
+    }
+  }
+  return rows;
+}
+
+// Get tx details for SOL amount estimation
+async function getTxDetail(sig, apiKey) {
+  const headers = apiKey ? { 'token': apiKey } : {};
+  try {
+    if (apiKey) {
+      const url = `https://pro-api.solscan.io/v2.0/transaction/detail?tx=${sig}`;
+      return await fetchJSON(url, headers);
+    } else {
+      const url = `https://public-api.solscan.io/transaction/${sig}`;
+      return await fetchJSON(url);
+    }
+  } catch(e) { return null; }
+}
+
+// Get current token price via Jupiter
+async function getTokenPrice(mint) {
+  try {
+    const url = `https://price.jup.ag/v6/price?ids=${mint}&vsToken=SOL`;
+    const d = await fetchJSON(url);
+    return d?.data?.[mint]?.price ?? null;
+  } catch(e) {}
+  try {
+    const url = `https://price.jup.ag/v4/price?ids=${mint}`;
+    const d = await fetchJSON(url);
+    const usdPrice = d?.data?.[mint]?.price ?? null;
+    if (!usdPrice) return null;
+    const solUrl = `https://price.jup.ag/v4/price?ids=SOL`;
+    const solD = await fetchJSON(solUrl);
+    const solUsd = solD?.data?.SOL?.price ?? null;
+    return solUsd ? usdPrice / solUsd : null;
+  } catch(e) { return null; }
+}
+
+// Get current token balance in wallet
+async function getTokenBalance(wallet, mint, apiKey) {
+  try {
+    const headers = apiKey ? { 'token': apiKey } : {};
+    if (apiKey) {
+      const url = `https://pro-api.solscan.io/v2.0/account/token-accounts?address=${wallet}&token=${mint}`;
+      const d = await fetchJSON(url, headers);
+      const acc = d?.data?.[0];
+      if (acc) return parseFloat(acc.amount) / Math.pow(10, acc.decimals ?? 6);
+    }
+    const url = `https://public-api.solscan.io/account/tokens?account=${wallet}`;
+    const d = await fetchJSON(url);
+    const found = (d || []).find(t => t.tokenAddress === mint);
+    if (found) return parseFloat(found.tokenAmount?.uiAmountString ?? found.tokenAmount?.uiAmount ?? 0);
+  } catch(e) {}
+  return 0;
+}
+
+// Parse a transfer row (public API format)
+function parsePublicTransfer(row, wallet, mint) {
+  const sig = row.signature || row.txHash || '';
+  const time = row.blockTime || row.block_time || 0;
+  // changeType: inc = received, dec = sent
+  const isReceive = (row.changeType === 'inc') || (row.change > 0) || (row.direction === 'in');
+  const isSend = (row.changeType === 'dec') || (row.change < 0) || (row.direction === 'out');
+  const rawAmount = Math.abs(parseFloat(row.changeAmount || row.amount || 0));
+  const decimals = row.decimals ?? 6;
+  const tokenAmount = rawAmount / Math.pow(10, decimals);
+  return { sig, time, isBuy: isReceive, isSell: isSend, tokenAmount };
+}
+
+// Parse a transfer row (pro API v2 format)
+function parseProTransfer(row, wallet, mint) {
+  const sig = row.trans_id || row.signature || '';
+  const time = row.block_time || 0;
+  const isBuy = row.to_address === wallet || row.flow === 'in';
+  const isSell = row.from_address === wallet || row.flow === 'out';
+  const rawAmount = parseFloat(row.amount || 0);
+  const decimals = row.token_decimals ?? 6;
+  const tokenAmount = rawAmount / Math.pow(10, decimals);
+  return { sig, time, isBuy, isSell, tokenAmount };
+}
+
+// Extract SOL amount from tx detail
+function extractSolFromTx(txDetail, wallet) {
+  try {
+    // Pro API v2 format
+    if (txDetail?.parsed_info) {
+      // Look in balance changes
+      const changes = txDetail.parsed_info?.account_keys ?? [];
+      for (const c of changes) {
+        if (c.pubkey === wallet) {
+          const diff = (c.post_balance ?? 0) - (c.pre_balance ?? 0);
+          if (Math.abs(diff) > 5000) return Math.abs(diff) / LAMPORTS;
+        }
+      }
+    }
+    // Public API format
+    if (txDetail?.mainActions) {
+      for (const a of txDetail.mainActions) {
+        if (a.data?.amount && (a.type === 'sol-transfer' || a.type === 'SWAP')) {
+          return parseFloat(a.data.amount) / LAMPORTS;
+        }
+      }
+    }
+    if (txDetail?.balanceChange) {
+      for (const [addr, change] of Object.entries(txDetail.balanceChange)) {
+        if (addr === wallet && Math.abs(change) > 5000) {
+          return Math.abs(change) / LAMPORTS;
+        }
+      }
+    }
+    // soltransfer array
+    const txs = txDetail?.tokenTransfers ?? [];
+    for (const t of txs) {
+      if ((t.source === wallet || t.destination === wallet) && t.mint === WSOL_MINT) {
+        return parseFloat(t.tokenAmount ?? 0);
+      }
+    }
+  } catch(e) {}
+  return null;
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function fmtDate(unix) {
+  if (!unix) return '—';
+  return new Date(unix * 1000).toLocaleString('ja-JP', {month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+}
+function fmtNum(n, dec=4) {
+  if (n == null || isNaN(n)) return '—';
+  return n.toFixed(dec);
+}
+function fmtToken(n) {
+  if (!n) return '—';
+  if (n >= 1e9) return (n/1e9).toFixed(2)+'B';
+  if (n >= 1e6) return (n/1e6).toFixed(2)+'M';
+  if (n >= 1e3) return (n/1e3).toFixed(2)+'K';
+  return n.toFixed(2);
+}
+
+async function startCalc() {
+  const wallet = document.getElementById('wallet').value.trim();
+  const ca = document.getElementById('ca').value.trim();
+  const apiKey = document.getElementById('apikey').value.trim();
+
+  if (!wallet || !ca) { alert('ウォレットアドレスとCAを入力してください'); return; }
+
+  document.getElementById('calcBtn').disabled = true;
+  document.getElementById('summary').classList.remove('hidden');
+  document.getElementById('tbl-wrap').classList.remove('hidden');
+  document.getElementById('tx-body').innerHTML = '';
+  setProgress(5);
+
+  try {
+    setStatus('Solscanからデータ取得中...', 'info');
+    const rawRows = await getTokenTransfers(wallet, ca, apiKey);
+    setProgress(40);
+    setStatus(`${rawRows.length}件のトランザクション取得完了。SOL金額を解析中...`, 'info');
+
+    txRows = [];
+    let done = 0;
+    const batchSize = apiKey ? 10 : 5;
+
+    for (let i = 0; i < rawRows.length; i += batchSize) {
+      const batch = rawRows.slice(i, i + batchSize);
+      await Promise.all(batch.map(async (row) => {
+        const parsed = apiKey ? parseProTransfer(row, wallet, ca) : parsePublicTransfer(row, wallet, ca);
+        if (!parsed.sig) return;
+
+        // Try to get SOL amount from transaction detail
+        let solAmount = null;
+        const txDetail = await getTxDetail(parsed.sig, apiKey);
+        if (txDetail) solAmount = extractSolFromTx(txDetail, wallet);
+
+        txRows.push({ ...parsed, solAmount });
+        done++;
+      }));
+      setProgress(40 + Math.round((done / rawRows.length) * 40));
+      await sleep(apiKey ? 100 : 400);
+    }
+
+    // Sort by time desc
+    txRows.sort((a,b) => b.time - a.time);
+
+    // Get current balance and price
+    setStatus('現在の残高・価格を取得中...', 'info');
+    setProgress(85);
+    const [holding, priceInSol] = await Promise.all([
+      getTokenBalance(wallet, ca, apiKey),
+      getTokenPrice(ca)
+    ]);
+    setProgress(95);
+
+    // Calculate P&L
+    let totalInvested = 0;  // SOL spent buying
+    let totalReceived = 0;  // SOL received selling
+    let totalBought = 0;    // tokens bought
+    let totalSold = 0;      // tokens sold
+
+    for (const r of txRows) {
+      if (r.isBuy) {
+        totalBought += r.tokenAmount;
+        if (r.solAmount) totalInvested += r.solAmount;
+      } else if (r.isSell) {
+        totalSold += r.tokenAmount;
+        if (r.solAmount) totalReceived += r.solAmount;
+      }
+    }
+
+    const holdingValueSol = priceInSol ? holding * priceInSol : null;
+    const pnl = holdingValueSol != null
+      ? (totalReceived + holdingValueSol) - totalInvested
+      : totalReceived - totalInvested;
+
+    // Update summary
+    document.getElementById('s-invested').textContent = fmtNum(totalInvested) + ' SOL';
+    document.getElementById('s-received').textContent = fmtNum(totalReceived) + ' SOL';
+    document.getElementById('s-holding').textContent = holdingValueSol != null ? fmtNum(holdingValueSol) + ' SOL' : (fmtToken(holding) + ' tokens');
+
+    const pnlEl = document.getElementById('s-pnl');
+    pnlEl.textContent = (pnl >= 0 ? '+' : '') + fmtNum(pnl) + ' SOL';
+    pnlEl.className = 'stat-val ' + (pnl >= 0 ? 'green' : 'red');
+
+    // Render table
+    const tbody = document.getElementById('tx-body');
+    tbody.innerHTML = '';
+    for (const r of txRows) {
+      if (!r.isBuy && !r.isSell) continue;
+      const tr = document.createElement('tr');
+      const type = r.isBuy ? '<span class="badge buy">BUY</span>' : '<span class="badge sell">SELL</span>';
+      const solStr = r.solAmount ? `<span class="${r.isSell?'positive':'negative'}">${r.isBuy?'-':'+'}${fmtNum(r.solAmount)} SOL</span>` : '<span style="color:var(--dim)">—</span>';
+      tr.innerHTML = `
+        <td>${fmtDate(r.time)}</td>
+        <td>${type}</td>
+        <td>${fmtToken(r.tokenAmount)}</td>
+        <td>${solStr}</td>
+        <td><a class="tx-link" href="https://solscan.io/tx/${r.sig}" target="_blank">${r.sig.slice(0,8)}...${r.sig.slice(-4)}</a></td>
+      `;
+      tbody.appendChild(tr);
+    }
+
+    document.getElementById('tx-count').textContent = `${txRows.filter(r=>r.isBuy||r.isSell).length} TX`;
+    setProgress(100);
+    setStatus(`完了！ ${txRows.length}件処理。SOL金額が"—"のTXはSolscan詳細が取得できませんでした。`, 'ok');
+
+  } catch(e) {
+    setStatus('エラー: ' + e.message, 'err');
+    console.error(e);
+  } finally {
+    document.getElementById('calcBtn').disabled = false;
+  }
+}
+
+// Enter key support
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') startCalc();
+});
+</script>
+</body>
+</html>
