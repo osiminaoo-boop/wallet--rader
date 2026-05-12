@@ -452,10 +452,9 @@ export default function RankingPage() {
     }
   }, []);
 
-  // On mount: refresh prices first (updates peakMcap), then load
   useEffect(() => {
-    refreshPrices();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    loadData();
+  }, [loadData]);
 
   return (
     <>
