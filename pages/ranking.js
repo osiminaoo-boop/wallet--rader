@@ -339,11 +339,11 @@ function CoinList({ coins }) {
               <th style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)" }}>#</th>
               <th style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)" }}>コイン</th>
               <th style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)" }}>紹介者</th>
-              <th style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)", textAlign: "right" }}>登録時価格</th>
-              <th style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)", textAlign: "right" }}>現在価格</th>
-              <th style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)", textAlign: "right" }}>価格変化</th>
-              <th style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)", textAlign: "right" }}>時価総額変化</th>
-              <th style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)", textAlign: "right" }}>スコア</th>
+              <th style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)", textAlign: "right" }}>登録時 時価総額</th>
+              <th style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)", textAlign: "right" }}>最高 時価総額 (ATH)</th>
+              <th style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)" }}>ATH 達成日時</th>
+              <th style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)", textAlign: "right" }}>現在 時価総額</th>
+              <th style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)", textAlign: "right" }}>スコア (ATH上昇率)</th>
               <th style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)" }}>登録日時</th>
             </tr>
           </thead>
@@ -374,16 +374,18 @@ function CoinList({ coins }) {
                   {coin.submitter}
                 </td>
                 <td style={{ padding: "12px 16px", textAlign: "right", fontFamily: "'JetBrains Mono', monospace", color: "var(--dim)", fontSize: 12 }}>
-                  ${fmtPrice(coin.registeredPrice)}
+                  {fmtMcap(coin.registeredMcap)}
+                </td>
+                <td style={{ padding: "12px 16px", textAlign: "right" }}>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", color: "var(--yellow)", fontWeight: 700, fontSize: 12 }}>
+                    {fmtMcap(coin.peakMcap)}
+                  </span>
+                </td>
+                <td style={{ padding: "12px 16px", color: "var(--dim)", fontSize: 11, whiteSpace: "nowrap" }}>
+                  {fmtDate(coin.peakMcapAt)}
                 </td>
                 <td style={{ padding: "12px 16px", textAlign: "right", fontFamily: "'JetBrains Mono', monospace", color: "var(--text)", fontSize: 12 }}>
-                  ${fmtPrice(coin.currentPrice)}
-                </td>
-                <td style={{ padding: "12px 16px", textAlign: "right" }}>
-                  <PctBadge value={coin.priceChange} />
-                </td>
-                <td style={{ padding: "12px 16px", textAlign: "right" }}>
-                  <PctBadge value={coin.mcapChange} />
+                  {fmtMcap(coin.currentMcap)}
                 </td>
                 <td style={{ padding: "12px 16px", textAlign: "right" }}>
                   <ScoreBadge score={coin.score} />
@@ -450,9 +452,10 @@ export default function RankingPage() {
     }
   }, []);
 
+  // On mount: refresh prices first (updates peakMcap), then load
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    refreshPrices();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>
@@ -484,7 +487,7 @@ export default function RankingPage() {
                   Solana Meme Coin Ranking
                 </h1>
                 <p style={{ fontSize: 13, color: "var(--dim)", marginTop: 2 }}>
-                  コインを登録して、センスを競おう · スコア = (価格変化 + 時価総額変化) ÷ 2
+                  コインを登録して、センスを競おう · スコア = 登録時からの最高時価総額（ATH）上昇率
                 </p>
               </div>
             </div>
@@ -568,7 +571,7 @@ export default function RankingPage() {
         )}
 
         <footer style={{ marginTop: 60, textAlign: "center", fontSize: 12, color: "var(--dim)" }}>
-          価格データ: DexScreener API · スコア = (価格変化% + 時価総額変化%) ÷ 2
+          価格データ: DexScreener API · スコア = (登録時からの最高時価総額 - 登録時時価総額) ÷ 登録時時価総額 × 100
         </footer>
       </div>
     </>
